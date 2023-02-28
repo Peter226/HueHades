@@ -1,0 +1,23 @@
+
+#pragma kernel CSMain
+
+int4 SrcDstDim; //Source and Destination texture dimensions
+int2 DstXY; //Destination target offset
+int4 SrcRect; //Source target offset and dimensions
+int4 TileSrcXYDstXY; //Source and Destination tile modes
+Texture2D<float4> Input;
+RWTexture2D<float4> Result;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    int2 srcID = SrcRect.xy + id.xy;
+    int2 dstID = DstXY + id;
+    
+    int2 zero = int2(0,0);
+    if(all(
+            ((srcID < SrcDstDim.xy && srcID >= zero) || TileSrcXYDstXY.xy) &&
+            ((dstID < SrcDstDim.zw && dstID >= zero) || TileSrcXYDstXY.zw) &&
+            srcID < SrcRect.zw
+        )) Result[dstID % SrcDstDim.zw] = Input[srcID % SrcDstDim.xy];
+}

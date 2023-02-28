@@ -1,0 +1,16 @@
+{
+    "name": "HueHades.Utilities",
+    "rootNamespace": "",
+    "references": [
+        "GUID:6bee0c35f3f1e9a47beb7a9c2b7f2412"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

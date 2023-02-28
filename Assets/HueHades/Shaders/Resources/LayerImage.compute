@@ -1,0 +1,47 @@
+
+#pragma kernel NormalBlend;
+#pragma kernel MultiplyBlend
+#pragma kernel AddBlend
+#pragma kernel SubtractBlend;
+
+Texture2D<float4> BottomLayer;
+Texture2D<float4> TopLayer;
+RWTexture2D<float4> Result;
+
+[numthreads(8,8,1)]
+void NormalBlend (uint3 id : SV_DispatchThreadID)
+{
+    float4 top = TopLayer[id.xy];
+    float4 bottom = BottomLayer[id.xy];
+    Result[id.xy] = bottom * (1.0 - top.a) + float4(top.rgb * top.a, top.a);
+}
+
+[numthreads(8,8,1)]
+void MultiplyBlend (uint3 id : SV_DispatchThreadID)
+{
+    float4 top = TopLayer[id.xy];
+    float4 bottom = BottomLayer[id.xy];
+    float4 bottomProp = bottom * (1.0 - top.a);
+    float4 topProp = top * top.a;
+    Result[id.xy] = float4(bottomProp.rgb * topProp.rgb,bottomProp.a + top.a);
+}
+
+[numthreads(8,8,1)]
+void AddBlend (uint3 id : SV_DispatchThreadID)
+{
+    float4 top = TopLayer[id.xy];
+    float4 bottom = BottomLayer[id.xy];
+    float4 bottomProp = bottom * (1.0 - top.a);
+    float4 topProp = top * top.a;
+    Result[id.xy] = min(1.0,float4(bottom.rgb + top.rgb,bottomProp.a + top.a));
+}
+
+    [numthreads(8,8,1)]
+void SubtractBlend (uint3 id : SV_DispatchThreadID)
+{
+    float4 top = TopLayer[id.xy];
+    float4 bottom = BottomLayer[id.xy];
+    float4 bottomProp = bottom * (1.0 - top.a);
+    float4 topProp = top * top.a;
+    Result[id.xy] = max(0.0,float4(bottom.rgb - top.rgb,bottomProp.a + top.a));
+}

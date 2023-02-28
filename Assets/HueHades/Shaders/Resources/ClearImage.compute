@@ -1,0 +1,10 @@
+#pragma kernel CSMain
+
+float4 ClearColor;
+RWTexture2D<float4> Result;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    Result[id.xy] = ClearColor;
+}

@@ -1,0 +1,18 @@
+{
+    "name": "HueHades.Core",
+    "rootNamespace": "",
+    "references": [
+        "GUID:d8b63aba1907145bea998dd612889d6b",
+        "GUID:6bee0c35f3f1e9a47beb7a9c2b7f2412",
+        "GUID:726e3f7fc1d92f54f895c59b7a25b975"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
