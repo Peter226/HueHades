@@ -8,11 +8,12 @@ namespace HueHades.UI
     public class DockableWindow : HueHadesElement
     {
 
-        private DockingWindow _dockedIn;
+        private DockingWindow.DockHandle _dockedIn;
+        private const string ussDockableWindow = "dockable-window";
 
         public DockableWindow(HueHadesWindow window) : base(window)
         {
-            
+            AddToClassList(ussDockableWindow);
         }
 
         public virtual string GetWindowName()
@@ -22,18 +23,26 @@ namespace HueHades.UI
 
         public void UnDock()
         {
-            _dockedIn.UnDockWindow(this);
+            _dockedIn.DockingWindow.UnDockWindow(this);
+            _dockedIn = null;
         }
 
-        public void Dock(DockingWindow dockIn)
+        public void Dock(DockingWindow.DockHandle dockIn)
         {
             if (_dockedIn != null)
             {
                 UnDock();
             }
-            _dockedIn = dockIn;
-            dockIn.DockWindow(this);
-
+            _dockedIn = dockIn.DockingWindow.DockWindow(this);
         }
+        public void Dock(DockingWindow.DockHandle dockIn, DockType dockType, int headerIndex = -1)
+        {
+            if (_dockedIn != null)
+            {
+                UnDock();
+            }
+            _dockedIn = dockIn.DockingWindow.DockWindow(this, dockType, headerIndex);
+        }
+
     }
 }

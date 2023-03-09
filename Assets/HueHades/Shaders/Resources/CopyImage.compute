@@ -12,12 +12,12 @@ RWTexture2D<float4> Result;
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
     int2 srcID = SrcRect.xy + id.xy;
-    int2 dstID = DstXY + id;
+    int2 dstID = DstXY + id.xy;
     
     int2 zero = int2(0,0);
     if(all(
             ((srcID < SrcDstDim.xy && srcID >= zero) || TileSrcXYDstXY.xy) &&
             ((dstID < SrcDstDim.zw && dstID >= zero) || TileSrcXYDstXY.zw) &&
-            srcID < SrcRect.zw
+            id.xy < SrcRect.zw
         )) Result[dstID % SrcDstDim.zw] = Input[srcID % SrcDstDim.xy];
 }

@@ -1,0 +1,45 @@
+.tool-window {
+    flex-grow: 1;
+    flex-wrap: wrap;
+}
+
+.tool-button {
+    width: 20px;
+    height: 20px;
+    background-color: rgb(255, 0, 0);
+    border-left-color: rgb(115, 43, 43);
+    border-right-color: rgb(115, 43, 43);
+    border-top-color: rgb(115, 43, 43);
+    border-bottom-color: rgb(115, 43, 43);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    margin-left: 6px;
+    margin-right: 6px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    flex-shrink: 0;
+}
+
+.tool-button-selected {
+    width: 20px;
+    height: 20px;
+    background-color: rgb(5, 255, 0);
+    border-left-color: rgb(45, 115, 43);
+    border-right-color: rgb(45, 115, 43);
+    border-top-color: rgb(45, 115, 43);
+    border-bottom-color: rgb(45, 115, 43);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    margin-left: 6px;
+    margin-right: 6px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    flex-shrink: 0;
+}
+
+VisualElement {
+}

@@ -14,7 +14,7 @@ public class MainUI : MonoBehaviour
 {
     private UIDocument _uIDocument;
     private HueHadesWindow _window;
-    public int2 initialCanvasDimensions = new int2(1000, 750);
+    public int2 initialCanvasDimensions = new int2(3508, 2480);
 
     private void Awake()
     {
@@ -30,9 +30,6 @@ public class MainUI : MonoBehaviour
     {
         _uIDocument = GetComponent<UIDocument>();
         _window = _uIDocument.rootVisualElement.Q<HueHadesWindow>();
-        ApplicationManager.Instance.CreateCanvas(initialCanvasDimensions, Color.white, RenderTextureFormat.ARGBFloat);
-        ApplicationManager.Instance.CreateCanvas(initialCanvasDimensions, Color.white, RenderTextureFormat.ARGBFloat);
-        ApplicationManager.Instance.CreateCanvas(initialCanvasDimensions, Color.white, RenderTextureFormat.ARGBFloat);
         ApplicationManager.Instance.CreateCanvas(initialCanvasDimensions, Color.white, RenderTextureFormat.ARGBFloat);
     }
 }
@@ -139,6 +136,24 @@ public enum OverlayPlacement
 public class HueHadesWindow : VisualElement
 {
     VisualElement _popupElement;
+    VisualElement _freeDockElement;
+    private ToolsWindow _toolsWindow;
+    public ToolsWindow ToolsWindow { get { return _toolsWindow; } }
+
+
+    public VisualElement FreeDockElement
+    {
+        get
+        {
+            if (_freeDockElement == null)
+            {
+                _freeDockElement = this.Q<VisualElement>("FreeDock");
+            }
+            return _freeDockElement;
+        }
+    }
+
+
     private Dictionary<ImageCanvas, ImageOperatingWindow> _operatingWindows = new Dictionary<ImageCanvas, ImageOperatingWindow>();
     private DockingWindow _dockingWindow;
 
@@ -160,7 +175,14 @@ public class HueHadesWindow : VisualElement
     private void OnCanvasCreated(object sender, ApplicationManager.CanvasChangeEventArgs args)
     {
         ImageOperatingWindow imageOperatingWindow = new ImageOperatingWindow(this, args.Canvas);
-        imageOperatingWindow.Dock(_dockingWindow);
+        imageOperatingWindow.Dock(_dockingWindow.Handle);
+
+        if (_toolsWindow == null)
+        {
+            _toolsWindow = new ToolsWindow(this);
+            _toolsWindow.Dock(_dockingWindow.Handle, DockType.Left);
+        }
+
     }
 
 

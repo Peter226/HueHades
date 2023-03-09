@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using HueHades.Core;
+using HueHades.Utilities;
 
 public class ApplicationManager : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class ApplicationManager : MonoBehaviour
 
     private void Awake()
     {
+        RenderTextureUtilities.InitializePool();
         Instance = this;
     }
 

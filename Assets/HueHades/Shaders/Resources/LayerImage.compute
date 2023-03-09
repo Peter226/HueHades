@@ -22,8 +22,7 @@ void MultiplyBlend (uint3 id : SV_DispatchThreadID)
     float4 top = TopLayer[id.xy];
     float4 bottom = BottomLayer[id.xy];
     float4 bottomProp = bottom * (1.0 - top.a);
-    float4 topProp = top * top.a;
-    Result[id.xy] = float4(bottomProp.rgb * topProp.rgb,bottomProp.a + top.a);
+    Result[id.xy] = float4(bottom.rgb * lerp(1, top.rgb, top.a),min(1,bottomProp.a + top.a));
 }
 
 [numthreads(8,8,1)]

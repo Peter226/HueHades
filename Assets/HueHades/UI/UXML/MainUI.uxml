@@ -1,9 +1,11 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/HueHades/UI/USS/MainUI.uss?fileID=7433441132597879392&amp;guid=b2d56552d98368c498fa38011555e859&amp;type=3#MainUI" />
+    <Style src="project://database/Assets/HueHades/UI/USS/Tools.uss?fileID=7433441132597879392&amp;guid=6cd9a65ff9fd51c4fbab332273e2db36&amp;type=3#Tools" />
     <HueHadesWindow class="main-window" style="flex-grow: 1;">
-        <ui:VisualElement name="FooterInfo" class="footer-info">
+        <ui:VisualElement name="FooterInfo" class="footer-info" style="flex-shrink: 0;">
             <ui:Label tabindex="-1" text="Label" display-tooltip-when-elided="true" />
         </ui:VisualElement>
+        <ui:VisualElement name="FreeDock" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); position: absolute;" />
         <ui:VisualElement name="PopupWindows" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); position: absolute;" />
         <ui:VisualElement name="PopupOverlays" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); position: absolute; bottom: auto; top: auto; left: auto; right: auto;" />
     </HueHadesWindow>

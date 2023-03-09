@@ -99,16 +99,8 @@
     -unity-text-align: upper-left;
 }
 
-.operating-window {
-    flex-grow: 1;
-    background-color: rgb(0, 0, 0);
-    flex-direction: row;
-    flex-basis: auto;
-    overflow: hidden;
-}
-
 .docking-window-header-bar {
-    border-top-width: 2px;
+    border-top-width: 1px;
     border-right-width: 1px;
     border-left-width: 1px;
     border-bottom-width: 1px;
@@ -240,4 +232,36 @@
 }
 
 .docking-window {
+    border-left-color: rgba(32, 32, 32, 0);
+    border-right-color: rgba(32, 32, 32, 0);
+    border-top-color: rgba(32, 32, 32, 0);
+    border-bottom-color: rgba(32, 32, 32, 0);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+}
+
+.docking-window-split {
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+}
+
+.dockable-window {
+    flex-grow: 1;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    background-color: rgb(32, 32, 32);
+    flex-shrink: 1;
+}
+
+.operating-window {
+    flex-grow: 1;
+    background-color: rgb(0, 0, 0);
+    flex-direction: row;
+    flex-basis: auto;
+    overflow: hidden;
+    flex-shrink: 1;
 }
