@@ -14,6 +14,7 @@ namespace HueHades.Utilities
         public static ComputeShader CopyImageShader;
         public static ComputeShader ClearImageShader;
         public static ComputeShader LayerImageShader;
+        public static ComputeShader LayerImageAreaShader;
 
         private static int CopyShaderKernel;
         private static int InputPropertyID;
@@ -32,8 +33,14 @@ namespace HueHades.Utilities
         private static int BlendAddKernel;
         private static int BlendMultiplyKernel;
         private static int BlendSubtractKernel;
+
         private static int TopLayerPropertyID;
         private static int BottomLayerPropertyID;
+
+        private static int BlendAreaNormalKernel;
+        private static int BlendAreaAddKernel;
+        private static int BlendAreaMultiplyKernel;
+        private static int BlendAreaSubtractKernel;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void Initialize()
@@ -58,6 +65,13 @@ namespace HueHades.Utilities
             BlendSubtractKernel = LayerImageShader.FindKernel("SubtractBlend");
             TopLayerPropertyID = Shader.PropertyToID("TopLayer");
             BottomLayerPropertyID = Shader.PropertyToID("BottomLayer");
+
+            LayerImageAreaShader = Resources.Load<ComputeShader>("LayerImageArea");
+
+            BlendAreaNormalKernel = LayerImageAreaShader.FindKernel("NormalBlend");
+            BlendAreaAddKernel = LayerImageAreaShader.FindKernel("AddBlend");
+            BlendAreaMultiplyKernel = LayerImageAreaShader.FindKernel("MultiplyBlend");
+            BlendAreaSubtractKernel = LayerImageAreaShader.FindKernel("SubtractBlend");
 
         }
 
@@ -117,21 +131,58 @@ namespace HueHades.Utilities
         {
             CopyTexture(from, 0, 0, from.width, from.height, to, destinationX, destinationY, destinationTileMode, sourceTileMode);
         }
+
+        private static int Mod(int num, int mod) {
+
+            var m = num % mod;
+            return m < 0 ? m + mod : m;
+        }
+        private static void ClampSourceToTile(ref int indexToClamp, int maxLength, ref int length, int tile, ref int destination)
+        {
+            if (tile != byte.MinValue)
+            {
+                indexToClamp = Mod(indexToClamp, maxLength);
+            }
+            else
+            {
+                if (indexToClamp < 0)
+                {
+                    length += indexToClamp;
+                    destination -= indexToClamp;
+                    if (length < 0) length = 0;
+                    indexToClamp = 0;
+                }
+            }
+        }
+        private static void ClampDestinationToTile(ref int indexToClamp, int maxLength, ref int length, int tile, ref int source)
+        {
+            if (tile != byte.MinValue)
+            {
+                indexToClamp = Mod(indexToClamp, maxLength);
+            }
+            else
+            {
+                if (indexToClamp < 0)
+                {
+                    source -= indexToClamp;
+                    length += indexToClamp;
+                    if (length < 0) length = 0;
+                    indexToClamp = 0;
+                }
+            }
+        }
+
         public static void CopyTexture(RenderTexture from, int sourceX, int sourceY, int sourceWidth, int sourceHeight, RenderTexture to, int destinationX = 0, int destinationY = 0, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
         {
-            Profiler.BeginSample("Set Variables");
-            CopyImageShader.SetTexture(CopyShaderKernel, InputPropertyID, from);
-            CopyImageShader.SetTexture(CopyShaderKernel, ResultPropertyID, to);
-            CopyImageShader.SetInts(SrcDstDimPropertyID, from.width, from.height, to.width, to.height);
-            CopyImageShader.SetInts(DstXYPropertyID, destinationX, destinationY);
-            CopyImageShader.SetInts(SrcRectPropertyID, sourceX, sourceY, sourceWidth, sourceHeight);
-            Profiler.EndSample();
-            Profiler.BeginSample("Byte stuff");
+            int sourceTextureWidth = from.width;
+            int sourceTextureHeight = from.height;
+            int destinationTextureWidth = to.width;
+            int destinationTextureHeight = to.height;
+
             byte sourceTileX = (sourceTileMode == CanvasTileMode.TileX || sourceTileMode == CanvasTileMode.TileXY) ? byte.MaxValue : byte.MinValue;
             byte sourceTileY = (sourceTileMode == CanvasTileMode.TileY || sourceTileMode == CanvasTileMode.TileXY) ? byte.MaxValue : byte.MinValue;
             byte destinationTileX = (destinationTileMode == CanvasTileMode.TileX || destinationTileMode == CanvasTileMode.TileXY) ? byte.MaxValue : byte.MinValue;
             byte destinationTileY = (destinationTileMode == CanvasTileMode.TileY || destinationTileMode == CanvasTileMode.TileXY) ? byte.MaxValue : byte.MinValue;
-            Profiler.EndSample();
             int tileComposite = 0;
             tileComposite |= sourceTileX;
             tileComposite <<= 8;
@@ -140,6 +191,20 @@ namespace HueHades.Utilities
             tileComposite |= destinationTileX;
             tileComposite <<= 8;
             tileComposite |= destinationTileY;
+
+            ClampSourceToTile(ref sourceX, sourceTextureWidth, ref sourceWidth, sourceTileX, ref destinationX);
+            ClampSourceToTile(ref sourceY, sourceTextureHeight, ref sourceHeight, sourceTileY, ref destinationY);
+
+            ClampDestinationToTile(ref destinationX, destinationTextureWidth, ref sourceWidth , sourceTileX, ref sourceX);
+            ClampDestinationToTile(ref destinationY, destinationTextureHeight, ref sourceHeight, sourceTileY, ref sourceY);
+
+            if (sourceWidth <= 0 || sourceHeight <= 0) return;
+
+            CopyImageShader.SetTexture(CopyShaderKernel, InputPropertyID, from);
+            CopyImageShader.SetTexture(CopyShaderKernel, ResultPropertyID, to);
+            CopyImageShader.SetInts(SrcDstDimPropertyID, sourceTextureWidth, sourceTextureHeight, destinationTextureWidth, destinationTextureHeight);
+            CopyImageShader.SetInts(DstXYPropertyID, destinationX, destinationY);
+            CopyImageShader.SetInts(SrcRectPropertyID, sourceX, sourceY, sourceWidth, sourceHeight);
 
             CopyImageShader.SetInt(TileSrcXYDstXYPropertyID, tileComposite);
             CopyImageShader.Dispatch(CopyShaderKernel, Mathf.CeilToInt(sourceWidth / (float)warpSizeX), Mathf.CeilToInt(sourceHeight / (float)warpSizeY), 1);
@@ -179,5 +244,70 @@ namespace HueHades.Utilities
             LayerImageShader.SetTexture(dispatchKernel,ResultPropertyID,result);
             LayerImageShader.Dispatch(dispatchKernel, Mathf.CeilToInt(result.width / (float)warpSizeX), Mathf.CeilToInt(result.height / (float)warpSizeY), 1);
         }
+
+        public static void LayerImageArea(RenderTexture targetBottomLayer, int sourceX, int sourceY, int sourceWidth, int sourceHeight, RenderTexture topLayer, ColorBlendMode colorBlendMode, int destinationX = 0, int destinationY = 0, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
+        {
+
+            int sourceTextureWidth = topLayer.width;
+            int sourceTextureHeight = topLayer.height;
+            int destinationTextureWidth = targetBottomLayer.width;
+            int destinationTextureHeight = targetBottomLayer.height;
+
+
+            int dispatchKernel;
+            switch (colorBlendMode)
+            {
+                case ColorBlendMode.Default:
+                    dispatchKernel = BlendAreaNormalKernel;
+                    break;
+                case ColorBlendMode.Add:
+                    dispatchKernel = BlendAreaAddKernel;
+                    break;
+                case ColorBlendMode.Multiply:
+                    dispatchKernel = BlendAreaMultiplyKernel;
+                    break;
+                case ColorBlendMode.Subtract:
+                    dispatchKernel = BlendAreaSubtractKernel;
+                    break;
+                default:
+                    dispatchKernel = BlendAreaNormalKernel;
+                    break;
+            }
+
+
+
+            byte sourceTileX = (sourceTileMode == CanvasTileMode.TileX || sourceTileMode == CanvasTileMode.TileXY) ? byte.MaxValue : byte.MinValue;
+            byte sourceTileY = (sourceTileMode == CanvasTileMode.TileY || sourceTileMode == CanvasTileMode.TileXY) ? byte.MaxValue : byte.MinValue;
+            byte destinationTileX = (destinationTileMode == CanvasTileMode.TileX || destinationTileMode == CanvasTileMode.TileXY) ? byte.MaxValue : byte.MinValue;
+            byte destinationTileY = (destinationTileMode == CanvasTileMode.TileY || destinationTileMode == CanvasTileMode.TileXY) ? byte.MaxValue : byte.MinValue;
+            int tileComposite = 0;
+            tileComposite |= sourceTileX;
+            tileComposite <<= 8;
+            tileComposite |= sourceTileY;
+            tileComposite <<= 8;
+            tileComposite |= destinationTileX;
+            tileComposite <<= 8;
+            tileComposite |= destinationTileY;
+
+            ClampSourceToTile(ref sourceX, sourceTextureWidth, ref sourceWidth, sourceTileX, ref destinationX);
+            ClampSourceToTile(ref sourceY, sourceTextureHeight, ref sourceHeight, sourceTileY, ref destinationY);
+
+            ClampDestinationToTile(ref destinationX, destinationTextureWidth, ref sourceWidth, sourceTileX, ref sourceX);
+            ClampDestinationToTile(ref destinationY, destinationTextureHeight, ref sourceHeight, sourceTileY, ref sourceY);
+
+            if (sourceWidth <= 0 || sourceHeight <= 0) return;
+
+            LayerImageAreaShader.SetInts(SrcDstDimPropertyID, sourceTextureWidth, sourceTextureHeight, destinationTextureWidth, destinationTextureHeight);
+            LayerImageAreaShader.SetInts(DstXYPropertyID, destinationX, destinationY);
+            LayerImageAreaShader.SetInts(SrcRectPropertyID, sourceX, sourceY, sourceWidth, sourceHeight);
+
+            LayerImageAreaShader.SetInt(TileSrcXYDstXYPropertyID, tileComposite);
+            LayerImageAreaShader.SetTexture(dispatchKernel, BottomLayerPropertyID, targetBottomLayer);
+            LayerImageAreaShader.SetTexture(dispatchKernel, TopLayerPropertyID, topLayer);
+            LayerImageAreaShader.Dispatch(dispatchKernel, Mathf.CeilToInt(sourceTextureWidth / (float)warpSizeX), Mathf.CeilToInt(sourceTextureHeight / (float)warpSizeY), 1);
+        }
+
+
+
     }
 }

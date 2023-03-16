@@ -25,7 +25,7 @@ namespace HueHades.UI
             AddToClassList(ussOperatingWindow);
             RegisterCallback<WheelEvent>(WheelCallback);
             RegisterCallback<MouseMoveEvent>(DragMouseCallback);
-            RegisterCallback<PointerDownEvent>(OnPointerDowm);
+            RegisterCallback<PointerDownEvent>(OnPointerDown);
             RegisterCallback<PointerMoveEvent>(OnPointerMove);
             RegisterCallback<PointerUpEvent>(OnPointerUp);
         }
@@ -43,20 +43,23 @@ namespace HueHades.UI
 
 
 
-        private void OnPointerDowm(PointerDownEvent pointerDownEvent)
+        private void OnPointerDown(PointerDownEvent pointerDownEvent)
         {
             this.CapturePointer(pointerDownEvent.pointerId);
             var tools = window.ToolsWindow;
             if (tools == null) return;
+            var pressure = pointerDownEvent.pointerType == UnityEngine.UIElements.PointerType.pen ? pointerDownEvent.pressure : 1.0f;
             //TODO: insert layer when layer window is done
             //TODO: check pressure and tilt values to be correct
-            tools.OnToolBeginUse(_imageCanvas, 0, GetPixelPosition(pointerDownEvent.position), pointerDownEvent.pressure, pointerDownEvent.altitudeAngle);
+            tools.OnToolBeginUse(_imageCanvas, 0, GetPixelPosition(pointerDownEvent.position), pressure, pointerDownEvent.altitudeAngle);
         }
 
         private void OnPointerMove(PointerMoveEvent pointerMoveEvent) {
+            
             var tools = window.ToolsWindow;
             if (tools == null) return;
-            tools.OnToolUseUpdate(GetPixelPosition(pointerMoveEvent.position), pointerMoveEvent.pressure, pointerMoveEvent.altitudeAngle);
+            var pressure = pointerMoveEvent.pointerType == UnityEngine.UIElements.PointerType.pen ? pointerMoveEvent.pressure : 1.0f;
+            tools.OnToolUseUpdate(GetPixelPosition(pointerMoveEvent.position), pressure, pointerMoveEvent.altitudeAngle);
         }
 
 
@@ -65,7 +68,8 @@ namespace HueHades.UI
             this.ReleasePointer(pointerUpEvent.pointerId);
             var tools = window.ToolsWindow;
             if (tools == null) return;
-            tools.OnToolEndUse(GetPixelPosition(pointerUpEvent.position), pointerUpEvent.pressure, pointerUpEvent.altitudeAngle);
+            var pressure = pointerUpEvent.pointerType == UnityEngine.UIElements.PointerType.pen ? pointerUpEvent.pressure : 1.0f;
+            tools.OnToolEndUse(GetPixelPosition(pointerUpEvent.position), pressure, pointerUpEvent.altitudeAngle);
         }
 
         public override string GetWindowName()

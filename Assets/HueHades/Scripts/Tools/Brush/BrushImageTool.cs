@@ -38,12 +38,15 @@ namespace HueHades.Tools
 
         protected override void OnUseUpdate(Vector2 currentPoint, float currentPressure, float currentTilt)
         {
+            
             float distance = Vector2.Distance(currentPoint, _lastPoint);
             float travelAmount = distance + _leftOverLength;
             float pathDistance = -_leftOverLength;
 
 
             Rect bounds = new Rect(float.MaxValue, float.MaxValue, float.MinValue, float.MinValue);
+
+           
 
             while (travelAmount >= _paintInterval)
             {
@@ -66,7 +69,6 @@ namespace HueHades.Tools
 
                 travelAmount -= _paintInterval;
             }
-
 
             if (paintPoints.Count > 0)
             {
@@ -100,7 +102,7 @@ namespace HueHades.Tools
                     {
                         color = Color.blue;
                     }*/
-                    color.a *= point.pressure * point.pressure * 0.1f;
+                    color.a *= point.pressure * point.pressure * 0.5f;
                     RenderTextureUtilities.ClearTexture(pointBuffer, color);
                     RenderTextureUtilities.CopyTexture(pointBuffer, 0, 0, pointWidth, pointHeight, paintBufferA, pointStartX, pointStartY);
                     RenderTextureUtilities.ReleaseTemporary(pointBuffer);

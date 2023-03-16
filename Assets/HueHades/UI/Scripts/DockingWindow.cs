@@ -1,3 +1,5 @@
+using NUnit.Framework;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,15 +15,18 @@ namespace HueHades.UI
         private const string ussHeaderBar = "docking-window-header-bar";
         private const string ussDockingWindow = "docking-window";
         private const string ussSplitDockingWindow = "docking-window-split";
+        private const string ussSplitDockHierarchy = "docking-split-hierarchy";
 
         private DockingWindow _dockedIn;
         private HeaderBar _headerBar;
         private bool _isFixedWindow;
+        private bool _isFreeWindow;
         private Dictionary<DockableWindow, HeaderElement> _dockedWindows = new Dictionary<DockableWindow, HeaderElement>();
         private HueHadesElement _windowContainer;
         private DockableWindow _selectedWindow;
         private HueHadesElement _splitHierarchy;
         private DockingWindow _splitA;
+        private FlexDirection _splitDirection;
         private DockingWindow _splitB;
         private bool _isDockSplit;
         private DockHandle _dockHandle;
@@ -35,10 +40,12 @@ namespace HueHades.UI
             _windowContainer = new HueHadesElement(window);
             hierarchy.Add(_windowContainer);
             _splitHierarchy = new HueHadesElement(window);
+            _splitHierarchy.AddToClassList(ussSplitDockHierarchy);
             hierarchy.Add(_splitHierarchy);
             _isFixedWindow = isFixedWindow;
             AddToClassList(ussDockingWindow);
             _dockedIn = dockedIn;
+            this.AddManipulator(new DockResizeManipulator(this));
         }
 
         public DockHandle DockWindow(DockableWindow dockableWindow, DockType dockType = DockType.Header, int headerIndex = -1)
@@ -68,16 +75,25 @@ namespace HueHades.UI
                     _headerBar.hierarchy.Insert(headerIndex, header);
                     _dockedWindows.Add(dockableWindow, header);
                     SelectWindow(dockableWindow);
+
+                    if (_dockedIn == null && !_isFixedWindow)
+                    {
+                        var defaultWindowSize = dockableWindow.GetDefaultSize();
+                        style.position = Position.Absolute;
+                        style.width = defaultWindowSize.x;
+                        style.height = defaultWindowSize.y;
+                        style.left = (window.worldBound.width - defaultWindowSize.x) * 0.5f;
+                        style.top = (window.worldBound.height - defaultWindowSize.y) * 0.5f;
+                    }
+
                     break;
                 case DockType.Free:
                     DockingWindow freeDocker = new DockingWindow(window);
                     window.FreeDockElement.Add(freeDocker);
-                    dockableWindow.Dock(freeDocker.Handle);
-                    break;
+                    return dockableWindow.Dock(freeDocker.Handle);
                 default:
                     SplitDock(dockType, out DockingWindow oldHierarchy, out DockingWindow newHierarchy);
-                    dockableWindow.Dock(newHierarchy.Handle);
-                    break;
+                    return dockableWindow.Dock(newHierarchy.Handle);
             }
             return Handle;
         }
@@ -91,22 +107,26 @@ namespace HueHades.UI
             oldHierarchy = new DockingWindow(window, dockedIn: this);
             newHierarchy = new DockingWindow(window, dockedIn: this);
 
-            _splitA = oldHierarchy;
-            _splitB = newHierarchy;
-
-
+            
             if (dockType == DockType.Right || dockType == DockType.Bottom) {
                 _splitHierarchy.Add(oldHierarchy);
                 _splitHierarchy.Add(newHierarchy);
+
+                _splitA = oldHierarchy;
+                _splitB = newHierarchy;
             }
             else
             {
                 _splitHierarchy.Add(newHierarchy);
                 _splitHierarchy.Add(oldHierarchy);
+
+                _splitA = newHierarchy;
+                _splitB = oldHierarchy;
             }
             if (dockType == DockType.Left || dockType == DockType.Right)
             {
                 _splitHierarchy.style.flexDirection = FlexDirection.Row;
+                _splitDirection = FlexDirection.Row;
                 float thirdWidth = bounds.width / 3.0f;
                 newHierarchy.style.width = thirdWidth;
                 oldHierarchy.style.width = thirdWidth * 2;
@@ -114,11 +134,11 @@ namespace HueHades.UI
             else
             {
                 _splitHierarchy.style.flexDirection = FlexDirection.Column;
+                _splitDirection = FlexDirection.Column;
                 float thirdHeight = bounds.height / 3.0f;
                 newHierarchy.style.height = thirdHeight;
                 oldHierarchy.style.height = thirdHeight * 2;
             }
-
 
             _windowContainer.style.display = DisplayStyle.None;
             _headerBar.style.display = DisplayStyle.None;
@@ -131,6 +151,9 @@ namespace HueHades.UI
                 var dockedWindow = dockedWindows[i];
                 dockedWindow.Dock(oldHierarchy.Handle);
             }
+
+            _splitA.name = nameof(DockingWindow)+"A";
+            _splitB.name = nameof(DockingWindow)+"B";
 
         }
 
@@ -157,18 +180,20 @@ namespace HueHades.UI
                 _headerBar.style.display = DisplayStyle.None;
                 _splitHierarchy.style.display = DisplayStyle.Flex;
 
-                
                 if (_splitA._isDockSplit)
                 {
-                    _splitA = _splitA._splitA;
                     _splitB = _splitA._splitB;
-
+                    _splitA = _splitA._splitA;
                 }
-                if (_splitB._isDockSplit)
+                else
                 {
-                    _splitA = _splitB._splitA;
-                    _splitB = _splitB._splitB;
+                    if (_splitB._isDockSplit)
+                    {
+                        _splitA = _splitB._splitA;
+                        _splitB = _splitB._splitB;
+                    }
                 }
+                
                 _splitHierarchy.Add(_splitA);
                 _splitHierarchy.Add(_splitB);
 
@@ -367,6 +392,91 @@ namespace HueHades.UI
                 RemoveFromClassList(ussHeaderBarSelected);
                 AddToClassList(ussHeaderBar);
             }
+        }
+
+        /// <summary>
+        /// Manipulator for resizing the docking windows
+        /// </summary>
+        private class DockResizeManipulator : PointerManipulator
+        {
+            private DockingWindow _targetWindow;
+
+            public DockResizeManipulator(DockingWindow targetWindow)
+            {
+                target = targetWindow;
+                _targetWindow = targetWindow;
+            }
+
+            private bool _dragging;
+            private Vector2 _lastMousePosition;
+
+            protected override void RegisterCallbacksOnTarget()
+            {
+                target.RegisterCallback<MouseMoveEvent>(OnMouseMove);
+                target.RegisterCallback<MouseDownEvent>(OnMouseDown);
+                target.RegisterCallback<MouseUpEvent>(OnMouseUp);
+            }
+
+            private void OnMouseDown(MouseDownEvent mouseDownEvent)
+            {
+                if (_targetWindow._isDockSplit)
+                {
+                    float dist;
+                    if (_targetWindow._splitDirection == FlexDirection.Row)
+                    {
+                        dist = Mathf.Abs(_targetWindow._splitA.worldBound.xMax - mouseDownEvent.mousePosition.x);
+                    }
+                    else
+                    {
+                        dist = Mathf.Abs(_targetWindow._splitA.worldBound.yMax - mouseDownEvent.mousePosition.y);
+                    }
+                    if (dist < 5.0f)
+                    {
+                        _dragging = true;
+                        target.CaptureMouse();
+                    }
+                    _lastMousePosition = mouseDownEvent.mousePosition;
+                }
+
+            }
+
+            private void OnMouseUp(MouseUpEvent mouseUpEvent)
+            {
+                _dragging = false;
+                target.ReleaseMouse();
+            }
+
+            protected override void UnregisterCallbacksFromTarget()
+            {
+                target.UnregisterCallback<MouseMoveEvent>(OnMouseMove);
+                target.UnregisterCallback<MouseDownEvent>(OnMouseDown);
+                target.UnregisterCallback<MouseUpEvent>(OnMouseUp);
+            }
+
+            private void OnMouseMove(MouseMoveEvent mouseMoveEvent)
+            {
+                if (!_dragging) return;
+                if (_targetWindow._isDockSplit)
+                {
+                    if (_targetWindow._splitDirection == FlexDirection.Row)
+                    {
+                        float moveAmount = mouseMoveEvent.mousePosition.x - _lastMousePosition.x;
+                        _targetWindow._splitA.style.width = _targetWindow._splitA.style.width.value.value + moveAmount;
+                        _targetWindow._splitB.style.width = _targetWindow._splitB.style.width.value.value - moveAmount;
+                    }
+                    else
+                    {
+                        float moveAmount = mouseMoveEvent.mousePosition.y - _lastMousePosition.y;
+                        _targetWindow._splitA.style.height = _targetWindow._splitA.style.height.value.value + moveAmount;
+                        _targetWindow._splitB.style.height = _targetWindow._splitB.style.height.value.value - moveAmount;
+
+                    }
+                }
+
+                _lastMousePosition = mouseMoveEvent.mousePosition;
+            }
+
+
         }
 
 
@@ -615,9 +725,12 @@ namespace HueHades.UI
 
                 if(dragDockTarget != null) _header.GetDockedWindow().Dock(dragDockTarget.Handle, dragDockType, barTargetIndex);
 
-                if (enabled && target.HasPointerCapture(evt.pointerId))
+                if (enabled)
                 {
                     target.ReleasePointer(evt.pointerId);
+                    _header.GetDockedWindow().CapturePointer(evt.pointerId);
+                    _header.GetDockedWindow().ReleasePointer(evt.pointerId);
+                    
                     target.RemoveFromClassList(ussDraggingHeader);
                 }
             }
