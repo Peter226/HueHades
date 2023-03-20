@@ -1,3 +1,7 @@
+* {
+    -unity-font-definition: url('project://database/Assets/ThirdParty/Fonts/Gothic_A1/GothicA1-Regular.ttf?fileID=12800000&guid=9bf3af5a2da588545ba3d454661f663e&type=3#GothicA1-Regular');
+}
+
 .menu-bar {
     background-color: rgb(25, 25, 25);
     align-items: flex-start;
@@ -270,6 +274,14 @@
     justify-content: flex-start;
 }
 
+.docking-window-content {
+    flex-grow: 1;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+}
+
 .operating-window {
     flex-grow: 1;
     background-color: rgb(20, 20, 20);
@@ -277,9 +289,17 @@
     flex-basis: auto;
     overflow: hidden;
     flex-shrink: 1;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
 }
 
 .docking-split-hierarchy {
     flex-grow: 1;
     justify-content: flex-start;
+}
+
+.operating-window-image {
+    position: absolute;
 }

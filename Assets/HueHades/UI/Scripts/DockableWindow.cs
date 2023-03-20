@@ -43,6 +43,7 @@ namespace HueHades.UI
             _dockedIn = null;
         }
 
+
         public DockingWindow.DockHandle Dock(DockingWindow.DockHandle dockIn)
         {
             if (_dockedIn != null)

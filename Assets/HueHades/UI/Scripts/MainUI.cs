@@ -1,4 +1,4 @@
-using HueHades.Core;
+﻿using HueHades.Core;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -38,10 +38,22 @@ public class MainUI : MonoBehaviour
     }
 }
 
+[MenuBarItem("Edit/Tools/Brush Editor")]
+public class EditBrushMenuBarFunction : IMenuBarFunction
+{
+    public void Execute(HueHadesWindow window)
+    {
+        Debug.Log("executed");
+        BrushEditorWindow brushEditorWindow = new BrushEditorWindow(window);
+        brushEditorWindow.Open();
+    }
+}
+
+
 [MenuBarItem("Image/Mirror horizontal")]
 public class MirrorHorizontalMenuBarFunction : IMenuBarFunction
 {
-    public void Execute()
+    public void Execute(HueHadesWindow window)
     {
         Debug.Log("Mirror horizontal");
     }
@@ -50,7 +62,7 @@ public class MirrorHorizontalMenuBarFunction : IMenuBarFunction
 [MenuBarItem("Image/Mirror vertical")]
 public class MirrorVerticalMenuBarFunction : IMenuBarFunction
 {
-    public void Execute()
+    public void Execute(HueHadesWindow window)
     {
         Debug.Log("Mirror vertical");
     }
@@ -60,7 +72,7 @@ public class MirrorVerticalMenuBarFunction : IMenuBarFunction
 [MenuBarItem("Image/Resize...")]
 public class ResizeMenuBarFunction : IMenuBarFunction
 {
-    public void Execute()
+    public void Execute(HueHadesWindow window)
     {
         Debug.Log("Resizing image");
     }
@@ -69,7 +81,7 @@ public class ResizeMenuBarFunction : IMenuBarFunction
 [MenuBarItem("Image/Resize canvas...")]
 public class ResizeCanvasMenuBarFunction : IMenuBarFunction
 {
-    public void Execute()
+    public void Execute(HueHadesWindow window)
     {
         Debug.Log("Resizing canvas");
     }
@@ -79,7 +91,7 @@ public class ResizeCanvasMenuBarFunction : IMenuBarFunction
 [MenuBarItem("Edit/Undo")]
 public class UndoMenuBarFunction : IMenuBarFunction
 {
-    public void Execute()
+    public void Execute(HueHadesWindow window)
     {
         Debug.Log("Undo");
     }
@@ -88,7 +100,7 @@ public class UndoMenuBarFunction : IMenuBarFunction
 [MenuBarItem("Edit/Redo")]
 public class RedoMenuBarFunction : IMenuBarFunction
 {
-    public void Execute()
+    public void Execute(HueHadesWindow window)
     {
         Debug.Log("Redo");
     }
@@ -98,7 +110,7 @@ public class RedoMenuBarFunction : IMenuBarFunction
 [MenuBarItem("File/Save")]
 public class SaveMenuBarFunction : IMenuBarFunction
 {
-    public void Execute()
+    public void Execute(HueHadesWindow window)
     {
         Debug.Log("Saving file");
     }
@@ -107,7 +119,7 @@ public class SaveMenuBarFunction : IMenuBarFunction
 [MenuBarItem("File/Save as...")]
 public class SaveAsMenuBarFunction : IMenuBarFunction
 {
-    public void Execute()
+    public void Execute(HueHadesWindow window)
     {
         Debug.Log("Saving as file");
     }
@@ -115,7 +127,7 @@ public class SaveAsMenuBarFunction : IMenuBarFunction
 
 public interface IMenuBarFunction
 {
-    public abstract void Execute();
+    public abstract void Execute(HueHadesWindow window);
 }
 
 public class MenuBarItemAttribute : Attribute
@@ -141,6 +153,7 @@ public class HueHadesWindow : VisualElement
 {
     VisualElement _popupElement;
     VisualElement _freeDockElement;
+    VisualElement _popupWindowlement;
     private ToolsWindow _toolsWindow;
     public ToolsWindow ToolsWindow { get { return _toolsWindow; } }
 
@@ -156,6 +169,20 @@ public class HueHadesWindow : VisualElement
             return _freeDockElement;
         }
     }
+
+
+    public VisualElement PopupWindowParentElement
+    {
+        get
+        {
+            if (_popupWindowlement == null)
+            {
+                _popupWindowlement = this.Q<VisualElement>("PopupWindows");
+            }
+            return _popupWindowlement;
+        }
+    }
+
 
 
     private Dictionary<ImageCanvas, ImageOperatingWindow> _operatingWindows = new Dictionary<ImageCanvas, ImageOperatingWindow>();
@@ -451,7 +478,7 @@ public class SubCategory : HueHadesElement
     public SubCategory(HueHadesWindow window, string name) : base(window)
     {
         var button = new CategoryButton(window);
-        button.text = name;
+        button.text = name + "      >";
         hierarchy.Add(button);
         button.HideCategoryEvent += HideCategory;
         button.clicked += ShowCategory;
@@ -486,5 +513,9 @@ public class MenuBarItemButton : HueHadesButton
         _menuBarFunction = menuBarFunction;
         text = name;
         AddToClassList(ussItemButton);
+        clicked += () => {
+            Debug.Log("clicked button");
+            (menuBarFunction as IMenuBarFunction)?.Execute(window);
+        };
     }
 }

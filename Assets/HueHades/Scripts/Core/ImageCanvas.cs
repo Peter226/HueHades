@@ -21,7 +21,6 @@ namespace HueHades.Core {
             _dimensions = dimensions;
             _format = format;
             AddLayer(0);
-            Debug.Log(_dimensions);
             _previewTexture = new RenderTexture(_dimensions.x, _dimensions.y, 0, _format, 4);
             _previewTexture.wrapMode = TextureWrapMode.Repeat;
             _previewTexture.enableRandomWrite = true;

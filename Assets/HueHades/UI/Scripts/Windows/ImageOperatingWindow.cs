@@ -13,13 +13,17 @@ namespace HueHades.UI
     {
         private Image _imageDisplay;
         private const string ussOperatingWindow = "operating-window";
+        private const string ussOperatingWindowImage = "operating-window-image";
         private ImageCanvas _imageCanvas;
 
         public ImageOperatingWindow(HueHadesWindow window, ImageCanvas imageCanvas) : base(window)
         {
             _imageDisplay = new Image();
+            _imageDisplay.AddToClassList(ussOperatingWindowImage);
             _imageCanvas = imageCanvas;
             _imageDisplay.image = imageCanvas.PreviewTexture;
+            _imageDisplay.style.width = imageCanvas.Dimensions.x;
+            _imageDisplay.style.height = imageCanvas.Dimensions.y;
             _imageDisplay.uv = new Rect(0,0,1,1);
             hierarchy.Add(_imageDisplay);
             AddToClassList(ussOperatingWindow);
@@ -30,14 +34,17 @@ namespace HueHades.UI
             RegisterCallback<PointerUpEvent>(OnPointerUp);
         }
 
+       
+
 
         private Vector2 GetPixelPosition(Vector2 pointerPosition)
         {
-            var pos = _imageDisplay.WorldToLocal(pointerPosition);
-            pos /= _imageDisplay.localBound.size;
+            var pos = _imageDisplay.contentContainer.WorldToLocal(pointerPosition);
+            pos.x /= _imageDisplay.contentRect.width;
+            pos.y /= _imageDisplay.contentRect.height;
             pos.y = 1.0f - pos.y;
-            pos.x = pos.x * _imageCanvas.Dimensions.x;
-            pos.y = pos.y * _imageCanvas.Dimensions.y;
+            pos.x *= _imageCanvas.Dimensions.x;
+            pos.y *= _imageCanvas.Dimensions.y;
             return pos;
         }
 

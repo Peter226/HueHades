@@ -1,11 +1,6 @@
-using NUnit.Framework;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Animations;
-using UnityEngine.EventSystems;
 using UnityEngine.UIElements;
 
 namespace HueHades.UI
@@ -15,6 +10,7 @@ namespace HueHades.UI
         private const string ussHeaderBar = "docking-window-header-bar";
         private const string ussDockingWindow = "docking-window";
         private const string ussSplitDockingWindow = "docking-window-split";
+        private const string ussDockingWindowContent = "docking-window-content";
         private const string ussSplitDockHierarchy = "docking-split-hierarchy";
 
         private DockingWindow _dockedIn;
@@ -38,9 +34,11 @@ namespace HueHades.UI
             _headerBar = new HeaderBar(window);
             hierarchy.Add(_headerBar);
             _windowContainer = new HueHadesElement(window);
+            _windowContainer.AddToClassList(ussDockingWindowContent);
             hierarchy.Add(_windowContainer);
             _splitHierarchy = new HueHadesElement(window);
             _splitHierarchy.AddToClassList(ussSplitDockHierarchy);
+            _splitHierarchy.style.display = DisplayStyle.None;
             hierarchy.Add(_splitHierarchy);
             _isFixedWindow = isFixedWindow;
             AddToClassList(ussDockingWindow);
@@ -100,6 +98,7 @@ namespace HueHades.UI
 
         private void SplitDock(DockType dockType, out DockingWindow oldHierarchy, out DockingWindow newHierarchy)
         {
+            _splitHierarchy.style.display = DisplayStyle.Flex;
             Rect bounds = this.worldBound;
             AddToClassList(ussSplitDockingWindow);
 
@@ -223,7 +222,7 @@ namespace HueHades.UI
             oldSplitA.Handle.SetReference(this);
             oldSplitB.Handle.SetReference(this);
 
-
+            _splitHierarchy.style.display = DisplayStyle.None;
         } 
             
 
