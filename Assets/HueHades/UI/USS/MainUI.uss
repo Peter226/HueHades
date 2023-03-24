@@ -301,5 +301,6 @@
 }
 
 .operating-window-image {
-    position: absolute;
+    position: relative;
+    flex-grow: 1;
 }

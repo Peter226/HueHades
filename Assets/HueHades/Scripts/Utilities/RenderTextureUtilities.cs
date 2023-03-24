@@ -15,6 +15,7 @@ namespace HueHades.Utilities
         public static ComputeShader ClearImageShader;
         public static ComputeShader LayerImageShader;
         public static ComputeShader LayerImageAreaShader;
+        public static ComputeShader MaskChannelsShader;
 
         private static int CopyShaderKernel;
         private static int InputPropertyID;
@@ -41,6 +42,10 @@ namespace HueHades.Utilities
         private static int BlendAreaAddKernel;
         private static int BlendAreaMultiplyKernel;
         private static int BlendAreaSubtractKernel;
+
+        private static int MaskChannelsKernel;
+        private static int TargetPropertyID;
+        private static int MaskPropertyID;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void Initialize()
@@ -72,6 +77,12 @@ namespace HueHades.Utilities
             BlendAreaAddKernel = LayerImageAreaShader.FindKernel("AddBlend");
             BlendAreaMultiplyKernel = LayerImageAreaShader.FindKernel("MultiplyBlend");
             BlendAreaSubtractKernel = LayerImageAreaShader.FindKernel("SubtractBlend");
+
+
+            MaskChannelsShader = Resources.Load<ComputeShader>("MaskChannels");
+            MaskChannelsKernel = MaskChannelsShader.FindKernel("CSMain");
+            TargetPropertyID = Shader.PropertyToID("Target");
+            MaskPropertyID = Shader.PropertyToID("Mask");
 
         }
 
@@ -307,6 +318,13 @@ namespace HueHades.Utilities
             LayerImageAreaShader.Dispatch(dispatchKernel, Mathf.CeilToInt(sourceTextureWidth / (float)warpSizeX), Mathf.CeilToInt(sourceTextureHeight / (float)warpSizeY), 1);
         }
 
+
+        public static void ApplyChannelMask(RenderTexture target, RenderTexture mask)
+        {
+            MaskChannelsShader.SetTexture(MaskChannelsKernel, TargetPropertyID, target);
+            MaskChannelsShader.SetTexture(MaskChannelsKernel, MaskPropertyID, mask);
+            MaskChannelsShader.Dispatch(MaskChannelsKernel, Mathf.CeilToInt(target.width / (float)warpSizeX), Mathf.CeilToInt(target.height / (float)warpSizeY), 1);
+        }
 
 
     }
