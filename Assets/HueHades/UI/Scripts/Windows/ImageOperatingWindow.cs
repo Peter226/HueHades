@@ -1,18 +1,16 @@
 using HueHades.Core;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Xml.Serialization;
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEngine.InputSystem;
-using UnityEngine.Rendering.Universal;
+using HueHades.Utilities;
 
 namespace HueHades.UI
 {
     public class ImageOperatingWindow : DockableWindow
     {
         private static Material ImageDisplayMaterial;
+        private static Material SelectionDisplayMaterial;
+        private static CameraUpdater CameraUpdateManager;
         private static int TexturePropertyID = Shader.PropertyToID("_BaseMap");
         private Image _windowDisplay;
         private const string ussOperatingWindow = "operating-window";
@@ -22,9 +20,12 @@ namespace HueHades.UI
         private GameObject _canvasObject;
         private GameObject _selectionObject;
         private MeshRenderer _canvasObjectRenderer;
+        private MeshRenderer _selectionObjectRenderer;
         private Camera _camera;
         private RenderTexture _windowTexture;
-        private MaterialPropertyBlock _materialPropertyBlock;
+        private MaterialPropertyBlock _canvasPropertyBlock;
+        private MaterialPropertyBlock _selectionPropertyBlock;
+
 
         public ImageOperatingWindow(HueHadesWindow window, ImageCanvas imageCanvas) : base(window)
         {
@@ -45,9 +46,11 @@ namespace HueHades.UI
 
         private void RedrawCamera()
         {
-            _operatingWindowHierarchy.SetActive(true);
-            _camera.Render();
-            _operatingWindowHierarchy.SetActive(false);
+            if (CameraUpdateManager == null)
+            {
+                CameraUpdateManager = new GameObject("CameraUpdater").AddComponent<CameraUpdater>();
+            }
+            CameraUpdateManager.QueueRender(_camera, _operatingWindowHierarchy);
         }
 
         private void OnCanvasDimensionsChanged()
@@ -91,6 +94,12 @@ namespace HueHades.UI
             _canvasObject.name = "Canvas";
             _canvasObject.transform.parent = _operatingWindowHierarchy.transform;
 
+            //create selection display
+            _selectionObject = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            _selectionObjectRenderer = _selectionObject.GetComponent<MeshRenderer>();
+            _selectionObject.name = "Selection";
+            _selectionObject.transform.parent = _operatingWindowHierarchy.transform;
+
             //create camera
             var cameraObject = new GameObject("Camera");
             _camera = cameraObject.AddComponent<Camera>();
@@ -101,18 +110,32 @@ namespace HueHades.UI
             _camera.transform.position += new Vector3(0, 0, -3);
             _camera.transform.parent = _operatingWindowHierarchy.transform;
 
-            //initialize camera material
+            //initialize canvas material
             if (ImageDisplayMaterial ==  null) {
                 ImageDisplayMaterial = Resources.Load<Material>("Materials/ImageDisplay");
             }
-            if (_materialPropertyBlock == null)
+            if (_canvasPropertyBlock == null)
             {
-                _materialPropertyBlock = new MaterialPropertyBlock();
+                _canvasPropertyBlock = new MaterialPropertyBlock();
             }
             _canvasObjectRenderer.sharedMaterial = ImageDisplayMaterial;
-            _canvasObjectRenderer.GetPropertyBlock(_materialPropertyBlock);
-            _materialPropertyBlock.SetTexture(TexturePropertyID, _imageCanvas.PreviewTexture);
-            _canvasObjectRenderer.SetPropertyBlock(_materialPropertyBlock);
+            _canvasObjectRenderer.GetPropertyBlock(_canvasPropertyBlock);
+            _canvasPropertyBlock.SetTexture(TexturePropertyID, _imageCanvas.PreviewTexture);
+            _canvasObjectRenderer.SetPropertyBlock(_canvasPropertyBlock);
+
+            //initialize selection material
+            if (SelectionDisplayMaterial == null)
+            {
+                SelectionDisplayMaterial = Resources.Load<Material>("Materials/SelectionDisplay");
+            }
+            if (_selectionPropertyBlock == null)
+            {
+                _selectionPropertyBlock = new MaterialPropertyBlock();
+            }
+            _selectionObjectRenderer.sharedMaterial = SelectionDisplayMaterial;
+            _selectionObjectRenderer.GetPropertyBlock(_selectionPropertyBlock);
+            _selectionPropertyBlock.SetTexture(TexturePropertyID, _imageCanvas.Selection.SelectionTexture);
+            _selectionObjectRenderer.SetPropertyBlock(_selectionPropertyBlock);
 
             //signal redraw
             OnCanvasDimensionsChanged();
@@ -121,9 +144,7 @@ namespace HueHades.UI
         private Vector2 GetPixelPosition(Vector2 pointerPosition)
         {
             var pos = GetWorldPosition(pointerPosition);
-            Debug.Log(pos);
             pos = (Vector2)(_canvasObject.transform.worldToLocalMatrix * ((Vector3)pos - _canvasObject.transform.position)) + new Vector2(0.5f,0.5f);
-            Debug.Log(pos);
             pos.x *= _imageCanvas.Dimensions.x;
             pos.y *= _imageCanvas.Dimensions.y;
             return pos;
@@ -142,6 +163,7 @@ namespace HueHades.UI
         private void OnPointerDown(PointerDownEvent pointerDownEvent)
         {
             this.CapturePointer(pointerDownEvent.pointerId);
+            if (IsMouseButtonPressed(pointerDownEvent.pressedButtons, MouseButton.Middle)) return;
             var tools = window.ToolsWindow;
             if (tools == null) return;
             var pressure = pointerDownEvent.pointerType == UnityEngine.UIElements.PointerType.pen ? pointerDownEvent.pressure : 1.0f;

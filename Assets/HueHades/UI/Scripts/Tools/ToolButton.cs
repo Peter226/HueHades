@@ -20,6 +20,10 @@ public class ToolButton : HueHadesElement
         this.RegisterCallback<ClickEvent>(OnClicked);
         _imageTool = imageTool;
         AddToClassList(ussToolButton);
+
+        var image = new Image();
+        image.image = _imageTool.GetIcon();
+        Add(image);
     }
 
     public void Deselect()

@@ -1,4 +1,5 @@
 using HueHades.Core;
+using HueHades.Tools;
 using HueHades.Utilities;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,7 +7,8 @@ using UnityEngine;
 
 namespace HueHades.Tools
 {
-    public class BrushImageTool : ImageTool
+
+    public class EraserImageTool : ImageTool
     {
         private ImageCanvas _paintCanvas;
         private ImageLayer _paintLayer;
@@ -31,7 +33,7 @@ namespace HueHades.Tools
         {
             if (Icon == null)
             {
-                Icon = Resources.Load<Texture2D>("Icons/BrushIcon");
+                Icon = Resources.Load<Texture2D>("Icons/EraserIcon");
             }
             return Icon;
         }
@@ -51,7 +53,7 @@ namespace HueHades.Tools
 
         protected override void OnUseUpdate(Vector2 currentPoint, float currentPressure, float currentTilt)
         {
-            
+
             float distance = Vector2.Distance(currentPoint, _lastPoint);
             float travelAmount = distance + _leftOverLength;
             float pathDistance = -_leftOverLength;
@@ -59,7 +61,7 @@ namespace HueHades.Tools
 
             Rect bounds = new Rect(float.MaxValue, float.MaxValue, float.MinValue, float.MinValue);
 
-           
+
 
             while (travelAmount >= _paintInterval)
             {
@@ -96,7 +98,7 @@ namespace HueHades.Tools
                 RenderTextureUtilities.ClearTexture(paintBufferA, Color.clear);
                 RenderTextureUtilities.ClearTexture(paintBufferB, Color.clear);
 
-                for (int i = 0;i < paintPoints.Count;i++)
+                for (int i = 0; i < paintPoints.Count; i++)
                 {
                     var point = paintPoints[i];
                     int pointWidth = Mathf.RoundToInt(point.radius);
@@ -106,7 +108,7 @@ namespace HueHades.Tools
 
 
                     var pointBuffer = RenderTextureUtilities.GetTemporary(pointWidth, pointHeight, _paintCanvas.Format, out int pointBufferSize);
-                    var color = Color.red;
+                    var color = Color.blue;
                     /*if (i == 0)
                     {
                         color = Color.green;
@@ -119,7 +121,7 @@ namespace HueHades.Tools
                     RenderTextureUtilities.ClearTexture(pointBuffer, color);
                     RenderTextureUtilities.CopyTexture(pointBuffer, 0, 0, pointWidth, pointHeight, paintBufferA, pointStartX, pointStartY);
                     RenderTextureUtilities.ReleaseTemporary(pointBuffer);
-                    RenderTextureUtilities.LayerImage(paintBufferB,paintBufferA,paintBufferC, Common.ColorBlendMode.Add);
+                    RenderTextureUtilities.LayerImage(paintBufferB, paintBufferA, paintBufferC, Common.ColorBlendMode.Add);
                     RenderTextureUtilities.ClearTexture(paintBufferA, Color.clear);
                     var oldBufferB = paintBufferB;
                     paintBufferB = paintBufferC;
@@ -149,17 +151,17 @@ namespace HueHades.Tools
 
         protected override void OnEndUse(Vector2 endPoint, float endPressure, float endTilt)
         {
-            
+
         }
 
         protected override void OnSelected()
         {
-            
+
         }
 
         protected override void OnDeselected()
         {
-            
+
         }
     }
 }

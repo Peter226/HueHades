@@ -1,0 +1,74 @@
+.menu-bar {
+    background-color: rgb(25, 25, 25);
+    align-items: flex-start;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-self: auto;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.hover-popups {
+    position: absolute;
+}
+
+.main-category-button {
+    overflow: visible;
+    visibility: visible;
+}
+
+.category-box-parent {
+    position: absolute;
+    top: 100%;
+    display: flex;
+    visibility: visible;
+}
+
+.category-box-parent > .unity-group-box {
+    position: absolute;
+    flex-grow: 1;
+    flex-direction: column;
+    top: auto;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    background-color: rgb(25, 25, 25);
+}
+
+.category-button {
+    flex-direction: column;
+    -unity-text-align: upper-left;
+    width: 100%;
+}
+
+.item-button {
+    align-items: flex-start;
+    align-self: flex-start;
+    width: 100%;
+    -unity-text-align: upper-left;
+}
+
+.sub-category-button {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.category-label {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.sub-category-arrow {
+    padding-left: 10px;
+}

@@ -13,7 +13,7 @@ namespace HueHades.Core {
 
         private RenderTexture _previewTexture;
         private CanvasHistory _canvasHistory;
-
+        public CanvasSelection Selection { get; private set; }
         public CanvasHistory History { get { return _canvasHistory; } }
 
         public ImageCanvas(int2 dimensions, RenderTextureFormat format)
@@ -25,6 +25,7 @@ namespace HueHades.Core {
             _previewTexture.wrapMode = TextureWrapMode.Repeat;
             _previewTexture.enableRandomWrite = true;
             _previewTexture.Create();
+            Selection = new CanvasSelection(dimensions, format);
             RenderPreview();
         }
 

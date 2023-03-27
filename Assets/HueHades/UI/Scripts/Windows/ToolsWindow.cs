@@ -1,9 +1,9 @@
 using HueHades.Core;
 using HueHades.Tools;
-using NUnit.Framework;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 namespace HueHades.UI
@@ -19,13 +19,18 @@ namespace HueHades.UI
         {
             if (window.ToolsWindow != null) throw new Exception("Tool window already exists for HueHades window!");
             AddToClassList(ussToolWindow);
-            for (int i = 0;i < 10;i++)
+
+            ImageTool[] imageTools = new ImageTool[] { new BrushImageTool(), new EraserImageTool() };
+
+            foreach (var imageTool in imageTools)
             {
-                ToolButton toolButton = new ToolButton(window, new BrushImageTool());
+                ToolButton toolButton = new ToolButton(window, imageTool);
                 toolButtons.Add(toolButton);
                 toolButton.Selected += OnSelectedButton;
                 hierarchy.Add(toolButton);
             }
+
+            
         }
 
 

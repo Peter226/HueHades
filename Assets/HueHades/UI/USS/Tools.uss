@@ -7,41 +7,49 @@
 }
 
 .tool-button {
-    width: 20px;
-    height: 20px;
-    background-color: rgb(255, 0, 0);
-    border-left-color: rgb(115, 43, 43);
-    border-right-color: rgb(115, 43, 43);
-    border-top-color: rgb(115, 43, 43);
-    border-bottom-color: rgb(115, 43, 43);
+    width: 26px;
+    height: 26px;
+    background-color: rgba(255, 255, 255, 0);
+    border-left-color: rgba(255, 255, 255, 0);
+    border-right-color: rgba(255, 255, 255, 0);
+    border-top-color: rgba(255, 255, 255, 0);
+    border-bottom-color: rgba(255, 255, 255, 0);
     border-left-width: 1px;
     border-right-width: 1px;
     border-top-width: 1px;
     border-bottom-width: 1px;
-    margin-left: 4px;
-    margin-right: 3px;
-    margin-top: 4px;
-    margin-bottom: 3px;
+    margin-left: 1px;
+    margin-right: 1px;
+    margin-top: 1px;
+    margin-bottom: 1px;
     flex-shrink: 0;
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 
 .tool-button-selected {
-    width: 20px;
-    height: 20px;
-    background-color: rgb(5, 255, 0);
-    border-left-color: rgb(45, 115, 43);
-    border-right-color: rgb(45, 115, 43);
-    border-top-color: rgb(45, 115, 43);
-    border-bottom-color: rgb(45, 115, 43);
+    width: 26px;
+    height: 26px;
+    background-color: rgba(38, 142, 255, 0.04);
+    border-left-color: rgba(38, 142, 255, 0.51);
+    border-right-color: rgba(38, 142, 255, 0.51);
+    border-top-color: rgba(38, 142, 255, 0.51);
+    border-bottom-color: rgba(38, 142, 255, 0.51);
     border-left-width: 1px;
     border-right-width: 1px;
     border-top-width: 1px;
     border-bottom-width: 1px;
-    margin-left: 4px;
-    margin-right: 3px;
-    margin-top: 4px;
-    margin-bottom: 3px;
+    margin-left: 1px;
+    margin-right: 1px;
+    margin-top: 1px;
+    margin-bottom: 1px;
     flex-shrink: 0;
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 
 VisualElement {

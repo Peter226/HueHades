@@ -2,6 +2,7 @@
     <Style src="project://database/Assets/HueHades/UI/USS/MainUI.uss?fileID=7433441132597879392&amp;guid=b2d56552d98368c498fa38011555e859&amp;type=3#MainUI" />
     <Style src="project://database/Assets/HueHades/UI/USS/Tools.uss?fileID=7433441132597879392&amp;guid=6cd9a65ff9fd51c4fbab332273e2db36&amp;type=3#Tools" />
     <Style src="project://database/Assets/HueHades/UI/USS/PopupWindows.uss?fileID=7433441132597879392&amp;guid=edcb4850544d7bb46bc876bdc78bf214&amp;type=3#PopupWindows" />
+    <Style src="project://database/Assets/HueHades/UI/USS/MenuBar.uss?fileID=7433441132597879392&amp;guid=f185dea14aff8aa459f57513c72544f8&amp;type=3#MenuBar" />
     <HueHadesWindow class="main-window" style="flex-grow: 1;">
         <ui:VisualElement name="FreeDock" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); position: absolute;" />
         <ui:VisualElement name="PopupWindows" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); position: absolute;" />
