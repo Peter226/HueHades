@@ -11,15 +11,25 @@ public class CategoryButton : HueHadesButton
 
     public CategoryButton(HueHadesWindow window) : base(window)
     {
-        this.RegisterCallback<FocusOutEvent>(FocusOutCallback);
+        RegisterCallback<FocusOutEvent>(FocusOutCallback);
+        RegisterCallback<MouseEnterEvent>(MouseEnterCallback);
         AddToClassList(ussCategoryButton);
     }
 
-    public EventHandler HideCategoryEvent;
+    private void MouseEnterCallback(MouseEnterEvent evt)
+    {
+        Focus();
+        GetMouse?.Invoke();
+    }
+
+
+    public Action<IEventHandler> LoseMouse;
+    public Action GetMouse;
 
     private void FocusOutCallback(FocusOutEvent e)
     {
-        HideCategoryEvent?.Invoke(this, new EventArgs());
+        var focusedElement = e.relatedTarget;
+        LoseMouse?.Invoke(focusedElement);
     }
 
 }

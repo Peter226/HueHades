@@ -1,7 +1,6 @@
-using Codice.CM.SEIDInfo;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -14,6 +13,8 @@ public class SubCategory : HueHadesElement
     private const string ussCategoryBoxParent = "category-box-parent";
     private const string ussCategoryLabel = "category-label";
     private const string ussSubCategoryArrow = "sub-category-arrow";
+    public Action OnClose;
+    private CategoryButton _categoryButton;
 
     public void AddFunction(string path, Type classType)
     {
@@ -23,6 +24,7 @@ public class SubCategory : HueHadesElement
         {
             var menuBarItem = new MenuBarItemButton(window, path, classType);
             _subCategoryGroupBox.Add(menuBarItem);
+            menuBarItem.LoseMouse += OnLoseMouse;
             return;
         }
 
@@ -36,6 +38,7 @@ public class SubCategory : HueHadesElement
         if (subCategoryButton == null)
         {
             subCategoryButton = new SubCategory(window, category);
+            subCategoryButton.LoseMouse += OnLoseMouse;
             subCategories.Add(category, subCategoryButton);
             _subCategoryGroupBox.Add(subCategoryButton);
         }
@@ -44,7 +47,7 @@ public class SubCategory : HueHadesElement
 
     public SubCategory(HueHadesWindow window, string name) : base(window)
     {
-        var button = new CategoryButton(window);
+        _categoryButton = new CategoryButton(window);
 
         var label = new Label(name);
         var arrow = new Label(">");
@@ -52,37 +55,46 @@ public class SubCategory : HueHadesElement
         arrow.AddToClassList(ussCategoryLabel);
         arrow.AddToClassList(ussSubCategoryArrow);
 
-        button.Add(label);
-        button.Add(arrow);
-        hierarchy.Add(button);
-        button.HideCategoryEvent += HideCategory;
-        button.clicked += ShowCategory;
-        button.RegisterCallback<MouseOverEvent>(OnMouseOverButton);
-
+        _categoryButton.Add(label);
+        _categoryButton.Add(arrow);
+        hierarchy.Add(_categoryButton);
+        _categoryButton.LoseMouse += OnLoseMouse;
+        _categoryButton.clicked += ShowCategory;
+        _categoryButton.GetMouse += ShowCategory;
 
         _categoryListOverlay = new VisualElement();
         _categoryListOverlay.AddToClassList(ussCategoryBoxParent);
         _subCategoryGroupBox = new GroupBox();
         _categoryListOverlay.Add(_subCategoryGroupBox);
 
-        button.AddToClassList(ussSubCategoryButton);
+        _categoryButton.AddToClassList(ussSubCategoryButton);
     }
 
-    private void OnMouseOverButton(MouseOverEvent mouseOver)
-    {
-        ShowCategory();
-    }
-
-
-
+    public Action<IEventHandler> LoseMouse;
 
     private void ShowCategory()
     {
         window.ShowOverlay(_categoryListOverlay, this, OverlayPlacement.Right);
     }
 
-    private void HideCategory(object sender, EventArgs e)
+    private void OnLoseMouse(IEventHandler eventHandler)
     {
+        if (eventHandler == _categoryButton) return;
+        foreach (var child in _subCategoryGroupBox.Children())
+        {
+            if (child == eventHandler || (child.childCount > 0 && child.Children().First() == eventHandler))
+            {
+                return;
+            }
+        }
+        foreach (var (cname, category) in subCategories)
+        {
+            if (category == eventHandler || category.Children().First() == eventHandler)
+            {
+                return;
+            }
+        }
         window.HideOverlay(_categoryListOverlay);
+        LoseMouse?.Invoke(eventHandler);
     }
 }

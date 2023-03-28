@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static UnityEngine.Video.VideoPlayer;
 
 public class MainCategory : HueHadesElement
 {
@@ -12,6 +14,7 @@ public class MainCategory : HueHadesElement
     private VisualElement _categoryListOverlay;
     private const string ussMainCategoryButton = "main-category-button";
     private const string ussCategoryBoxParent = "category-box-parent";
+    private CategoryButton _categoryButton;
 
     public void AddFunction(string path, Type classType)
     {
@@ -21,6 +24,7 @@ public class MainCategory : HueHadesElement
         {
             var menuBarItem = new MenuBarItemButton(window, path, classType);
             _subCategoryGroupBox.Add(menuBarItem);
+            menuBarItem.LoseMouse += OnLoseMouse;
             return;
         }
 
@@ -35,6 +39,7 @@ public class MainCategory : HueHadesElement
         if (subCategoryButton == null)
         {
             subCategoryButton = new SubCategory(window, category);
+            subCategoryButton.LoseMouse += OnLoseMouse;
             subCategories.Add(category, subCategoryButton);
             _subCategoryGroupBox.Add(subCategoryButton);
         }
@@ -44,11 +49,11 @@ public class MainCategory : HueHadesElement
 
     public MainCategory(HueHadesWindow window, string name) : base(window)
     {
-        var button = new CategoryButton(window);
-        button.text = name;
-        hierarchy.Add(button);
-        button.HideCategoryEvent += HideCategory;
-        button.clicked += ShowCategory;
+        _categoryButton = new CategoryButton(window);
+        _categoryButton.text = name;
+        hierarchy.Add(_categoryButton);
+        _categoryButton.LoseMouse += OnLoseMouse;
+        _categoryButton.GetMouse += ShowCategory;
 
         _categoryListOverlay = new VisualElement();
         _categoryListOverlay.AddToClassList(ussCategoryBoxParent);
@@ -63,8 +68,23 @@ public class MainCategory : HueHadesElement
         window.ShowOverlay(_categoryListOverlay, this, OverlayPlacement.Bottom);
     }
 
-    private void HideCategory(object sender, EventArgs e)
+    private void OnLoseMouse(IEventHandler eventHandler)
     {
+        if (eventHandler == _categoryButton) return;
+        foreach (var child in _subCategoryGroupBox.Children())
+        {
+            if (child == eventHandler || (child.childCount > 0 && child.Children().First() == eventHandler))
+            {
+                return;
+            }
+        }
+        foreach (var (cname, category) in subCategories)
+        {
+            if (category == eventHandler || category.Children().First() == eventHandler)
+            {
+                return;
+            }
+        }
         window.HideOverlay(_categoryListOverlay);
     }
 }

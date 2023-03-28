@@ -115,6 +115,7 @@ public class HueHadesWindow : VisualElement
         {
             _popupElement = this.Q<VisualElement>("PopupOverlays");
         }
+        if (!_popupElement.Contains(overlay)) return;
         _popupElement.Remove(overlay);
     }
 }

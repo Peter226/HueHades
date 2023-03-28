@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class MenuBarItemButton : HueHadesButton
 {
@@ -14,8 +15,24 @@ public class MenuBarItemButton : HueHadesButton
         text = name;
         AddToClassList(ussItemButton);
         clicked += () => {
-            Debug.Log("clicked button");
-            (menuBarFunction as IMenuBarFunction)?.Execute(window);
+            IMenuBarFunction instance = (IMenuBarFunction)Activator.CreateInstance(menuBarFunction);
+            instance?.Execute(window);
+            LoseMouse?.Invoke(null);
         };
+        RegisterCallback<MouseEnterEvent>(OnMouseEnterCallback);
+        RegisterCallback<FocusOutEvent>(OnLoseFocusCallback);
+    }
+
+    public Action<IEventHandler> LoseMouse;
+
+    private void OnLoseFocusCallback(FocusOutEvent focusOutEvent)
+    {
+        var focusedElement = focusOutEvent.relatedTarget;
+        LoseMouse?.Invoke(focusedElement);
+    }
+
+    private void OnMouseEnterCallback(MouseEnterEvent mouseEnterEvent)
+    {
+        Focus();
     }
 }

@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 using HueHades.Utilities;
+using UnityEngine.InputSystem;
 
 namespace HueHades.UI
 {
@@ -173,8 +174,8 @@ namespace HueHades.UI
             RedrawCamera();
         }
 
-        private void OnPointerMove(PointerMoveEvent pointerMoveEvent) {
-            
+        private void OnPointerMove(PointerMoveEvent pointerMoveEvent) 
+        {
             var tools = window.ToolsWindow;
             if (tools == null) return;
             var pressure = pointerMoveEvent.pointerType == UnityEngine.UIElements.PointerType.pen ? pointerMoveEvent.pressure : 1.0f;
