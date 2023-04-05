@@ -9,6 +9,7 @@ namespace HueHades.UI
     {
 
         private DockingWindow.DockHandle _dockedIn;
+        public DockingWindow.DockHandle DockedIn { get { return _dockedIn; } }
         private const string ussDockableWindow = "dockable-window";
 
         public DockableWindow(HueHadesWindow window) : base(window)

@@ -33,11 +33,11 @@ namespace HueHades.Tools {
         protected abstract void OnDeselected();
 
 
-        public void BeginUse(ImageCanvas canvas, int layer, Vector2 startPoint, float startPressure, float startTilt)
+        public void BeginUse(IToolContext toolContext, ImageCanvas canvas, int layer, Vector2 startPoint, float startPressure, float startTilt)
         {
             if (_isUsing) return;
             _isUsing = true;
-            OnBeginUse(canvas, layer, startPoint, startPressure, startTilt);
+            OnBeginUse(toolContext, canvas, layer, startPoint, startPressure, startTilt);
         }
         public void UseUpdate(Vector2 currentPoint, float currentPressure, float currentTilt)
         {
@@ -50,7 +50,7 @@ namespace HueHades.Tools {
             OnEndUse(endPoint, endPressure, endTilt);
         }
 
-        protected abstract void OnBeginUse(ImageCanvas canvas, int layer, Vector2 startPoint, float startPressure, float startTilt);
+        protected abstract void OnBeginUse(IToolContext toolContext, ImageCanvas canvas, int layer, Vector2 startPoint, float startPressure, float startTilt);
         protected abstract void OnUseUpdate(Vector2 currentPoint, float currentPressure, float currentTilt);
         protected abstract void OnEndUse(Vector2 endPoint, float endPressure, float endTilt);
         

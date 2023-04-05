@@ -250,3 +250,70 @@
     position: relative;
     flex-grow: 1;
 }
+
+.unity-scroller__low-button {
+    color: rgb(196, 196, 196);
+    background-color: rgb(25, 25, 25);
+    -unity-background-image-tint-color: rgb(196, 196, 196);
+    width: 17px;
+    height: 17px;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+}
+
+.unity-scroller__high-button {
+    color: rgb(196, 196, 196);
+    background-color: rgb(25, 25, 25);
+    -unity-background-image-tint-color: rgb(196, 196, 196);
+    width: 17px;
+    height: 17px;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+}
+
+.unity-base-slider__dragger {
+    background-color: rgb(60, 60, 60);
+    border-left-color: rgb(94, 94, 94);
+    border-right-color: rgb(94, 94, 94);
+    border-top-color: rgb(94, 94, 94);
+    border-bottom-color: rgb(94, 94, 94);
+    width: 15px;
+    left: 1px;
+}
+
+.unity-scroller {
+    border-left-color: rgb(94, 94, 94);
+    border-right-color: rgb(94, 94, 94);
+    border-top-color: rgb(94, 94, 94);
+    border-bottom-color: rgb(94, 94, 94);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    background-color: rgba(32, 32, 32, 0);
+}
+
+.unity-base-slider {
+    background-color: rgb(32, 32, 32);
+}
+
+.unity-base-slider__tracker {
+    background-color: rgb(32, 32, 32);
+    opacity: 0;
+}
+
+.unity-scroller--vertical {
+    width: 18px;
+}
+
+.unity-base-slider--vertical {
+    width: 18px;
+    min-width: 18px;
+    margin-top: 17px;
+    margin-bottom: 17px;
+    background-color: rgba(0, 0, 0, 0);
+}

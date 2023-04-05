@@ -8,6 +8,8 @@ using UnityEngine.UIElements;
 public class ToolButton : HueHadesElement
 {
     private ImageTool _imageTool;
+    private ToolContextCollector _contextCollector;
+    public ToolContextCollector ContextCollector { get { return _contextCollector; } }
     public ImageTool ImageTool { get { return _imageTool; } }
     private const string ussToolButton = "tool-button";
     private const string ussToolButtonSelected = "tool-button-selected";
@@ -15,10 +17,11 @@ public class ToolButton : HueHadesElement
     public Action<ToolButton> Selected;
     private bool _selected;
 
-    public ToolButton(HueHadesWindow window, ImageTool imageTool) : base(window)
+    public ToolButton(HueHadesWindow window, ImageTool imageTool, ToolContextCollector toolContextCollector) : base(window)
     {
         this.RegisterCallback<ClickEvent>(OnClicked);
         _imageTool = imageTool;
+        _contextCollector = toolContextCollector;
         AddToClassList(ussToolButton);
 
         var image = new Image();

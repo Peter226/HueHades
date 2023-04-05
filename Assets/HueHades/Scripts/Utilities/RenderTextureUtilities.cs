@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using HueHades.Common;
 using UnityEngine.Profiling;
+using UnityEngine.TerrainUtils;
 
 namespace HueHades.Utilities
 {
@@ -10,6 +11,7 @@ namespace HueHades.Utilities
     {
 
         private static Dictionary<(int, RenderTextureFormat), List<RenderTexture>> _renderTexturePool;
+        private static Dictionary<(int, RenderTextureFormat), List<RenderTexture>> _gradientRenderTexturePool;
 
         public static ComputeShader CopyImageShader;
         public static ComputeShader ClearImageShader;
@@ -84,11 +86,13 @@ namespace HueHades.Utilities
             TargetPropertyID = Shader.PropertyToID("Target");
             MaskPropertyID = Shader.PropertyToID("Mask");
 
+            Gradients.Initialize();
         }
 
         public static void InitializePool()
         {
             _renderTexturePool = new Dictionary<(int, RenderTextureFormat), List<RenderTexture>>();
+            _gradientRenderTexturePool = new Dictionary<(int, RenderTextureFormat), List<RenderTexture>>();
         }
 
         public static RenderTexture GetTemporary(int sizeX, int sizeY, RenderTextureFormat format, out int availableSize)
@@ -129,10 +133,58 @@ namespace HueHades.Utilities
             return temp;
         }
 
+
+        public static RenderTexture GetTemporaryGradient(int sizeX, RenderTextureFormat format, out int availableSize)
+        {
+            int maxSize = sizeX;
+
+            availableSize = 1;
+            while (availableSize < maxSize)
+            {
+                availableSize *= 2;
+            }
+
+            var key = (availableSize, format);
+            if (_gradientRenderTexturePool == null)
+            {
+                _gradientRenderTexturePool = new Dictionary<(int, RenderTextureFormat), List<RenderTexture>>();
+            }
+            List<RenderTexture> pooledTextures;
+            if (!_gradientRenderTexturePool.TryGetValue(key, out pooledTextures))
+            {
+                pooledTextures = new List<RenderTexture>();
+                _gradientRenderTexturePool.Add(key, pooledTextures);
+            }
+
+            RenderTexture temp;
+            if (pooledTextures.Count > 0)
+            {
+                var index = pooledTextures.Count - 1;
+                temp = pooledTextures[index];
+                pooledTextures.RemoveAt(index);
+            }
+            else
+            {
+                temp = new RenderTexture(availableSize, 1, 0, format, 0);
+                temp.enableRandomWrite = true;
+                temp.Create();
+            }
+            return temp;
+        }
+
+
+
+
         public static void ReleaseTemporary(RenderTexture renderTexture)
         {
             _renderTexturePool[(renderTexture.width, renderTexture.format)].Add(renderTexture);
         }
+
+        public static void ReleaseTemporaryGradient(RenderTexture gradientRenderTexture)
+        {
+            _gradientRenderTexturePool[(gradientRenderTexture.width, gradientRenderTexture.format)].Add(gradientRenderTexture);
+        }
+
 
         public static void CopyTexture(RenderTexture from, RenderTexture to, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
         {
@@ -256,14 +308,12 @@ namespace HueHades.Utilities
             LayerImageShader.Dispatch(dispatchKernel, Mathf.CeilToInt(result.width / (float)warpSizeX), Mathf.CeilToInt(result.height / (float)warpSizeY), 1);
         }
 
-        public static void LayerImageArea(RenderTexture targetBottomLayer, int sourceX, int sourceY, int sourceWidth, int sourceHeight, RenderTexture topLayer, ColorBlendMode colorBlendMode, int destinationX = 0, int destinationY = 0, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
+        public static void LayerImageArea(RenderTexture bottomLayer, RenderTexture target, int sourceX, int sourceY, int sourceWidth, int sourceHeight, RenderTexture topLayer, ColorBlendMode colorBlendMode, int destinationX = 0, int destinationY = 0, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
         {
-
             int sourceTextureWidth = topLayer.width;
             int sourceTextureHeight = topLayer.height;
-            int destinationTextureWidth = targetBottomLayer.width;
-            int destinationTextureHeight = targetBottomLayer.height;
-
+            int destinationTextureWidth = target.width;
+            int destinationTextureHeight = target.height;
 
             int dispatchKernel;
             switch (colorBlendMode)
@@ -313,8 +363,9 @@ namespace HueHades.Utilities
             LayerImageAreaShader.SetInts(SrcRectPropertyID, sourceX, sourceY, sourceWidth, sourceHeight);
 
             LayerImageAreaShader.SetInt(TileSrcXYDstXYPropertyID, tileComposite);
-            LayerImageAreaShader.SetTexture(dispatchKernel, BottomLayerPropertyID, targetBottomLayer);
+            LayerImageAreaShader.SetTexture(dispatchKernel, BottomLayerPropertyID, bottomLayer);
             LayerImageAreaShader.SetTexture(dispatchKernel, TopLayerPropertyID, topLayer);
+            LayerImageAreaShader.SetTexture(dispatchKernel, ResultPropertyID, target);
             LayerImageAreaShader.Dispatch(dispatchKernel, Mathf.CeilToInt(sourceTextureWidth / (float)warpSizeX), Mathf.CeilToInt(sourceTextureHeight / (float)warpSizeY), 1);
         }
 
@@ -327,5 +378,61 @@ namespace HueHades.Utilities
         }
 
 
+        public static class Gradients
+        {
+            public static ComputeShader DrawColorGradientRectangleShader;
+            public static ComputeShader DrawColorGradientShader;
+            public static ComputeShader DrawHueGradientShader;
+            private static int GradientRectangleKernel;
+            private static int GradientKernel;
+            private static int HueGradientKernel;
+            private static int ColorAPropertyID;
+            private static int ColorBPropertyID;
+            private static int ColorCPropertyID;
+            private static int ColorDPropertyID;
+            private static int RectangleSizePropertyID;
+            private static int SizePropertyID;
+
+            public static void Initialize()
+            {
+                DrawColorGradientRectangleShader = Resources.Load<ComputeShader>("DrawColorGradientRectangle");
+                DrawColorGradientShader = Resources.Load<ComputeShader>("DrawColorGradient");
+                DrawHueGradientShader = Resources.Load<ComputeShader>("DrawHueGradient");
+                GradientRectangleKernel = DrawColorGradientRectangleShader.FindKernel("CSMain");
+                GradientKernel = DrawColorGradientShader.FindKernel("CSMain");
+                HueGradientKernel = DrawHueGradientShader.FindKernel("CSMain");
+                ColorAPropertyID = Shader.PropertyToID("ColorA");
+                ColorBPropertyID = Shader.PropertyToID("ColorB");
+                ColorCPropertyID = Shader.PropertyToID("ColorC");
+                ColorDPropertyID = Shader.PropertyToID("ColorD");
+                RectangleSizePropertyID = Shader.PropertyToID("RectangleSize");
+                SizePropertyID = Shader.PropertyToID("Size");
+            }
+
+            public static void DrawColorGradientRectangle(RenderTexture target, int rectangleSizeX, int rectangleSizeY, Color colorA, Color colorB, Color colorC, Color colorD)
+            {
+                DrawColorGradientRectangleShader.SetInts(RectangleSizePropertyID, rectangleSizeX, rectangleSizeY);
+                DrawColorGradientRectangleShader.SetVector(ColorAPropertyID, colorA);
+                DrawColorGradientRectangleShader.SetVector(ColorBPropertyID, colorB);
+                DrawColorGradientRectangleShader.SetVector(ColorCPropertyID, colorC);
+                DrawColorGradientRectangleShader.SetVector(ColorDPropertyID, colorD);
+                DrawColorGradientRectangleShader.SetTexture(GradientRectangleKernel, ResultPropertyID, target);
+                DrawColorGradientRectangleShader.Dispatch(GradientRectangleKernel, Mathf.CeilToInt(Mathf.Min(target.width, rectangleSizeX) / (float)warpSizeX), Mathf.CeilToInt(Mathf.Min(target.height, rectangleSizeY) / (float)warpSizeY), 1);
+            }
+            public static void DrawColorGradient(RenderTexture target, int size, Color colorA, Color colorB)
+            {
+                DrawColorGradientShader.SetInt(SizePropertyID, size);
+                DrawColorGradientShader.SetVector(ColorAPropertyID, colorA);
+                DrawColorGradientShader.SetVector(ColorBPropertyID, colorB);
+                DrawColorGradientShader.SetTexture(GradientKernel, ResultPropertyID, target);
+                DrawColorGradientShader.Dispatch(GradientKernel, Mathf.CeilToInt(Mathf.Min(target.width, size) / (float)warpSizeX), 1, 1);
+            }
+            public static void DrawHueGradient(RenderTexture target, int size)
+            {
+                DrawHueGradientShader.SetInt(SizePropertyID, size);
+                DrawHueGradientShader.SetTexture(HueGradientKernel, ResultPropertyID, target);
+                DrawHueGradientShader.Dispatch(HueGradientKernel, Mathf.CeilToInt(Mathf.Min(target.width, size) / (float)warpSizeX), 1, 1);
+            }
+        }
     }
 }

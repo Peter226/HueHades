@@ -1,5 +1,5 @@
 .popup-window {
-    background-color: rgb(40, 40, 40);
+    background-color: rgb(32, 32, 32);
     border-left-width: 2px;
     border-right-width: 2px;
     border-top-width: 2px;
@@ -8,8 +8,39 @@
     border-right-color: rgb(40, 40, 40);
     border-top-color: rgb(40, 40, 40);
     border-bottom-color: rgb(40, 40, 40);
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    position: absolute;
 }
 
 .popup-window-title {
-    background-color: rgb(25, 25, 25);
+    -unity-font-style: bold;
+}
+
+.popup-window-title-bar {
+    flex-direction: row;
+    justify-content: space-between;
+    border-bottom-color: rgb(94, 94, 94);
+    border-bottom-width: 1px;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.popup-window-close {
+    -unity-font-style: bold;
+}
+
+.brush-editor-main-layout {
+    flex-direction: row;
+}
+
+.brush-editor-right-layout {
+    flex-grow: 0;
+    padding-right: 5px;
+    padding-left: 8px;
+}
+
+.popup-window-container {
 }

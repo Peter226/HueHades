@@ -18,6 +18,7 @@ namespace HueHades.Tools
         private float _leftOverLength;
         private float _paintInterval = 1.0f;
         private List<PaintPoint> paintPoints = new List<PaintPoint>();
+        private EraserToolContext _toolContext;
 
         private static Texture Icon;
 
@@ -41,7 +42,7 @@ namespace HueHades.Tools
 
 
 
-        protected override void OnBeginUse(ImageCanvas canvas, int layer, Vector2 startPoint, float startPressure, float startTilt)
+        protected override void OnBeginUse(IToolContext toolContext, ImageCanvas canvas, int layer, Vector2 startPoint, float startPressure, float startTilt)
         {
             _paintCanvas = canvas;
             _paintLayer = _paintCanvas.GetLayer(layer);
@@ -49,6 +50,7 @@ namespace HueHades.Tools
             _lastPressure = startPressure;
             _lastTilt = startTilt;
             _leftOverLength = 0.0f;
+            _toolContext = (EraserToolContext)toolContext;
         }
 
         protected override void OnUseUpdate(Vector2 currentPoint, float currentPressure, float currentTilt)

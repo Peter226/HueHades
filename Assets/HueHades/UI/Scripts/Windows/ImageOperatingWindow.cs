@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using HueHades.Utilities;
 using UnityEngine.InputSystem;
+using Unity.Mathematics;
 
 namespace HueHades.UI
 {
@@ -26,7 +27,10 @@ namespace HueHades.UI
         private RenderTexture _windowTexture;
         private MaterialPropertyBlock _canvasPropertyBlock;
         private MaterialPropertyBlock _selectionPropertyBlock;
-
+        private bool _needsScale;
+        private bool _needsUpdate;
+        private int2 _operatingWindowSize;
+        private bool _hasSize;
 
         public ImageOperatingWindow(HueHadesWindow window, ImageCanvas imageCanvas) : base(window)
         {
@@ -45,13 +49,33 @@ namespace HueHades.UI
             RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
         }
 
+        void OnRedraw()
+        {
+            if (!_hasSize) return;
+            if (_needsUpdate)
+            {
+                if (_needsScale || _windowTexture == null)
+                {
+                    if (_windowTexture != null)
+                    {
+                        RenderTexture.ReleaseTemporary(_windowTexture);
+                    }
+                    _windowTexture = RenderTexture.GetTemporary(_operatingWindowSize.x, _operatingWindowSize.y);
+                    _windowDisplay.image = _windowTexture;
+                    _camera.targetTexture = _windowTexture;
+                    _needsScale = false;
+                }
+
+                _needsUpdate = false;
+                _operatingWindowHierarchy.SetActive(true);
+                _camera.Render();
+                _operatingWindowHierarchy.SetActive(false);
+            }
+        }
+
         private void RedrawCamera()
         {
-            if (CameraUpdateManager == null)
-            {
-                CameraUpdateManager = new GameObject("CameraUpdater").AddComponent<CameraUpdater>();
-            }
-            CameraUpdateManager.QueueRender(_camera, _operatingWindowHierarchy);
+            _needsUpdate = true;
         }
 
         private void OnCanvasDimensionsChanged()
@@ -59,22 +83,23 @@ namespace HueHades.UI
             _canvasObject.transform.localScale = new Vector3(_imageCanvas.Dimensions.x / (float)_imageCanvas.Dimensions.y,1,1);
         }
 
-
         private void OnGeometryChanged(GeometryChangedEvent evt)
         {
-            if (_windowTexture != null)
-            {
-                RenderTexture.ReleaseTemporary(_windowTexture);
-            }
-            _windowTexture = RenderTexture.GetTemporary(Mathf.CeilToInt(Mathf.Max(1, evt.newRect.width)), Mathf.CeilToInt(Mathf.Max(1,evt.newRect.height)));
-            _windowDisplay.image = _windowTexture;
-            _camera.targetTexture = _windowTexture;
+            _hasSize = true;
+            _operatingWindowSize = new int2(Mathf.CeilToInt(Mathf.Max(1, evt.newRect.width)), Mathf.CeilToInt(Mathf.Max(1, evt.newRect.height)));
+            _needsScale = true;
             RedrawCamera();
         }
 
         private void OnDetachFromPanel(DetachFromPanelEvent evt)
         {
             GameObject.Destroy(_operatingWindowHierarchy);
+            CameraUpdateManager.OnUpdate -= OnRedraw;
+            if (_windowTexture != null)
+            {
+                RenderTexture.ReleaseTemporary(_windowTexture);
+            }
+            _windowTexture = null;
         }
 
         /// <summary>
@@ -138,8 +163,15 @@ namespace HueHades.UI
             _selectionPropertyBlock.SetTexture(TexturePropertyID, _imageCanvas.Selection.SelectionTexture);
             _selectionObjectRenderer.SetPropertyBlock(_selectionPropertyBlock);
 
-            //signal redraw
             OnCanvasDimensionsChanged();
+
+            if (CameraUpdateManager == null)
+            {
+                CameraUpdateManager = new GameObject("CameraUpdater").AddComponent<CameraUpdater>();
+            }
+            
+            CameraUpdateManager.OnUpdate += OnRedraw;
+            RedrawCamera();
         }
 
         private Vector2 GetPixelPosition(Vector2 pointerPosition)

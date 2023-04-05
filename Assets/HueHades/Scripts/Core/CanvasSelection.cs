@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class CanvasSelection : MonoBehaviour
+public class CanvasSelection
 {
 
     RenderTexture _selectionTexture;

@@ -14,30 +14,28 @@ namespace HueHades.UI
 
         private List<ToolButton> toolButtons = new List<ToolButton>();
         ImageTool _selectedTool;
+        ToolContextCollector _selectedContextCollector;
 
         public ToolsWindow(HueHadesWindow window) : base(window)
         {
             if (window.ToolsWindow != null) throw new Exception("Tool window already exists for HueHades window!");
             AddToClassList(ussToolWindow);
 
-            ImageTool[] imageTools = new ImageTool[] { new BrushImageTool(), new EraserImageTool() };
+            (ImageTool, ToolContextCollector)[] imageTools = new (ImageTool, ToolContextCollector)[] { (new BrushImageTool(), new BrushContextCollector()), (new EraserImageTool(), new EraserContextCollector()) };
 
-            foreach (var imageTool in imageTools)
+            foreach (var (imageTool, contextCollector) in imageTools)
             {
-                ToolButton toolButton = new ToolButton(window, imageTool);
+                ToolButton toolButton = new ToolButton(window, imageTool, contextCollector);
                 toolButtons.Add(toolButton);
                 toolButton.Selected += OnSelectedButton;
                 hierarchy.Add(toolButton);
-            }
-
-            
+            } 
         }
-
 
         public void OnToolBeginUse(ImageCanvas canvas, int layer, Vector2 startPoint, float startPressure, float startTilt)
         {
             if (_selectedTool == null) return;
-            _selectedTool.BeginUse(canvas, layer, startPoint, startPressure, startTilt);
+            _selectedTool.BeginUse(_selectedContextCollector.CollectContext(window), canvas, layer, startPoint, startPressure, startTilt);
         }
         public void OnToolEndUse(Vector2 endPoint, float endPressure, float endTilt)
         {
@@ -54,6 +52,7 @@ namespace HueHades.UI
         private void OnSelectedButton(ToolButton button)
         {
             _selectedTool = button.ImageTool;
+            _selectedContextCollector = button.ContextCollector;
             foreach (ToolButton toolButton in toolButtons)
             {
                 if (toolButton != button) toolButton.Deselect();
@@ -64,5 +63,12 @@ namespace HueHades.UI
         {
             return "Tools";
         }
+
+
+        public override Vector2 GetDefaultSize()
+        {
+            return new Vector2(80.0f,80.0f);
+        }
+
     }
 }

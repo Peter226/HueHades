@@ -5,7 +5,6 @@ using Unity.Mathematics;
 using UnityEngine;
 using HueHades.Core;
 using HueHades.Utilities;
-
 public class ApplicationManager : MonoBehaviour
 {
     public static ApplicationManager Instance;
@@ -65,5 +64,4 @@ public class ApplicationManager : MonoBehaviour
 
 
     }
-
 }

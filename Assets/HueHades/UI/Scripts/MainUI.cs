@@ -8,6 +8,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
 using HueHades.UI;
+using HueHades.Tools;
 
 [RequireComponent(typeof(UIDocument))]
 public class MainUI : MonoBehaviour
@@ -19,6 +20,57 @@ public class MainUI : MonoBehaviour
     private void Awake()
     {
         ApplicationManager.OnApplicationLoaded += ApplicationLoaded;
+
+        BrushPreset.Presets = new List<BrushPreset> { 
+            new BrushPreset() {
+                name = "Preset 1",
+                iconPath = "Icons/BrushIcon"
+            },
+            new BrushPreset() {
+                name = "Preset 2",
+                iconPath = "Icons/BrushIcon"
+            },
+            new BrushPreset() {
+                name = "Preset 3",
+                iconPath = "Icons/BrushIcon"
+            },
+            new BrushPreset() {
+                name = "Preset 4",
+                iconPath = "Icons/BrushIcon"
+            },
+            new BrushPreset() {
+                name = "Preset 5",
+                iconPath = "Icons/BrushIcon"
+            },
+            new BrushPreset() {
+                name = "Preset 6",
+                iconPath = "Icons/BrushIcon"
+            },
+            new BrushPreset() {
+                name = "Preset 7",
+                iconPath = "Icons/BrushIcon"
+            }
+            ,
+            new BrushPreset() {
+                name = "Preset 8",
+                iconPath = "Icons/BrushIcon"
+            }
+            ,
+            new BrushPreset() {
+                name = "Preset 9",
+                iconPath = "Icons/BrushIcon"
+            }
+            ,
+            new BrushPreset() {
+                name = "Preset 10",
+                iconPath = "Icons/BrushIcon"
+            }
+            ,
+            new BrushPreset() {
+                name = "Preset 11",
+                iconPath = "Icons/BrushIcon"
+            }
+        };
     }
 
     private void OnDestroy()
@@ -30,6 +82,11 @@ public class MainUI : MonoBehaviour
     {
         _uIDocument = GetComponent<UIDocument>();
         _window = _uIDocument.rootVisualElement.Q<HueHadesWindow>();
+        _window.OnInitialized += OnWindowInitialize;
+    }
+
+    private void OnWindowInitialize()
+    {
         ApplicationManager.Instance.CreateCanvas(initialCanvasDimensions, Color.white, RenderTextureFormat.ARGBFloat);
         ApplicationManager.Instance.CreateCanvas(initialCanvasDimensions, Color.white, RenderTextureFormat.ARGBFloat);
         ApplicationManager.Instance.CreateCanvas(initialCanvasDimensions, Color.white, RenderTextureFormat.ARGBFloat);
@@ -43,7 +100,6 @@ public class EditBrushMenuBarFunction : IMenuBarFunction
 {
     public void Execute(HueHadesWindow window)
     {
-        Debug.Log("executed");
         BrushEditorWindow brushEditorWindow = new BrushEditorWindow(window);
         brushEditorWindow.Open();
     }

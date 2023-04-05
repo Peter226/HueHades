@@ -1,0 +1,27 @@
+
+#pragma kernel CSMain
+
+float4 ColorA;
+float4 ColorB;
+
+uint Size;
+
+RWTexture2D<float4> Result;
+
+
+float3 h2rgb(float c)
+{
+    float4 K = float4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    float3 p = abs(frac(c + K.xyz) * 6.0 - K.www);
+    return saturate(p - K.xxx);
+}
+
+
+[numthreads(64,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    if((id.x < Size && id.y == 0)){
+        float progress = id.x / (float)(Size - 1);
+        Result[id.xy] = float4(h2rgb(progress),1);
+    }
+}

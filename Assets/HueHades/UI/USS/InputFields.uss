@@ -1,0 +1,100 @@
+.gradient-color-picker-display {
+    -unity-background-scale-mode: scale-and-crop;
+}
+
+.dropdown {
+    flex-grow: 0;
+    flex-direction: row;
+}
+
+.dropdown-label {
+    margin-left: 0;
+    margin-right: 8px;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    align-self: flex-start;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.dropdown-arrow-label {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    font-size: 8px;
+}
+
+.dropdown-button {
+    background-color: rgb(25, 25, 25);
+    align-items: center;
+    margin-right: 0;
+    margin-left: 0;
+    padding-left: 4px;
+    padding-right: 4px;
+    margin-top: 0;
+    margin-bottom: 0;
+    flex-grow: 1;
+    flex-direction: row;
+    align-self: auto;
+}
+
+.brush-preset-selector {
+    border-left-color: rgb(94, 94, 94);
+    border-right-color: rgb(94, 94, 94);
+    border-top-color: rgb(94, 94, 94);
+    border-bottom-color: rgb(94, 94, 94);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    background-color: rgb(25, 25, 25);
+}
+
+.brush-preset-container {
+    flex-direction: row;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    align-items: center;
+}
+
+.brush-preset-label {
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+
+.brush-preset-icon {
+    width: 24px;
+    height: 20px;
+    margin-left: 4px;
+}
+
+.brush-preset-container-selected {
+    border-left-color: rgba(38, 142, 255, 0.51);
+    border-right-color: rgba(38, 142, 255, 0.51);
+    border-top-color: rgba(38, 142, 255, 0.51);
+    border-bottom-color: rgba(38, 142, 255, 0.51);
+    background-color: rgba(38, 142, 255, 0.04);
+}
+
+.brush-preset-container-selected:hover {
+    border-left-color: rgba(38, 142, 255, 0.51);
+    border-right-color: rgba(38, 142, 255, 0.51);
+    border-top-color: rgba(38, 142, 255, 0.51);
+    border-bottom-color: rgba(38, 142, 255, 0.51);
+    background-color: rgba(38, 142, 255, 0.04);
+}

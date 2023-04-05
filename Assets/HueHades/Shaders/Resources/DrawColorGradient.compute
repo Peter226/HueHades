@@ -1,0 +1,18 @@
+
+#pragma kernel CSMain
+
+float4 ColorA;
+float4 ColorB;
+
+uint Size;
+
+RWTexture2D<float4> Result;
+
+[numthreads(64,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    if((id.x < Size && id.y == 0)){
+        float progress = id.x / (float)(Size - 1);
+        Result[id.xy] = lerp(ColorA,ColorB,progress);
+    }
+}

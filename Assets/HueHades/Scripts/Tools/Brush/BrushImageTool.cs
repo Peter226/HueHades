@@ -16,9 +16,14 @@ namespace HueHades.Tools
         private float _leftOverLength;
         private float _paintInterval = 1.0f;
         private List<PaintPoint> paintPoints = new List<PaintPoint>();
+        private BrushToolContext _toolContext;
 
         private static Texture Icon;
 
+        private RenderTexture _layerOperatingCopyBuffer;
+        private RenderTexture _layerCopyBuffer;
+        private RenderTexture _paintBuffer;
+        private ImageLayer.CopyHandle _layerOperatingCopy;
 
         private struct PaintPoint
         {
@@ -39,7 +44,7 @@ namespace HueHades.Tools
 
 
 
-        protected override void OnBeginUse(ImageCanvas canvas, int layer, Vector2 startPoint, float startPressure, float startTilt)
+        protected override void OnBeginUse(IToolContext toolContext, ImageCanvas canvas, int layer, Vector2 startPoint, float startPressure, float startTilt)
         {
             _paintCanvas = canvas;
             _paintLayer = _paintCanvas.GetLayer(layer);
@@ -47,6 +52,15 @@ namespace HueHades.Tools
             _lastPressure = startPressure;
             _lastTilt = startTilt;
             _leftOverLength = 0.0f;
+            _toolContext = (BrushToolContext)toolContext;
+
+            var canvasDimensions = _paintCanvas.Dimensions;
+            _layerOperatingCopyBuffer = RenderTextureUtilities.GetTemporary(canvasDimensions.x, canvasDimensions.y, _paintCanvas.Format, out int availableSize);
+            _layerCopyBuffer = RenderTextureUtilities.GetTemporary(canvasDimensions.x, canvasDimensions.y, _paintCanvas.Format, out availableSize);
+            _paintBuffer = RenderTextureUtilities.GetTemporary(canvasDimensions.x, canvasDimensions.y, _paintCanvas.Format, out availableSize);
+            RenderTextureUtilities.ClearTexture(_paintBuffer, Color.clear);
+            _layerOperatingCopy = _paintLayer.GetOperatingCopy(_layerOperatingCopyBuffer);
+            RenderTextureUtilities.CopyTexture(_layerOperatingCopyBuffer, _layerCopyBuffer);
         }
 
         protected override void OnUseUpdate(Vector2 currentPoint, float currentPressure, float currentTilt)
@@ -90,52 +104,26 @@ namespace HueHades.Tools
                 int bufferStartX = Mathf.RoundToInt(bounds.min.x);
                 int bufferStartY = Mathf.RoundToInt(bounds.min.y);
 
-                var paintBufferA = RenderTextureUtilities.GetTemporary(bufferWidth, bufferHeight, _paintCanvas.Format, out int bufferSizeA);
-                var paintBufferB = RenderTextureUtilities.GetTemporary(bufferWidth, bufferHeight, _paintCanvas.Format, out int bufferSizeB);
-                var paintBufferC = RenderTextureUtilities.GetTemporary(bufferWidth, bufferHeight, _paintCanvas.Format, out int bufferSizeC);
-                RenderTextureUtilities.ClearTexture(paintBufferA, Color.clear);
-                RenderTextureUtilities.ClearTexture(paintBufferB, Color.clear);
-
                 for (int i = 0;i < paintPoints.Count;i++)
                 {
                     var point = paintPoints[i];
                     int pointWidth = Mathf.RoundToInt(point.radius);
                     int pointHeight = Mathf.RoundToInt(point.radius);
-                    int pointStartX = Mathf.RoundToInt(point.position.x - point.radius * 0.5f) - bufferStartX;
-                    int pointStartY = Mathf.RoundToInt(point.position.y - point.radius * 0.5f) - bufferStartY;
-
+                    int pointStartX = Mathf.RoundToInt(point.position.x - point.radius * 0.5f);
+                    int pointStartY = Mathf.RoundToInt(point.position.y - point.radius * 0.5f);
 
                     var pointBuffer = RenderTextureUtilities.GetTemporary(pointWidth, pointHeight, _paintCanvas.Format, out int pointBufferSize);
-                    var color = Color.red;
-                    /*if (i == 0)
-                    {
-                        color = Color.green;
-                    }
-                    if (i == paintPoints.Count - 1)
-                    {
-                        color = Color.blue;
-                    }*/
-                    color.a *= point.pressure * point.pressure * 0.5f;
+                    var paintCopyBuffer = RenderTextureUtilities.GetTemporary(pointWidth, pointHeight, _paintCanvas.Format, out pointBufferSize);
+                    RenderTextureUtilities.CopyTexture(_paintBuffer, pointStartX, pointStartY, pointWidth, pointHeight, paintCopyBuffer);
+                    var color = _toolContext.BrushPreset.color;
                     RenderTextureUtilities.ClearTexture(pointBuffer, color);
-                    RenderTextureUtilities.CopyTexture(pointBuffer, 0, 0, pointWidth, pointHeight, paintBufferA, pointStartX, pointStartY);
+                    RenderTextureUtilities.LayerImageArea(paintCopyBuffer, _paintBuffer, 0, 0, pointWidth, pointHeight, pointBuffer, Common.ColorBlendMode.Default, pointStartX, pointStartY);
                     RenderTextureUtilities.ReleaseTemporary(pointBuffer);
-                    RenderTextureUtilities.LayerImage(paintBufferB,paintBufferA,paintBufferC, Common.ColorBlendMode.Add);
-                    RenderTextureUtilities.ClearTexture(paintBufferA, Color.clear);
-                    var oldBufferB = paintBufferB;
-                    paintBufferB = paintBufferC;
-                    paintBufferC = oldBufferB;
+                    RenderTextureUtilities.ReleaseTemporary(paintCopyBuffer);
                 }
 
-                var sourceBuffer = RenderTextureUtilities.GetTemporary(bufferWidth, bufferHeight, _paintCanvas.Format, out int sourceBufferSize);
-                var resultBuffer = RenderTextureUtilities.GetTemporary(bufferWidth, bufferHeight, _paintCanvas.Format, out int resultBufferSize);
-                _paintLayer.GetOperatingCopy(sourceBuffer, bufferStartX, bufferStartY);
-                RenderTextureUtilities.LayerImage(sourceBuffer, paintBufferB, resultBuffer, Common.ColorBlendMode.Default);
-                _paintLayer.ApplyBufferArea(resultBuffer, bufferStartX, bufferStartY, 0, 0, bufferWidth, bufferHeight);
-                RenderTextureUtilities.ReleaseTemporary(paintBufferA);
-                RenderTextureUtilities.ReleaseTemporary(paintBufferB);
-                RenderTextureUtilities.ReleaseTemporary(paintBufferC);
-                RenderTextureUtilities.ReleaseTemporary(sourceBuffer);
-                RenderTextureUtilities.ReleaseTemporary(resultBuffer);
+                RenderTextureUtilities.LayerImageArea(_layerCopyBuffer, _layerOperatingCopyBuffer, bufferStartX, bufferStartY, bufferWidth, bufferHeight, _paintBuffer, Common.ColorBlendMode.Default, bufferStartX, bufferStartY);
+                _paintLayer.ApplyBufferArea(_layerOperatingCopyBuffer, bufferStartX, bufferStartY, bufferStartX, bufferStartY, bufferWidth, bufferHeight);
             }
 
 
@@ -149,7 +137,9 @@ namespace HueHades.Tools
 
         protected override void OnEndUse(Vector2 endPoint, float endPressure, float endTilt)
         {
-            
+            RenderTextureUtilities.ReleaseTemporary(_layerOperatingCopyBuffer);
+            RenderTextureUtilities.ReleaseTemporary(_paintBuffer);
+            RenderTextureUtilities.ReleaseTemporary(_layerCopyBuffer);
         }
 
         protected override void OnSelected()

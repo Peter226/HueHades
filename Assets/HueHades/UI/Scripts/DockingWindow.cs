@@ -1,3 +1,4 @@
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -50,8 +51,14 @@ namespace HueHades.UI
         {
             if (_isDockSplit)
             {
-                var sizeA = _splitA.worldBound.size;
-                var sizeB = _splitB.worldBound.size;
+                Vector2 sizeA;
+                Vector2 sizeB;
+                
+                sizeA.x = _splitA.style.width.value.value;
+                sizeA.y = _splitA.style.height.value.value;
+                sizeB.x = _splitB.style.width.value.value;
+                sizeB.y = _splitB.style.height.value.value;
+
                 if (sizeA.x * sizeA.y > sizeB.x * sizeB.y)
                 {
                     return _splitA.DockWindow(dockableWindow, dockType, headerIndex);
@@ -90,16 +97,30 @@ namespace HueHades.UI
                     window.FreeDockElement.Add(freeDocker);
                     return dockableWindow.Dock(freeDocker.Handle);
                 default:
-                    SplitDock(dockType, out DockingWindow oldHierarchy, out DockingWindow newHierarchy);
+                    float newSize;
+                    if (dockType == DockType.Bottom || dockType == DockType.Top)
+                    {
+                        newSize = dockableWindow.GetDefaultSize().y;
+                    }
+                    else
+                    {
+                        newSize = dockableWindow.GetDefaultSize().x;
+                    }
+                    SplitDock(dockType, out DockingWindow oldHierarchy, out DockingWindow newHierarchy, newSize);
                     return dockableWindow.Dock(newHierarchy.Handle);
             }
             return Handle;
         }
 
-        private void SplitDock(DockType dockType, out DockingWindow oldHierarchy, out DockingWindow newHierarchy)
+        private void SplitDock(DockType dockType, out DockingWindow oldHierarchy, out DockingWindow newHierarchy, float newSize = -1.0f)
         {
             _splitHierarchy.style.display = DisplayStyle.Flex;
             Rect bounds = this.worldBound;
+            if (float.IsNaN(bounds.width) || float.IsNaN(bounds.height))
+            {
+                bounds.width = this.style.width.value.value;
+                bounds.height = this.style.height.value.value;
+            }
             AddToClassList(ussSplitDockingWindow);
 
             _isDockSplit = true;
@@ -126,17 +147,33 @@ namespace HueHades.UI
             {
                 _splitHierarchy.style.flexDirection = FlexDirection.Row;
                 _splitDirection = FlexDirection.Row;
-                float thirdWidth = bounds.width / 3.0f;
-                newHierarchy.style.width = thirdWidth;
-                oldHierarchy.style.width = thirdWidth * 2;
+                float newWidth = bounds.width / 3.0f;
+                if (newSize > 0)
+                {
+                    newWidth = Mathf.Min(newSize, newWidth);
+                }
+                float oldWidth = bounds.width - newWidth;
+
+                newHierarchy.style.width = newWidth;
+                oldHierarchy.style.width = oldWidth;
+                newHierarchy.style.height = bounds.height;
+                oldHierarchy.style.height = bounds.height;
             }
             else
             {
                 _splitHierarchy.style.flexDirection = FlexDirection.Column;
                 _splitDirection = FlexDirection.Column;
-                float thirdHeight = bounds.height / 3.0f;
-                newHierarchy.style.height = thirdHeight;
-                oldHierarchy.style.height = thirdHeight * 2;
+                float newHeight = bounds.height / 3.0f;
+                if (newSize > 0)
+                {
+                    newHeight = Mathf.Min(newSize, newHeight);
+                }
+                float oldWidth = bounds.height - newHeight;
+
+                newHierarchy.style.height = newHeight;
+                oldHierarchy.style.height = newHeight * 2;
+                newHierarchy.style.width = bounds.width;
+                oldHierarchy.style.width = bounds.width;
             }
 
             _windowContainer.style.display = DisplayStyle.None;
@@ -218,11 +255,8 @@ namespace HueHades.UI
                 _splitHierarchy.style.display = DisplayStyle.None;
             }
             
-
             oldSplitA.Handle.SetReference(this);
             oldSplitB.Handle.SetReference(this);
-
-            _splitHierarchy.style.display = DisplayStyle.None;
         } 
             
 
@@ -360,7 +394,7 @@ namespace HueHades.UI
 
                 Button closeButton = new Button();
                 closeButton.AddToClassList(ussHeaderClose);
-                closeButton.text = "X";
+                closeButton.text = "✕";
                 hierarchy.Add(closeButton);
                 closeButton.RegisterCallback<ClickEvent>(OnCloseClicked);
 
@@ -468,14 +502,11 @@ namespace HueHades.UI
                         float moveAmount = mouseMoveEvent.mousePosition.y - _lastMousePosition.y;
                         _targetWindow._splitA.style.height = _targetWindow._splitA.style.height.value.value + moveAmount;
                         _targetWindow._splitB.style.height = _targetWindow._splitB.style.height.value.value - moveAmount;
-
                     }
                 }
 
                 _lastMousePosition = mouseMoveEvent.mousePosition;
             }
-
-
         }
 
 
