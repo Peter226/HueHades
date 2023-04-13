@@ -1,0 +1,44 @@
+
+#pragma kernel RectangleBrush
+#pragma kernel EllipseBrush
+#pragma kernel TextureBrush
+
+
+RWTexture2D<float4> Target;
+
+float4 BrushColor;
+float4 PositionSize;
+float2x2 RotationMatrix;
+Texture2D<float4> OpacityGradient;
+
+float distanceRectangle(float2 pos){
+    float2 absPos = abs(pos);
+    return max(absPos.x,absPos.y);
+}
+
+float2 transformPoint (uint2 pos)
+{
+    float2 pivot = PositionSize.xy;
+    return mul(RotationMatrix, (((float2)pos) - pivot))* PositionSize.zw;
+}
+
+[numthreads(8,8,1)]
+void RectangleBrush (uint3 id : SV_DispatchThreadID)
+{
+    float2 pos = transformPoint(id.xy);
+    float dist = distanceRectangle(pos);
+    Target[id.xy] = float4(BrushColor.rgb,BrushColor.a * saturate(1 - dist));
+}
+
+[numthreads(8,8,1)]
+void EllipseBrush (uint3 id : SV_DispatchThreadID)
+{
+    Target[id.xy] = float4(transformPoint(id.xy),0,1);
+}
+
+[numthreads(8,8,1)]
+void TextureBrush (uint3 id : SV_DispatchThreadID)
+{
+    Target[id.xy] = float4(transformPoint(id.xy),0,1);
+}
+

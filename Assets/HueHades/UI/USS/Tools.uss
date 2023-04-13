@@ -52,5 +52,6 @@
     padding-bottom: 2px;
 }
 
-VisualElement {
+.tool-settings-content {
+    flex-direction: column;
 }

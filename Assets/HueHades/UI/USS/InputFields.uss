@@ -98,3 +98,8 @@
     border-bottom-color: rgba(38, 142, 255, 0.51);
     background-color: rgba(38, 142, 255, 0.04);
 }
+
+.unity-base-field__label {
+    font-size: 12px;
+    min-width: auto;
+}

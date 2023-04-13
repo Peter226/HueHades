@@ -16,9 +16,11 @@ namespace HueHades.UI
         ImageTool _selectedTool;
         ToolContextCollector _selectedContextCollector;
 
+        public Action<ImageTool> ToolSelected;
+
         public ToolsWindow(HueHadesWindow window) : base(window)
         {
-            if (window.ToolsWindow != null) throw new Exception("Tool window already exists for HueHades window!");
+            if (window.Tools != null) throw new Exception("Tool window already exists for HueHades window!");
             AddToClassList(ussToolWindow);
 
             (ImageTool, ToolContextCollector)[] imageTools = new (ImageTool, ToolContextCollector)[] { (new BrushImageTool(), new BrushContextCollector()), (new EraserImageTool(), new EraserContextCollector()) };
@@ -29,7 +31,8 @@ namespace HueHades.UI
                 toolButtons.Add(toolButton);
                 toolButton.Selected += OnSelectedButton;
                 hierarchy.Add(toolButton);
-            } 
+            }
+            WindowName = "Tools";
         }
 
         public void OnToolBeginUse(ImageCanvas canvas, int layer, Vector2 startPoint, float startPressure, float startTilt)
@@ -52,18 +55,13 @@ namespace HueHades.UI
         private void OnSelectedButton(ToolButton button)
         {
             _selectedTool = button.ImageTool;
+            ToolSelected?.Invoke(_selectedTool);
             _selectedContextCollector = button.ContextCollector;
             foreach (ToolButton toolButton in toolButtons)
             {
                 if (toolButton != button) toolButton.Deselect();
             }
         }
-
-        public override string GetWindowName()
-        {
-            return "Tools";
-        }
-
 
         public override Vector2 GetDefaultSize()
         {

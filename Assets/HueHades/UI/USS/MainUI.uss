@@ -301,11 +301,6 @@
     background-color: rgb(32, 32, 32);
 }
 
-.unity-base-slider__tracker {
-    background-color: rgb(32, 32, 32);
-    opacity: 0;
-}
-
 .unity-scroller--vertical {
     width: 18px;
 }
@@ -316,4 +311,14 @@
     margin-top: 17px;
     margin-bottom: 17px;
     background-color: rgba(0, 0, 0, 0);
+}
+
+.unity-base-slider__tracker {
+    background-color: rgb(20, 20, 20);
+    opacity: 1;
+    background-image: none;
+}
+
+.unity-label {
+    font-size: 12px;
 }

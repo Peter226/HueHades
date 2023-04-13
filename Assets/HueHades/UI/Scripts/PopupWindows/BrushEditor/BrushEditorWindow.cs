@@ -28,21 +28,26 @@ namespace HueHades.UI
 
             _presetSelector = new BrushPresetSelector(window);
             _presetSelector.PresetSelected += OnPresetSelected;
-            
-            DropDownInput<BrushPreset.BrushShape> dropdown = new DropDownInput<BrushPreset.BrushShape>(window);
+
+            TextField nameField = new TextField();
+            nameField.label = "Preset Name";
+            _rightLayout.Add(nameField);
+
+            DropDownInput<BrushShape> dropdown = new DropDownInput<BrushShape>(window);
             dropdown.SetDataSource(
-                new List<BrushPreset.BrushShape>() {
-                    BrushPreset.BrushShape.Rectangle,
-                    BrushPreset.BrushShape.Ellipse,
-                    BrushPreset.BrushShape.Texture,
-                    BrushPreset.BrushShape.ColoredTexture
+                new List<BrushShape>() {
+                    BrushShape.Rectangle,
+                    BrushShape.Ellipse,
+                    BrushShape.Texture
                 },
-                (shape) => { return Enum.GetName(typeof(BrushPreset.BrushShape), shape); }
+                (shape) => { return Enum.GetName(typeof(BrushShape), shape); }
             );
+            _rightLayout.Add(dropdown);
+
 
             _mainLayout.Add(_presetSelector);
             _mainLayout.Add(_rightLayout);
-            _rightLayout.Add(dropdown);
+            
             _mainLayout.AddToClassList(_ussBrushEditorWindowMain);
         }
 

@@ -24,8 +24,6 @@ public class HueHadesWindow : VisualElement
     public ColorSelectorWindow ColorSelector { get { return _colorSelectorWindow; } }
     public CanvasHistoryWindow History { get { return _historyWindow; } }
     public CanvasLayersWindow Layers { get { return _layersWindow; } }
-    public ToolsWindow ToolsWindow { get { return _toolsWindow; } }
-    public ToolSettingsWindow ToolSettingsWindow { get { return _toolSettingsWindow; } }
 
 
     public VisualElement FreeDockElement

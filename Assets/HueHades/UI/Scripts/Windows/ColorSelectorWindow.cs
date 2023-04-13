@@ -34,6 +34,8 @@ namespace HueHades.UI
             _colorPickerAlpha.style.height = 16;
 
             _colorPickerHue.OnValueChanged += OnHueChanged;
+
+            WindowName = "Colors";
         }
 
         private void OnHueChanged(float hue)
@@ -57,10 +59,5 @@ namespace HueHades.UI
             return new Vector2(200, 200);
         }
 
-
-        public override string GetWindowName()
-        {
-            return "Colors";
-        }
     }
 }

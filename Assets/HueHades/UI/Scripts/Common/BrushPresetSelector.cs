@@ -31,6 +31,10 @@ namespace HueHades.UI
 
             BrushPreset.PresetsChanged += RegeneratePresetList;
             RegeneratePresetList();
+            if (BrushPreset.Presets.Count > 0)
+            {
+                OnPresetSelected(BrushPreset.Presets[0]);
+            }
         }
 
         public Action<BrushPreset> PresetSelected;

@@ -11,13 +11,16 @@ namespace HueHades.Tools
         private ImageCanvas _paintCanvas;
         private ImageLayer _paintLayer;
         private Vector2 _lastPoint;
+        private Vector2 _lastUniquePoint;
+        private Vector2 _lastDirection;
+        private float _directionSmoothing = 0.025f;
         private float _lastPressure;
         private float _lastTilt;
         private float _leftOverLength;
         private float _paintInterval = 1.0f;
         private List<PaintPoint> paintPoints = new List<PaintPoint>();
         private BrushToolContext _toolContext;
-
+        private bool _firstMovement;
         private static Texture Icon;
 
         private RenderTexture _layerOperatingCopyBuffer;
@@ -28,6 +31,7 @@ namespace HueHades.Tools
         private struct PaintPoint
         {
             public Vector2 position;
+            public float rotation;
             public float radius;
             public float pressure;
         }
@@ -49,8 +53,10 @@ namespace HueHades.Tools
             _paintCanvas = canvas;
             _paintLayer = _paintCanvas.GetLayer(layer);
             _lastPoint = startPoint;
+            _lastUniquePoint = startPoint;
             _lastPressure = startPressure;
             _lastTilt = startTilt;
+            _lastDirection = Vector2.up;
             _leftOverLength = 0.0f;
             _toolContext = (BrushToolContext)toolContext;
 
@@ -61,19 +67,31 @@ namespace HueHades.Tools
             RenderTextureUtilities.ClearTexture(_paintBuffer, Color.clear);
             _layerOperatingCopy = _paintLayer.GetOperatingCopy(_layerOperatingCopyBuffer);
             RenderTextureUtilities.CopyTexture(_layerOperatingCopyBuffer, _layerCopyBuffer);
+            _firstMovement = true;
         }
 
         protected override void OnUseUpdate(Vector2 currentPoint, float currentPressure, float currentTilt)
         {
-            
+
             float distance = Vector2.Distance(currentPoint, _lastPoint);
+            if (currentPoint != _lastPoint) _lastUniquePoint = _lastPoint;
+
             float travelAmount = distance + _leftOverLength;
             float pathDistance = -_leftOverLength;
 
+            if (_firstMovement)
+            {
+                _lastDirection = (currentPoint - _lastUniquePoint).normalized;
+                _firstMovement = false;
+                return;
+            }
+
+
+            Vector2 direction = Vector2.Lerp(_lastDirection, (currentPoint - _lastUniquePoint).normalized, _directionSmoothing * travelAmount);
 
             Rect bounds = new Rect(float.MaxValue, float.MaxValue, float.MinValue, float.MinValue);
 
-           
+            RenderTexture tempGradient = RenderTextureUtilities.GetTemporaryGradient(512, RenderTextureFormat.ARGBFloat, out int tempGradientAvailableSize);
 
             while (travelAmount >= _paintInterval)
             {
@@ -85,8 +103,9 @@ namespace HueHades.Tools
                 var paintPoint = new PaintPoint()
                 {
                     position = point,
-                    radius = 100 * pressure * pressure + 1,
-                    pressure = pressure
+                    radius = _toolContext.BrushPreset.size * pressure * pressure + 1,
+                    pressure = pressure,
+                    rotation = -Vector2.SignedAngle(Vector2.up, Vector2.Lerp(_lastDirection, direction, pathTime))
                 };
 
                 bounds.min = Vector2.Min(bounds.min, paintPoint.position - new Vector2(paintPoint.radius, paintPoint.radius) * 0.5f);
@@ -104,7 +123,7 @@ namespace HueHades.Tools
                 int bufferStartX = Mathf.RoundToInt(bounds.min.x);
                 int bufferStartY = Mathf.RoundToInt(bounds.min.y);
 
-                for (int i = 0;i < paintPoints.Count;i++)
+                for (int i = 0; i < paintPoints.Count; i++)
                 {
                     var point = paintPoints[i];
                     int pointWidth = Mathf.RoundToInt(point.radius);
@@ -116,7 +135,8 @@ namespace HueHades.Tools
                     var paintCopyBuffer = RenderTextureUtilities.GetTemporary(pointWidth, pointHeight, _paintCanvas.Format, out pointBufferSize);
                     RenderTextureUtilities.CopyTexture(_paintBuffer, pointStartX, pointStartY, pointWidth, pointHeight, paintCopyBuffer);
                     var color = _toolContext.BrushPreset.color;
-                    RenderTextureUtilities.ClearTexture(pointBuffer, color);
+                    color.a *= _toolContext.BrushPreset.opacity;
+                    RenderTextureUtilities.Brushes.DrawBrush(pointBuffer, new Vector2(pointWidth * 0.5f, pointHeight * 0.5f), new Vector2(pointWidth * 0.5f, pointHeight * 0.5f), point.rotation, BrushShape.Rectangle, color, tempGradient);
                     RenderTextureUtilities.LayerImageArea(paintCopyBuffer, _paintBuffer, 0, 0, pointWidth, pointHeight, pointBuffer, Common.ColorBlendMode.Default, pointStartX, pointStartY);
                     RenderTextureUtilities.ReleaseTemporary(pointBuffer);
                     RenderTextureUtilities.ReleaseTemporary(paintCopyBuffer);
@@ -125,14 +145,18 @@ namespace HueHades.Tools
                 RenderTextureUtilities.LayerImageArea(_layerCopyBuffer, _layerOperatingCopyBuffer, bufferStartX, bufferStartY, bufferWidth, bufferHeight, _paintBuffer, Common.ColorBlendMode.Default, bufferStartX, bufferStartY);
                 _paintLayer.ApplyBufferArea(_layerOperatingCopyBuffer, bufferStartX, bufferStartY, bufferStartX, bufferStartY, bufferWidth, bufferHeight);
             }
+            paintPoints.Clear();
 
+
+            RenderTextureUtilities.ReleaseTemporaryGradient(tempGradient);
 
             _leftOverLength = travelAmount;
             _lastPoint = currentPoint;
             _lastPressure = currentPressure;
             _lastTilt = currentTilt;
+            _lastDirection = direction;
 
-            paintPoints.Clear();
+
         }
 
         protected override void OnEndUse(Vector2 endPoint, float endPressure, float endTilt)

@@ -378,7 +378,7 @@ namespace HueHades.UI
             private const string ussHeaderClose = "docking-window-header-close";
             private DockingWindow _dockingIn;
             private DockableWindow _dockedWindow;
-
+            private Label _label;
 
             public DockableWindow GetDockedWindow()
             {
@@ -388,9 +388,11 @@ namespace HueHades.UI
             public HeaderElement(HueHadesWindow window, DockableWindow dockableWindow, DockingWindow dockingIn) : base(window)
             {
                 AddToClassList(ussHeaderBar);
-                Label label = new Label(dockableWindow.GetWindowName());
-                label.AddToClassList(ussHeaderLabel);
-                hierarchy.Add(label);
+                _label = new Label(dockableWindow.WindowName);
+                dockableWindow.WindowNameChanged += OnWindowNameChanged;
+
+                _label.AddToClassList(ussHeaderLabel);
+                hierarchy.Add(_label);
 
                 Button closeButton = new Button();
                 closeButton.AddToClassList(ussHeaderClose);
@@ -403,6 +405,10 @@ namespace HueHades.UI
                 _dockedWindow = dockableWindow;
             }
 
+            private void OnWindowNameChanged(string windowName)
+            {
+                _label.text = windowName;
+            }
 
             private void OnCloseClicked(ClickEvent clickEvent)
             {

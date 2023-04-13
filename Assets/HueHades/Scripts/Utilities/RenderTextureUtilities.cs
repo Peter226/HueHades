@@ -87,6 +87,7 @@ namespace HueHades.Utilities
             MaskPropertyID = Shader.PropertyToID("Mask");
 
             Gradients.Initialize();
+            Brushes.Initialize();
         }
 
         public static void InitializePool()
@@ -395,9 +396,9 @@ namespace HueHades.Utilities
 
             public static void Initialize()
             {
-                DrawColorGradientRectangleShader = Resources.Load<ComputeShader>("DrawColorGradientRectangle");
-                DrawColorGradientShader = Resources.Load<ComputeShader>("DrawColorGradient");
-                DrawHueGradientShader = Resources.Load<ComputeShader>("DrawHueGradient");
+                DrawColorGradientRectangleShader = Resources.Load<ComputeShader>("Gradients/DrawColorGradientRectangle");
+                DrawColorGradientShader = Resources.Load<ComputeShader>("Gradients/DrawColorGradient");
+                DrawHueGradientShader = Resources.Load<ComputeShader>("Gradients/DrawHueGradient");
                 GradientRectangleKernel = DrawColorGradientRectangleShader.FindKernel("CSMain");
                 GradientKernel = DrawColorGradientShader.FindKernel("CSMain");
                 HueGradientKernel = DrawHueGradientShader.FindKernel("CSMain");
@@ -434,5 +435,69 @@ namespace HueHades.Utilities
                 DrawHueGradientShader.Dispatch(HueGradientKernel, Mathf.CeilToInt(Mathf.Min(target.width, size) / (float)warpSizeX), 1, 1);
             }
         }
+
+        public static class Brushes
+        {
+            public static ComputeShader DrawBrushShader;
+            private static int RectangleKernel;
+            private static int EllipseKernel;
+            private static int TextureKernel;
+
+            private static int BrushColorPropertyID;
+            private static int PositionSizePropertyID;
+            private static int RotationMatrixPropertyID;
+            private static int OpacityGradientPropertyID;
+
+            public static void Initialize()
+            {
+                DrawBrushShader = Resources.Load<ComputeShader>("Brushes/DrawBrush");
+                RectangleKernel = DrawBrushShader.FindKernel("RectangleBrush");
+                EllipseKernel = DrawBrushShader.FindKernel("EllipseBrush");
+                TextureKernel = DrawBrushShader.FindKernel("TextureBrush");
+
+                BrushColorPropertyID = Shader.PropertyToID("BrushColor");
+                PositionSizePropertyID = Shader.PropertyToID("PositionSize");
+                RotationMatrixPropertyID = Shader.PropertyToID("RotationMatrix");
+                OpacityGradientPropertyID = Shader.PropertyToID("OpacityGradient");
+            }
+
+            public static void DrawBrush(RenderTexture target, Vector2 center, Vector2 size, float rotation, BrushShape brushShape, Color color, RenderTexture opacityGradient)
+            {
+                int chosenKernel;
+                switch (brushShape)
+                {
+                    case BrushShape.Rectangle:
+                        chosenKernel = RectangleKernel;
+                        break;
+                    case BrushShape.Ellipse:
+                        chosenKernel = EllipseKernel;
+                        break;
+                    case BrushShape.Texture:
+                        chosenKernel = TextureKernel;
+                      break;
+                    default:
+                        chosenKernel = RectangleKernel;
+                        break;
+                }
+
+                DrawBrushShader.SetVector(PositionSizePropertyID, new Vector4(center.x, center.y, 1.0f / size.x, 1.0f / size.y * 2.0f));
+                DrawBrushShader.SetVector(BrushColorPropertyID, color);
+
+                float cosRotation = Mathf.Cos(rotation / 180.0f * Mathf.PI);
+                float sinRotation = Mathf.Sin(rotation / 180.0f * Mathf.PI);
+
+                DrawBrushShader.SetMatrix(RotationMatrixPropertyID, new Matrix4x4(new Vector4(cosRotation, sinRotation,0,0), new Vector4(-sinRotation, cosRotation,0,0), Vector4.zero, Vector4.zero));
+                DrawBrushShader.SetTexture(chosenKernel, OpacityGradientPropertyID, opacityGradient);
+                DrawBrushShader.SetTexture(chosenKernel, TargetPropertyID, target);
+                DrawBrushShader.Dispatch(chosenKernel, Mathf.CeilToInt(target.width / (float)warpSizeX), Mathf.CeilToInt(target.height / (float)warpSizeY), 1);
+            }
+
+            
+
+        }
+
+
+
+
     }
 }

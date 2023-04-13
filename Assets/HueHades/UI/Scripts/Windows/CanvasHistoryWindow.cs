@@ -9,17 +9,12 @@ namespace HueHades.UI
     {
         public CanvasHistoryWindow(HueHadesWindow window) : base(window)
         {
-
+            WindowName = "History";
         }
 
         public override Vector2 GetDefaultSize()
         {
             return new Vector2(200, 200);
-        }
-
-        public override string GetWindowName()
-        {
-            return "History";
         }
 
     }

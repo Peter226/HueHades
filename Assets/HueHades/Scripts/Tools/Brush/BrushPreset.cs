@@ -22,17 +22,17 @@ namespace HueHades.Tools
         public float opacity { get; set; }
         public float rotation { get; set; }
         public float baseSize { get; set; }
+        public float size { get; set; }
         public float softness { get; set; }
         public AnimationCurve softnessCurve { get; set; }
         public float spacing { get; set; }
         public Texture texture { get; set; }
 
-        public enum BrushShape
+        public BrushPreset()
         {
-            Ellipse,
-            Rectangle,
-            Texture,
-            ColoredTexture
+            baseSize = 50.0f;
+            size = baseSize;
+            opacity = 1.0f;
         }
     }
 }
