@@ -412,6 +412,7 @@ namespace HueHades.Utilities
 
             public static void DrawColorGradientRectangle(RenderTexture target, int rectangleSizeX, int rectangleSizeY, Color colorA, Color colorB, Color colorC, Color colorD)
             {
+                if (rectangleSizeX <= 0 || rectangleSizeY <= 0) return;
                 DrawColorGradientRectangleShader.SetInts(RectangleSizePropertyID, rectangleSizeX, rectangleSizeY);
                 DrawColorGradientRectangleShader.SetVector(ColorAPropertyID, colorA);
                 DrawColorGradientRectangleShader.SetVector(ColorBPropertyID, colorB);

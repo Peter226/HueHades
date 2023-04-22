@@ -16,11 +16,11 @@
 }
 
 .unity-button {
-    padding-left: 12px;
-    padding-right: 12px;
-    padding-top: 4px;
-    padding-bottom: 4px;
-    background-color: rgba(60, 60, 60, 0);
+    padding-left: 13px;
+    padding-right: 13px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    background-color: rgb(25, 25, 25);
     color: rgb(196, 196, 196);
     border-left-color: rgba(0, 0, 0, 0);
     border-right-color: rgba(0, 0, 0, 0);
@@ -30,10 +30,10 @@
     border-bottom-left-radius: 0;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
-    margin-left: 1px;
-    margin-right: 1px;
-    margin-top: 1px;
-    margin-bottom: 1px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
     font-size: 12px;
 }
 
@@ -132,6 +132,7 @@
     padding-top: 2px;
     padding-bottom: 2px;
     font-size: 12px;
+    background-color: rgba(0, 0, 0, 0);
 }
 
 .dragged-header {
@@ -228,27 +229,9 @@
     bottom: 0;
 }
 
-.operating-window {
-    flex-grow: 1;
-    background-color: rgb(20, 20, 20);
-    flex-direction: row;
-    flex-basis: auto;
-    overflow: hidden;
-    flex-shrink: 1;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-}
-
 .docking-split-hierarchy {
     flex-grow: 1;
     justify-content: flex-start;
-}
-
-.operating-window-image {
-    position: relative;
-    flex-grow: 1;
 }
 
 .unity-scroller__low-button {

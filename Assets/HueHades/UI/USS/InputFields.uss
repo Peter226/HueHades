@@ -103,3 +103,58 @@
     font-size: 12px;
     min-width: auto;
 }
+
+.toggle-button {
+    margin-left: 1px;
+    margin-right: 1px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    flex-direction: row;
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    align-items: stretch;
+}
+
+.toggle-button-toggle {
+    background-color: rgba(38, 142, 255, 0.04);
+    border-left-color: rgba(38, 142, 255, 0.51);
+    border-right-color: rgba(38, 142, 255, 0.51);
+    border-top-color: rgba(38, 142, 255, 0.51);
+    border-bottom-color: rgba(38, 142, 255, 0.51);
+}
+
+.toggle-button-toggle:hover {
+    background-color: rgba(38, 142, 255, 0.09);
+    border-left-color: rgba(38, 142, 255, 0.81);
+    border-right-color: rgba(38, 142, 255, 0.81);
+    border-top-color: rgba(38, 142, 255, 0.81);
+    border-bottom-color: rgba(38, 142, 255, 0.81);
+}
+
+.toggle-button-label {
+}
+
+.toggle-button-icon {
+    -unity-background-scale-mode: scale-to-fit;
+    width: 16px;
+    height: 16px;
+    justify-content: center;
+}
+
+.unity-text-field__label {
+}
+
+.unity-text-field__input {
+    font-size: 12px;
+    background-color: rgb(25, 25, 25);
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.unity-text-element--inner-input-field-component {
+    justify-content: center;
+}

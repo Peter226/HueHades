@@ -30,10 +30,12 @@
 
 .popup-window-close {
     -unity-font-style: bold;
+    background-color: rgba(0, 0, 0, 0);
 }
 
 .brush-editor-main-layout {
     flex-direction: row;
+    flex-grow: 1;
 }
 
 .brush-editor-right-layout {
@@ -43,4 +45,9 @@
 }
 
 .popup-window-container {
+}
+
+.brush-editor-content-layout {
+    flex-grow: 1;
+    align-self: stretch;
 }

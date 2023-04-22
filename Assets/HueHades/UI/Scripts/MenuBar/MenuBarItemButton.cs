@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class MenuBarItemButton : HueHadesButton
+public class MenuBarItemButton : HueHadesButton, IMenuBarElement
 {
     private Type _menuBarFunction;
     private const string ussItemButton = "item-button";
@@ -25,6 +25,8 @@ public class MenuBarItemButton : HueHadesButton
 
     public Action<IEventHandler> LoseMouse;
 
+    public VisualElement Element => this;
+
     private void OnLoseFocusCallback(FocusOutEvent focusOutEvent)
     {
         var focusedElement = focusOutEvent.relatedTarget;
@@ -35,4 +37,6 @@ public class MenuBarItemButton : HueHadesButton
     {
         Focus();
     }
+
+    public void InitializeMenu() { }
 }

@@ -1,3 +1,4 @@
+using Codice.Client.BaseCommands;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using static UnityEngine.Video.VideoPlayer;
 
-public class MainCategory : HueHadesElement
+public class MainCategory : HueHadesElement, IMenuBarElement
 {
     private Dictionary<string, SubCategory> subCategories = new Dictionary<string, SubCategory>();
 
@@ -15,6 +16,9 @@ public class MainCategory : HueHadesElement
     private const string ussMainCategoryButton = "main-category-button";
     private const string ussCategoryBoxParent = "category-box-parent";
     private CategoryButton _categoryButton;
+    private Dictionary<IMenuBarElement, int> _elementsToAdd = new Dictionary<IMenuBarElement, int>();
+
+    public VisualElement Element => this;
 
     public void AddFunction(string path, Type classType)
     {
@@ -22,8 +26,16 @@ public class MainCategory : HueHadesElement
         var splitPath = path.Split('/');
         if (splitPath.Length <= 1)
         {
-            var menuBarItem = new MenuBarItemButton(window, path, classType);
-            _subCategoryGroupBox.Add(menuBarItem);
+            var orderSplit = path.Split('_');
+            var functionName = path;
+            int order = int.MaxValue;
+            if (orderSplit.Length > 1 && int.TryParse(orderSplit[1], out order))
+            {
+                functionName = orderSplit[0];
+            }
+
+            var menuBarItem = new MenuBarItemButton(window, functionName, classType);
+            _elementsToAdd.Add(menuBarItem, order);
             menuBarItem.LoseMouse += OnLoseMouse;
             return;
         }
@@ -31,17 +43,27 @@ public class MainCategory : HueHadesElement
 
         int separator = path.IndexOf('/');
         var leftoverPath = path.Substring(separator + 1, path.Length - (separator + 1));
-        var category = splitPath[0];
+        var categoryName = splitPath[0];
+        var category = categoryName.Split('_');
+        int categoryOrder = int.MaxValue;
+        if (category.Length > 1 && int.TryParse(category[1], out categoryOrder))
+        {
+            categoryName = category[0];
+        }
 
         //find or create category button
         SubCategory subCategoryButton = null;
-        subCategories.TryGetValue(category, out subCategoryButton);
+        subCategories.TryGetValue(categoryName, out subCategoryButton);
         if (subCategoryButton == null)
         {
-            subCategoryButton = new SubCategory(window, category);
+            subCategoryButton = new SubCategory(window, categoryName);
             subCategoryButton.LoseMouse += OnLoseMouse;
-            subCategories.Add(category, subCategoryButton);
-            _subCategoryGroupBox.Add(subCategoryButton);
+            subCategories.Add(categoryName, subCategoryButton);
+            _elementsToAdd.Add(subCategoryButton, categoryOrder);
+        }
+        else
+        {
+            _elementsToAdd[subCategoryButton] = Mathf.Min(categoryOrder, _elementsToAdd[subCategoryButton]);
         }
         subCategoryButton.AddFunction(leftoverPath, classType);
     }
@@ -86,5 +108,16 @@ public class MainCategory : HueHadesElement
             }
         }
         window.HideOverlay(_categoryListOverlay);
+    }
+
+    public void InitializeMenu()
+    {
+        var sortedElements = _elementsToAdd.OrderBy((p) => { return p.Value; });
+        foreach (var (element, order) in sortedElements)
+        {
+            _subCategoryGroupBox.Add(element.Element);
+            element.InitializeMenu();
+        }
+        _elementsToAdd.Clear();
     }
 }

@@ -121,7 +121,7 @@ namespace HueHades.Tools
                     }*/
                     color.a *= point.pressure * point.pressure * 0.5f;
                     RenderTextureUtilities.ClearTexture(pointBuffer, color);
-                    RenderTextureUtilities.CopyTexture(pointBuffer, 0, 0, pointWidth, pointHeight, paintBufferA, pointStartX, pointStartY);
+                    RenderTextureUtilities.CopyTexture(pointBuffer, 0, 0, pointWidth, pointHeight, paintBufferA, pointStartX, pointStartY, _paintCanvas.TileMode, Common.CanvasTileMode.None);
                     RenderTextureUtilities.ReleaseTemporary(pointBuffer);
                     RenderTextureUtilities.LayerImage(paintBufferB, paintBufferA, paintBufferC, Common.ColorBlendMode.Add);
                     RenderTextureUtilities.ClearTexture(paintBufferA, Color.clear);

@@ -1,3 +1,5 @@
+using Codice.Client.Common;
+using HueHades.Common;
 using HueHades.Core;
 using HueHades.Utilities;
 using System.Collections;
@@ -133,11 +135,11 @@ namespace HueHades.Tools
 
                     var pointBuffer = RenderTextureUtilities.GetTemporary(pointWidth, pointHeight, _paintCanvas.Format, out int pointBufferSize);
                     var paintCopyBuffer = RenderTextureUtilities.GetTemporary(pointWidth, pointHeight, _paintCanvas.Format, out pointBufferSize);
-                    RenderTextureUtilities.CopyTexture(_paintBuffer, pointStartX, pointStartY, pointWidth, pointHeight, paintCopyBuffer);
+                    RenderTextureUtilities.CopyTexture(_paintBuffer, pointStartX, pointStartY, pointWidth, pointHeight, paintCopyBuffer, 0, 0, CanvasTileMode.None, _paintCanvas.TileMode);
                     var color = _toolContext.BrushPreset.color;
                     color.a *= _toolContext.BrushPreset.opacity;
                     RenderTextureUtilities.Brushes.DrawBrush(pointBuffer, new Vector2(pointWidth * 0.5f, pointHeight * 0.5f), new Vector2(pointWidth * 0.5f, pointHeight * 0.5f), point.rotation, BrushShape.Rectangle, color, tempGradient);
-                    RenderTextureUtilities.LayerImageArea(paintCopyBuffer, _paintBuffer, 0, 0, pointWidth, pointHeight, pointBuffer, Common.ColorBlendMode.Default, pointStartX, pointStartY);
+                    RenderTextureUtilities.LayerImageArea(paintCopyBuffer, _paintBuffer, 0, 0, pointWidth, pointHeight, pointBuffer, Common.ColorBlendMode.Default, pointStartX, pointStartY, _paintCanvas.TileMode);
                     RenderTextureUtilities.ReleaseTemporary(pointBuffer);
                     RenderTextureUtilities.ReleaseTemporary(paintCopyBuffer);
                 }

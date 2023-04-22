@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics;
 using HueHades.Utilities;
+using HueHades.Common;
 
 namespace HueHades.Core {
     public class ImageCanvas
@@ -15,6 +16,12 @@ namespace HueHades.Core {
         private CanvasHistory _canvasHistory;
         public CanvasSelection Selection { get; private set; }
         public CanvasHistory History { get { return _canvasHistory; } }
+
+        private CanvasTileMode _tileMode;
+        private CanvasTileMode _tileDisplayMode;
+
+        public CanvasTileMode TileMode { get { return _tileMode; } set { _tileMode = value; } }
+        public CanvasTileMode TileDisplayMode { get { return _tileDisplayMode; } set { _tileDisplayMode = value; } }
 
         public ImageCanvas(int2 dimensions, RenderTextureFormat format)
         {

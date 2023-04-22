@@ -1,0 +1,25 @@
+.operating-window-image {
+    position: relative;
+    flex-grow: 1;
+}
+
+.operating-window-footer {
+    height: 28px;
+    flex-shrink: 0;
+    flex-direction: row;
+    -unity-background-image-tint-color: rgb(32, 32, 32);
+    background-color: rgb(32, 32, 32);
+}
+
+.operating-window {
+    flex-grow: 1;
+    background-color: rgb(20, 20, 20);
+    flex-direction: column;
+    flex-basis: auto;
+    overflow: hidden;
+    flex-shrink: 1;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}

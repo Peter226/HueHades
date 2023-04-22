@@ -18,6 +18,7 @@ public class DropDownInput<T> : HueHadesElement
     private List<T> _data = new List<T>();
     Func<T, string> _displayNameMethod;
     private T _selectedValue;
+    public T selectedValue { get { return _selectedValue; } set { _label.text = _displayNameMethod(value); _selectedValue = value; } }
     private List<Button> _buttons = new List<Button>();
 
     private VisualElement _overlay;
@@ -43,39 +44,48 @@ public class DropDownInput<T> : HueHadesElement
         _dropDownArrow.AddToClassList(ussDropDownArrowLabel);
 
         _button.clicked += OnClicked;
-        RegisterCallback<FocusOutEvent>(OnLostFocus);
-
+        
         _overlay = new VisualElement();
+        _overlay.style.position = Position.Absolute;
+        _overlay.RegisterCallback<FocusOutEvent>(OnLostFocus);
     }
 
     private void OnLostFocus(FocusOutEvent evt)
     {
+        Debug.Log($"LostFocusTo: {evt.target}");
         foreach (Button button in _buttons)
         {
-            if (button == evt.relatedTarget)
+            if (button == evt.target)
             {
                 return;
             }
+        }
+        if (_overlay == evt.target)
+        {
+            return;
+        }
+        if (this == evt.target)
+        {
+            return;
         }
         window.HideOverlay(_overlay);
     }
 
     private void OnClicked()
     {
-        Focus();
         window.ShowOverlay(_overlay, this, OverlayPlacement.Bottom);
+        _overlay.Focus();
     }
 
     public void SetDataSource(List<T> data, Func<T, string> displayNameMethod)
     {
         _data = data;
         _displayNameMethod = displayNameMethod;
-        if (_selectedValue == null && data.Count > 0)
+        if (selectedValue == null && data.Count > 0)
         {
-            _selectedValue = data[0];
+            selectedValue = data[0];
         }
-        _label.text = displayNameMethod(_selectedValue);
-
+        selectedValue = selectedValue;
 
         foreach (var dataElement in data)
         {

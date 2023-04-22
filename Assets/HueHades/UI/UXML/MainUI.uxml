@@ -4,6 +4,8 @@
     <Style src="project://database/Assets/HueHades/UI/USS/PopupWindows.uss?fileID=7433441132597879392&amp;guid=edcb4850544d7bb46bc876bdc78bf214&amp;type=3#PopupWindows" />
     <Style src="project://database/Assets/HueHades/UI/USS/MenuBar.uss?fileID=7433441132597879392&amp;guid=f185dea14aff8aa459f57513c72544f8&amp;type=3#MenuBar" />
     <Style src="project://database/Assets/HueHades/UI/USS/InputFields.uss?fileID=7433441132597879392&amp;guid=d08f24d6b36c7cb4d9433dd89eba7166&amp;type=3#InputFields" />
+    <Style src="project://database/Assets/HueHades/UI/USS/ImageOperatingWindow.uss?fileID=7433441132597879392&amp;guid=048be7ba485c56e489c7bb438ccaf778&amp;type=3#ImageOperatingWindow" />
+    <Style src="project://database/Assets/HueHades/UI/USS/Layout.uss?fileID=7433441132597879392&amp;guid=777573471895a4b4692dedfbe933ee2e&amp;type=3#Layout" />
     <HueHadesWindow class="main-window" style="flex-grow: 1;">
         <ui:VisualElement name="FreeDock" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); position: absolute;" />
         <ui:VisualElement name="PopupWindows" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); position: absolute;" />

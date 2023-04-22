@@ -1,0 +1,14 @@
+.layout-horizontal {
+    flex-direction: row;
+}
+
+.layout-vertical {
+}
+
+.space-around {
+    justify-content: space-around;
+}
+
+.grow {
+    flex-grow: 1;
+}

@@ -18,6 +18,7 @@ namespace HueHades.UI
         private const string ussOperatingWindow = "operating-window";
         private const string ussOperatingWindowImage = "operating-window-image";
         private ImageCanvas _imageCanvas;
+        public ImageCanvas Canvas { get { return _imageCanvas; } }
         private GameObject _operatingWindowHierarchy;
         private GameObject _canvasObject;
         private GameObject _selectionObject;
@@ -31,6 +32,7 @@ namespace HueHades.UI
         private bool _needsUpdate;
         private int2 _operatingWindowSize;
         private bool _hasSize;
+        private OperatingWindowFooter _footer;
 
         public ImageOperatingWindow(HueHadesWindow window, ImageCanvas imageCanvas) : base(window)
         {
@@ -48,6 +50,10 @@ namespace HueHades.UI
             RegisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
             RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
             WindowName = "Image.png";
+
+            _footer = new OperatingWindowFooter(window, this);
+            hierarchy.Add(_footer);
+
         }
 
         void OnRedraw()
