@@ -5,6 +5,7 @@ using UnityEngine.UIElements;
 using HueHades.Utilities;
 using UnityEngine.InputSystem;
 using Unity.Mathematics;
+using HueHades.Common;
 
 namespace HueHades.UI
 {
@@ -14,6 +15,7 @@ namespace HueHades.UI
         private static Material SelectionDisplayMaterial;
         private static CameraUpdater CameraUpdateManager;
         private static int TexturePropertyID = Shader.PropertyToID("_BaseMap");
+        private static int TilePropertyID = Shader.PropertyToID("_BaseMap_ST");
         private Image _windowDisplay;
         private const string ussOperatingWindow = "operating-window";
         private const string ussOperatingWindowImage = "operating-window-image";
@@ -33,9 +35,14 @@ namespace HueHades.UI
         private int2 _operatingWindowSize;
         private bool _hasSize;
         private OperatingWindowFooter _footer;
+        private float _zoomAmount;
+        private Vector2 _canvasWorldScale;
+        private bool _tileX;
+        private bool _tileY;
 
         public ImageOperatingWindow(HueHadesWindow window, ImageCanvas imageCanvas) : base(window)
         {
+            _zoomAmount = 1.0f;
             _windowDisplay = new Image();
             _windowDisplay.AddToClassList(ussOperatingWindowImage);
             _imageCanvas = imageCanvas;
@@ -48,12 +55,35 @@ namespace HueHades.UI
             RegisterCallback<PointerUpEvent>(OnPointerUp);
             RegisterCallback<AttachToPanelEvent>(OnAttachToPanel);
             RegisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
-            RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+            _windowDisplay.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
             WindowName = "Image.png";
 
             _footer = new OperatingWindowFooter(window, this);
             hierarchy.Add(_footer);
 
+            imageCanvas.TileDisplayModeChanged += TileModeChanged;
+        }
+
+        private void TileModeChanged(CanvasTileMode mode)
+        {
+            _tileX = false;
+            _tileY = false;
+            switch (mode)
+            {
+                case CanvasTileMode.TileX:
+                    _tileX = true;
+                    break;
+                case CanvasTileMode.TileY:
+                    _tileY = true;
+                    break;
+                case CanvasTileMode.TileXY:
+                    _tileX = true;
+                    _tileY = true;
+                    break;
+            }
+
+            UpdateCanvasTransform();
+            RedrawCamera();
         }
 
         void OnRedraw()
@@ -87,7 +117,7 @@ namespace HueHades.UI
 
         private void OnCanvasDimensionsChanged()
         {
-            _canvasObject.transform.localScale = new Vector3(_imageCanvas.Dimensions.x / (float)_imageCanvas.Dimensions.y,1,1);
+            UpdateCanvasTransform();
         }
 
         private void OnGeometryChanged(GeometryChangedEvent evt)
@@ -184,7 +214,8 @@ namespace HueHades.UI
         private Vector2 GetPixelPosition(Vector2 pointerPosition)
         {
             var pos = GetWorldPosition(pointerPosition);
-            pos = (Vector2)(_canvasObject.transform.worldToLocalMatrix * ((Vector3)pos - _canvasObject.transform.position)) + new Vector2(0.5f,0.5f);
+            var matrix = Matrix4x4.TRS(Vector3.zero, _canvasObject.transform.rotation, new Vector3(_canvasWorldScale.x, _canvasWorldScale.y, 1));
+            pos = (Vector2)(matrix.inverse * ((Vector3)pos - _canvasObject.transform.position)) + new Vector2(0.5f,0.5f);
             pos.x *= _imageCanvas.Dimensions.x;
             pos.y *= _imageCanvas.Dimensions.y;
             return pos;
@@ -233,9 +264,77 @@ namespace HueHades.UI
             RedrawCamera();
         }
 
+        void UpdateCanvasTransform()
+        {
+
+            float width = _imageCanvas.Dimensions.x / (float)_imageCanvas.Dimensions.y;
+            var windowBound = _windowDisplay.worldBound;
+            float displayRatio = windowBound.width / windowBound.height;
+            float height = 1;
+
+            _canvasWorldScale = new Vector2(width * _zoomAmount, height * _zoomAmount);
+
+            int tileAmountX = 1;
+            int tileAmountY = 1;
+
+            if (_tileX)
+            {
+                tileAmountX = Mathf.CeilToInt(3 * displayRatio / Mathf.Min(1.0f, width * _zoomAmount));
+                if (tileAmountX % 2 == 0) tileAmountX++;
+                width *= _zoomAmount * tileAmountX;
+            }
+            else
+            {
+                width *= _zoomAmount;
+            }
+            if (_tileY)
+            {
+                tileAmountY = Mathf.CeilToInt(3 * displayRatio / Mathf.Min(1.0f, height * _zoomAmount));
+                if (tileAmountY % 2 == 0) tileAmountY++;
+                height *= _zoomAmount * tileAmountY;
+            }
+            else
+            {
+                height *= _zoomAmount;
+            }
+
+            _canvasObjectRenderer.GetPropertyBlock(_canvasPropertyBlock);
+            _canvasPropertyBlock.SetVector(TilePropertyID,new Vector4(tileAmountX,tileAmountY,0,0));
+            _canvasObjectRenderer.SetPropertyBlock(_canvasPropertyBlock);
+
+            _canvasObject.transform.localScale = new Vector3(width, height, 1);
+
+            var canvasVectorX = _canvasWorldScale.x * _canvasObject.transform.right;
+            var canvasVectorY = _canvasWorldScale.y * _canvasObject.transform.up;
+
+            var projectX = Vector3.Project(_canvasObject.transform.position,canvasVectorX);
+            var projectY = Vector3.Project(_canvasObject.transform.position,canvasVectorY);
+
+            var signX = Vector3.Dot(projectX, canvasVectorX) > 0 ? 1 : -1;
+            var signY = Vector3.Dot(projectY, canvasVectorY) > 0 ? 1 : -1;
+
+            var xSteps = Mathf.Round(projectX.magnitude / canvasVectorX.magnitude);
+            var ySteps = Mathf.Round(projectY.magnitude / canvasVectorY.magnitude);
+
+            projectX -= _tileX ? canvasVectorX * xSteps * signX : Vector3.zero;
+            projectY -= _tileY ? canvasVectorY * ySteps * signY : Vector3.zero;
+
+            var correctedPosition = projectX + projectY;
+            _canvasObject.transform.position = new Vector3(correctedPosition.x, correctedPosition.y, _canvasObject.transform.position.z);
+        }
+
+
         void WheelCallback(WheelEvent e)
         {
-            _canvasObject.transform.localScale *= 1 - (e.delta.y * 0.1f * _canvasObject.transform.localScale.z);
+            var _lastZoom = _zoomAmount;
+            _zoomAmount = Mathf.Min(100.0f,Mathf.Max(0.01f,_zoomAmount - e.delta.y * _zoomAmount * 0.3f));
+
+            var relativeWorldPos = (Vector3)GetWorldPosition(e.mousePosition) - _canvasObject.transform.position;
+
+            var newRelativeWorldPos = relativeWorldPos * (_zoomAmount / _lastZoom);
+
+            _canvasObject.transform.position += relativeWorldPos - newRelativeWorldPos;
+            UpdateCanvasTransform();
             RedrawCamera();
         }
 
@@ -248,25 +347,19 @@ namespace HueHades.UI
             var deltaWorldPosition = currentPosition - lastPosition;
             if (e.ctrlKey && IsMouseButtonPressed(e.pressedButtons, MouseButton.Middle)) 
             {
-                
-
-
                 if (lastPosition != Vector2.zero && currentPosition != Vector2.zero) {
 
                    
-                    _canvasObject.transform.rotation *= Quaternion.Euler(0, 0, -e.mouseDelta.x);
+                    _canvasObject.transform.RotateAround(GetWorldPosition(_windowDisplay.worldBound.center),Vector3.forward, -e.mouseDelta.x);
                 }
             } 
             else
             {
                 if (IsMouseButtonPressed(e.pressedButtons, MouseButton.Middle)) _canvasObject.transform.position += new Vector3(deltaWorldPosition.x, deltaWorldPosition.y, 0);
             }
+
+            UpdateCanvasTransform();
             RedrawCamera();
-        }
-
-
-        void OnImageChange()
-        {
 
         }
 

@@ -22,6 +22,10 @@ namespace HueHades.UI
 
         private TextField _nameField;
         private DropDownInput<BrushShape> _brushShapeDropDown;
+        private Slider _softnessSlider;
+        private Slider _rotationSlider;
+        private Slider _baseSizeSlider;
+        private Slider _spacingSlider;
 
         public BrushEditorWindow(HueHadesWindow window) : base(window)
         {
@@ -44,7 +48,7 @@ namespace HueHades.UI
             _presetSelector.PresetSelected += OnPresetSelected;
 
             _nameField = new TextField();
-            _nameField.label = "Preset Name";
+            _nameField.label = "Preset name";
             _rightContent.Add(_nameField);
 
             _brushShapeDropDown = new DropDownInput<BrushShape>(window);
@@ -56,7 +60,37 @@ namespace HueHades.UI
                 },
                 (shape) => { return Enum.GetName(typeof(BrushShape), shape); }
             );
+            _brushShapeDropDown.label = "Shape";
             _rightContent.Add(_brushShapeDropDown);
+            
+
+            _baseSizeSlider = new Slider();
+            _baseSizeSlider.label = "Base size";
+            _baseSizeSlider.showInputField = true;
+            _baseSizeSlider.lowValue = 1;
+            _baseSizeSlider.highValue = 512;
+            _rightContent.Add(_baseSizeSlider);
+
+            _spacingSlider = new Slider();
+            _spacingSlider.label = "Spacing";
+            _spacingSlider.showInputField = true;
+            _spacingSlider.lowValue = 0.001f;
+            _spacingSlider.highValue = 100;
+            _rightContent.Add(_spacingSlider);
+
+            _rotationSlider = new Slider();
+            _rotationSlider.label = "Rotation";
+            _rotationSlider.showInputField = true;
+            _rotationSlider.lowValue = 0;
+            _rotationSlider.highValue = 360;
+            _rightContent.Add(_rotationSlider);
+
+            _softnessSlider = new Slider();
+            _softnessSlider.label = "Softness";
+            _softnessSlider.showInputField = true;
+            _softnessSlider.lowValue = 0;
+            _softnessSlider.highValue = 1;
+            _rightContent.Add(_softnessSlider);
 
             var _bottomButtos = new VisualElement();
             _bottomButtos.AddToClassList(Layouts.Horizontal);
@@ -84,7 +118,11 @@ namespace HueHades.UI
         {
             selectedPreset = preset;
             _nameField.value = preset.name;
-            _brushShapeDropDown.selectedValue = preset.shape;
+            _brushShapeDropDown.value = preset.shape;
+            _spacingSlider.value = preset.spacing;
+            _baseSizeSlider.value = preset.baseSize;
+            _rotationSlider.value = preset.rotation;
+            _softnessSlider.value = preset.softness;
         }
 
         protected override void OnOpen()

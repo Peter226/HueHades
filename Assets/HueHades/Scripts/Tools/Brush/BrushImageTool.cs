@@ -1,4 +1,3 @@
-using Codice.Client.Common;
 using HueHades.Common;
 using HueHades.Core;
 using HueHades.Utilities;

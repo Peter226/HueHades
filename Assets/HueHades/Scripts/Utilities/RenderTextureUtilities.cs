@@ -100,11 +100,8 @@ namespace HueHades.Utilities
         {
             int maxSize = Mathf.Max(sizeX, sizeY);
 
-            availableSize = 1;
-            while (availableSize < maxSize)
-            {
-                availableSize *= 2;
-            }
+            //calculate which smallest power of two fits our requested texture dimensions inside
+            availableSize = Mathf.CeilToInt(Mathf.Pow(2,Mathf.Ceil(Mathf.Log(maxSize,2))));
 
             var key = (availableSize, format);
             if (_renderTexturePool == null)
@@ -139,11 +136,8 @@ namespace HueHades.Utilities
         {
             int maxSize = sizeX;
 
-            availableSize = 1;
-            while (availableSize < maxSize)
-            {
-                availableSize *= 2;
-            }
+            //calculate which smallest power of two fits our requested texture dimensions inside
+            availableSize = Mathf.CeilToInt(Mathf.Pow(2,Mathf.Ceil(Mathf.Log(maxSize, 2))));
 
             var key = (availableSize, format);
             if (_gradientRenderTexturePool == null)

@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 public class DropDownInput<T> : HueHadesElement
 {
     private Button _button;
-    private Label _label;
+    private Label _selectedLabel;
     private Label _dropDownArrow;
 
     private const string ussDropDownLabel = "dropdown-label";
@@ -18,29 +18,43 @@ public class DropDownInput<T> : HueHadesElement
     private List<T> _data = new List<T>();
     Func<T, string> _displayNameMethod;
     private T _selectedValue;
-    public T selectedValue { get { return _selectedValue; } set { _label.text = _displayNameMethod(value); _selectedValue = value; } }
+    public T value { get { return _selectedValue; } set { _selectedLabel.text = _displayNameMethod(value); _selectedValue = value; } }
     private List<Button> _buttons = new List<Button>();
 
     private VisualElement _overlay;
+    private Label _inputLabel;
+    private string _label = "";
+    public string label { get { return _label; } 
+        set {
+            if (value.Length > 0) _inputLabel.style.display = DisplayStyle.Flex;
+            else _inputLabel.style.display = DisplayStyle.None;
+            _label = value;
+            _inputLabel.text = _label;
+        }
+    }
+
 
     public DropDownInput(HueHadesWindow window) : base(window)
     {
+        _inputLabel = new Label();
+        _inputLabel.style.display = DisplayStyle.None;
         _button = new Button();
-        _label = new Label();
+        _selectedLabel = new Label();
         _dropDownArrow = new Label();
-        _label.text = "";
+        _selectedLabel.text = "";
         _dropDownArrow.text = "▼";
-        _button.hierarchy.Add(_label);
+        _button.hierarchy.Add(_selectedLabel);
         _button.hierarchy.Add(_dropDownArrow);
 
-        _label.style.flexGrow = 1;
+        _selectedLabel.style.flexGrow = 1;
         _dropDownArrow.style.flexGrow = 0;
 
+        hierarchy.Add(_inputLabel);
         hierarchy.Add(_button);
 
         AddToClassList(ussDropDown);
         _button.AddToClassList(ussDropDownButton);
-        _label.AddToClassList(ussDropDownLabel);
+        _selectedLabel.AddToClassList(ussDropDownLabel);
         _dropDownArrow.AddToClassList(ussDropDownArrowLabel);
 
         _button.clicked += OnClicked;
@@ -73,7 +87,7 @@ public class DropDownInput<T> : HueHadesElement
 
     private void OnClicked()
     {
-        window.ShowOverlay(_overlay, this, OverlayPlacement.Bottom);
+        window.ShowOverlay(_overlay, _button, OverlayPlacement.Bottom);
         _overlay.Focus();
     }
 
@@ -81,11 +95,11 @@ public class DropDownInput<T> : HueHadesElement
     {
         _data = data;
         _displayNameMethod = displayNameMethod;
-        if (selectedValue == null && data.Count > 0)
+        if (value == null && data.Count > 0)
         {
-            selectedValue = data[0];
+            value = data[0];
         }
-        selectedValue = selectedValue;
+        value = value;
 
         foreach (var dataElement in data)
         {

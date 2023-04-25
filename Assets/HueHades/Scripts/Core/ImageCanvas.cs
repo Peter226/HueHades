@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.Mathematics;
 using HueHades.Utilities;
 using HueHades.Common;
+using System;
 
 namespace HueHades.Core {
     public class ImageCanvas
@@ -20,8 +21,11 @@ namespace HueHades.Core {
         private CanvasTileMode _tileMode;
         private CanvasTileMode _tileDisplayMode;
 
-        public CanvasTileMode TileMode { get { return _tileMode; } set { _tileMode = value; } }
-        public CanvasTileMode TileDisplayMode { get { return _tileDisplayMode; } set { _tileDisplayMode = value; } }
+        public CanvasTileMode TileMode { get { return _tileMode; } set { bool changed = _tileMode != value; _tileMode = value; if (changed) TileModeChanged?.Invoke(_tileMode); } }
+        public CanvasTileMode TileDisplayMode { get { return _tileDisplayMode; } set { bool changed = _tileDisplayMode != value; _tileDisplayMode = value; if (changed) TileDisplayModeChanged?.Invoke(_tileMode); } }
+
+        public Action<CanvasTileMode> TileModeChanged;
+        public Action<CanvasTileMode> TileDisplayModeChanged;
 
         public ImageCanvas(int2 dimensions, RenderTextureFormat format)
         {
