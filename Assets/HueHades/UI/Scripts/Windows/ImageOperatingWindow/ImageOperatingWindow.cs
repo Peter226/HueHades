@@ -62,6 +62,12 @@ namespace HueHades.UI
             hierarchy.Add(_footer);
 
             imageCanvas.TileDisplayModeChanged += TileModeChanged;
+            imageCanvas.PreviewFilterModeChanged += FilterModeChanged;
+        }
+
+        private void FilterModeChanged(FilterMode obj)
+        {
+            RedrawCamera();
         }
 
         private void TileModeChanged(CanvasTileMode mode)
@@ -183,7 +189,7 @@ namespace HueHades.UI
             }
             _canvasObjectRenderer.sharedMaterial = ImageDisplayMaterial;
             _canvasObjectRenderer.GetPropertyBlock(_canvasPropertyBlock);
-            _canvasPropertyBlock.SetTexture(TexturePropertyID, _imageCanvas.PreviewTexture);
+            _canvasPropertyBlock.SetTexture(TexturePropertyID, _imageCanvas.PreviewTexture.texture);
             _canvasObjectRenderer.SetPropertyBlock(_canvasPropertyBlock);
 
             //initialize selection material
@@ -197,7 +203,7 @@ namespace HueHades.UI
             }
             _selectionObjectRenderer.sharedMaterial = SelectionDisplayMaterial;
             _selectionObjectRenderer.GetPropertyBlock(_selectionPropertyBlock);
-            _selectionPropertyBlock.SetTexture(TexturePropertyID, _imageCanvas.Selection.SelectionTexture);
+            _selectionPropertyBlock.SetTexture(TexturePropertyID, _imageCanvas.Selection.SelectionTexture.texture);
             _selectionObjectRenderer.SetPropertyBlock(_selectionPropertyBlock);
 
             OnCanvasDimensionsChanged();
@@ -218,6 +224,8 @@ namespace HueHades.UI
             pos = (Vector2)(matrix.inverse * ((Vector3)pos - _canvasObject.transform.position)) + new Vector2(0.5f,0.5f);
             pos.x *= _imageCanvas.Dimensions.x;
             pos.y *= _imageCanvas.Dimensions.y;
+            pos.x -= 0.5f; //correct position to pixel's center
+            pos.y -= 0.5f;
             return pos;
         }
 

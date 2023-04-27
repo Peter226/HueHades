@@ -11,11 +11,17 @@ namespace HueHades.UI
         private const string ussOperatingWindowFooter = "operating-window-footer";
         private ToggleButton _seamlessToggleHorizontal;
         private ToggleButton _seamlessToggleVertical;
+        private ToggleButton _pixelatedToggleVertical;
         private ImageOperatingWindow operatingWindow;
 
         public OperatingWindowFooter(HueHadesWindow window, ImageOperatingWindow imageOperatingWindow) : base(window)
         {
             AddToClassList(ussOperatingWindowFooter);
+
+            _pixelatedToggleVertical = new ToggleButton(icon: "Icons/PixelatedCanvasIcon");
+            hierarchy.Add(_pixelatedToggleVertical);
+            _pixelatedToggleVertical.tooltip = "Pixelated Canvas";
+            _pixelatedToggleVertical.OnToggle += OnPixelateChange;
 
             _seamlessToggleHorizontal = new ToggleButton(icon: "Icons/TileHorizontalCanvasIcon");
             hierarchy.Add(_seamlessToggleHorizontal);
@@ -30,12 +36,15 @@ namespace HueHades.UI
             operatingWindow = imageOperatingWindow;
         }
 
+        private void OnPixelateChange(bool pixelate)
+        {
+            operatingWindow.Canvas.PreviewFilterMode = pixelate ? FilterMode.Point : FilterMode.Bilinear; 
+        }
+
         private void OnTileChange(bool obj)
         {
             bool horizontal = _seamlessToggleHorizontal.Toggled;
             bool vertical = _seamlessToggleVertical.Toggled;
-
-            Debug.Log(horizontal + " " + vertical);
 
             CanvasTileMode tileMode;
 

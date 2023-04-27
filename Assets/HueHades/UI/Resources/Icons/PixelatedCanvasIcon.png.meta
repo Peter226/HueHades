@@ -1,0 +1,337 @@
+fileFormatVersion: 2
+guid: b8bbb1293eb40f943a3b4945cfd348c2
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 7072573233509647687
+    second: PixelatedCanvasIcon_0
+  - first:
+      213: 417137912865994470
+    second: PixelatedCanvasIcon_1
+  - first:
+      213: 1193991660728370184
+    second: PixelatedCanvasIcon_2
+  - first:
+      213: 8252268693226237618
+    second: PixelatedCanvasIcon_3
+  - first:
+      213: -259655331992046421
+    second: PixelatedCanvasIcon_4
+  - first:
+      213: 2355117200220656757
+    second: PixelatedCanvasIcon_5
+  - first:
+      213: -2812844974741036193
+    second: PixelatedCanvasIcon_6
+  - first:
+      213: 3003376778222714504
+    second: PixelatedCanvasIcon_7
+  - first:
+      213: -5159904099280847926
+    second: PixelatedCanvasIcon_8
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: PixelatedCanvasIcon_0
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 355
+        width: 145
+        height: 145
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 745474f32e3d62260800000000000000
+      internalID: 7072573233509647687
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PixelatedCanvasIcon_1
+      rect:
+        serializedVersion: 2
+        x: 191
+        y: 354
+        width: 135
+        height: 135
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e6b9beb8b8f9c500800000000000000
+      internalID: 417137912865994470
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PixelatedCanvasIcon_2
+      rect:
+        serializedVersion: 2
+        x: 351
+        y: 349
+        width: 148
+        height: 148
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8044e72e619e19010800000000000000
+      internalID: 1193991660728370184
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PixelatedCanvasIcon_3
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 174
+        width: 146
+        height: 146
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2bea3d277a2f58270800000000000000
+      internalID: 8252268693226237618
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PixelatedCanvasIcon_4
+      rect:
+        serializedVersion: 2
+        x: 188
+        y: 177
+        width: 141
+        height: 141
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba4f39ce9d4856cf0800000000000000
+      internalID: -259655331992046421
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PixelatedCanvasIcon_5
+      rect:
+        serializedVersion: 2
+        x: 349
+        y: 177
+        width: 149
+        height: 149
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 574909b9d9e0fa020800000000000000
+      internalID: 2355117200220656757
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PixelatedCanvasIcon_6
+      rect:
+        serializedVersion: 2
+        x: 17
+        y: 10
+        width: 138
+        height: 138
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f5361580664c6f8d0800000000000000
+      internalID: -2812844974741036193
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PixelatedCanvasIcon_7
+      rect:
+        serializedVersion: 2
+        x: 184
+        y: 14
+        width: 145
+        height: 145
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 88e3f9864432ea920800000000000000
+      internalID: 3003376778222714504
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PixelatedCanvasIcon_8
+      rect:
+        serializedVersion: 2
+        x: 348
+        y: 25
+        width: 138
+        height: 138
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: acb784f5f865468b0800000000000000
+      internalID: -5159904099280847926
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      PixelatedCanvasIcon_0: 7072573233509647687
+      PixelatedCanvasIcon_1: 417137912865994470
+      PixelatedCanvasIcon_2: 1193991660728370184
+      PixelatedCanvasIcon_3: 8252268693226237618
+      PixelatedCanvasIcon_4: -259655331992046421
+      PixelatedCanvasIcon_5: 2355117200220656757
+      PixelatedCanvasIcon_6: -2812844974741036193
+      PixelatedCanvasIcon_7: 3003376778222714504
+      PixelatedCanvasIcon_8: -5159904099280847926
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -11,7 +11,7 @@ namespace HueHades.UI
     public class ColorPickerRectangle : HueHadesElement
     {
 
-        private RenderTexture _displayTexture;
+        private ReusableTexture _displayTexture;
         private int2 _displaySize;
         private Image _displayImage;
 
@@ -114,9 +114,9 @@ namespace HueHades.UI
                 RenderTextureUtilities.ReleaseTemporary(_displayTexture);
                 
             }
-            _displayTexture = RenderTextureUtilities.GetTemporary(size.x, size.y, RenderTextureFormat.ARGB32, out int availableSize);
-            _displayImage.image = _displayTexture;
-            _displayImage.uv = new Rect(0,0, size.x / (float)availableSize, size.y / (float)availableSize);
+            _displayTexture = RenderTextureUtilities.GetTemporary(size.x, size.y, RenderTextureFormat.ARGB32);
+            _displayImage.image = _displayTexture.texture;
+            _displayImage.uv = new Rect(0,0, size.x / (float)_displayTexture.actualWidth, size.y / (float)_displayTexture.actualHeight);
             _displaySize = size;
             RegenerateTexture();
         }

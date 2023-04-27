@@ -10,8 +10,8 @@ namespace HueHades.Utilities
     public static class RenderTextureUtilities
     {
 
-        private static Dictionary<(int, RenderTextureFormat), List<RenderTexture>> _renderTexturePool;
-        private static Dictionary<(int, RenderTextureFormat), List<RenderTexture>> _gradientRenderTexturePool;
+        private static Dictionary<(int, RenderTextureFormat), List<ReusableTexture>> _renderTexturePool;
+        private static Dictionary<(int, RenderTextureFormat), List<ReusableTexture>> _gradientRenderTexturePool;
 
         public static ComputeShader CopyImageShader;
         public static ComputeShader ClearImageShader;
@@ -59,7 +59,7 @@ namespace HueHades.Utilities
             SrcDstDimPropertyID = Shader.PropertyToID("SrcDstDim");
             DstXYPropertyID = Shader.PropertyToID("DstXY");
             SrcRectPropertyID = Shader.PropertyToID("SrcRect");
-            TileSrcXYDstXYPropertyID = Shader.PropertyToID("TileSrcXYDstXYRect");
+            TileSrcXYDstXYPropertyID = Shader.PropertyToID("TileSrcXYDstXY");
 
             ClearImageShader = Resources.Load<ComputeShader>("ClearImage");
             ClearColorKernel = ClearImageShader.FindKernel("CSMain");
@@ -92,12 +92,13 @@ namespace HueHades.Utilities
 
         public static void InitializePool()
         {
-            _renderTexturePool = new Dictionary<(int, RenderTextureFormat), List<RenderTexture>>();
-            _gradientRenderTexturePool = new Dictionary<(int, RenderTextureFormat), List<RenderTexture>>();
+            _renderTexturePool = new Dictionary<(int, RenderTextureFormat), List<ReusableTexture>>();
+            _gradientRenderTexturePool = new Dictionary<(int, RenderTextureFormat), List<ReusableTexture>>();
         }
 
-        public static RenderTexture GetTemporary(int sizeX, int sizeY, RenderTextureFormat format, out int availableSize)
+        public static ReusableTexture GetTemporary(int sizeX, int sizeY, RenderTextureFormat format)
         {
+            int availableSize;
             int maxSize = Mathf.Max(sizeX, sizeY);
 
             //calculate which smallest power of two fits our requested texture dimensions inside
@@ -106,34 +107,36 @@ namespace HueHades.Utilities
             var key = (availableSize, format);
             if (_renderTexturePool == null)
             {
-                _renderTexturePool = new Dictionary<(int, RenderTextureFormat), List<RenderTexture>>();
+                _renderTexturePool = new Dictionary<(int, RenderTextureFormat), List<ReusableTexture>>();
             }
-            List<RenderTexture> pooledTextures;
+            List<ReusableTexture> pooledTextures;
             if (!_renderTexturePool.TryGetValue(key, out pooledTextures))
             {
-                pooledTextures = new List<RenderTexture>();
+                pooledTextures = new List<ReusableTexture>();
                 _renderTexturePool.Add(key, pooledTextures);
             }
 
-            RenderTexture temp;
+            ReusableTexture temp;
             if (pooledTextures.Count > 0)
             {
                 var index = pooledTextures.Count - 1;
                 temp = pooledTextures[index];
                 pooledTextures.RemoveAt(index);
+                temp.ReuseAs(sizeX, sizeY);
             }
             else
             {
-                temp = new RenderTexture(availableSize, availableSize, 0, format, 0);
-                temp.enableRandomWrite = true;
-                temp.Create();
+                temp = new ReusableTexture(new RenderTexture(availableSize, availableSize, 0, format, 0), sizeX, sizeY);
+                temp.texture.enableRandomWrite = true;
+                temp.texture.Create();
             }
             return temp;
         }
 
 
-        public static RenderTexture GetTemporaryGradient(int sizeX, RenderTextureFormat format, out int availableSize)
+        public static ReusableTexture GetTemporaryGradient(int sizeX, RenderTextureFormat format)
         {
+            int availableSize;
             int maxSize = sizeX;
 
             //calculate which smallest power of two fits our requested texture dimensions inside
@@ -142,27 +145,28 @@ namespace HueHades.Utilities
             var key = (availableSize, format);
             if (_gradientRenderTexturePool == null)
             {
-                _gradientRenderTexturePool = new Dictionary<(int, RenderTextureFormat), List<RenderTexture>>();
+                _gradientRenderTexturePool = new Dictionary<(int, RenderTextureFormat), List<ReusableTexture>>();
             }
-            List<RenderTexture> pooledTextures;
+            List<ReusableTexture> pooledTextures;
             if (!_gradientRenderTexturePool.TryGetValue(key, out pooledTextures))
             {
-                pooledTextures = new List<RenderTexture>();
+                pooledTextures = new List<ReusableTexture>();
                 _gradientRenderTexturePool.Add(key, pooledTextures);
             }
 
-            RenderTexture temp;
+            ReusableTexture temp;
             if (pooledTextures.Count > 0)
             {
                 var index = pooledTextures.Count - 1;
                 temp = pooledTextures[index];
                 pooledTextures.RemoveAt(index);
+                temp.ReuseAs(sizeX, 1);
             }
             else
             {
-                temp = new RenderTexture(availableSize, 1, 0, format, 0);
-                temp.enableRandomWrite = true;
-                temp.Create();
+                temp = new ReusableTexture(new RenderTexture(availableSize, 1, 0, format, 0), sizeX, 1);
+                temp.texture.enableRandomWrite = true;
+                temp.texture.Create();
             }
             return temp;
         }
@@ -170,22 +174,22 @@ namespace HueHades.Utilities
 
 
 
-        public static void ReleaseTemporary(RenderTexture renderTexture)
+        public static void ReleaseTemporary(ReusableTexture renderTexture)
         {
-            _renderTexturePool[(renderTexture.width, renderTexture.format)].Add(renderTexture);
+            _renderTexturePool[(renderTexture.actualWidth, renderTexture.texture.format)].Add(renderTexture);
         }
 
-        public static void ReleaseTemporaryGradient(RenderTexture gradientRenderTexture)
+        public static void ReleaseTemporaryGradient(ReusableTexture gradientRenderTexture)
         {
-            _gradientRenderTexturePool[(gradientRenderTexture.width, gradientRenderTexture.format)].Add(gradientRenderTexture);
+            _gradientRenderTexturePool[(gradientRenderTexture.actualWidth, gradientRenderTexture.texture.format)].Add(gradientRenderTexture);
         }
 
 
-        public static void CopyTexture(RenderTexture from, RenderTexture to, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
+        public static void CopyTexture(ReusableTexture from, ReusableTexture to, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
         {
             CopyTexture(from, to, 0, 0, destinationTileMode, sourceTileMode);
         }
-        public static void CopyTexture(RenderTexture from, RenderTexture to, int destinationX, int destinationY, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
+        public static void CopyTexture(ReusableTexture from, ReusableTexture to, int destinationX, int destinationY, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
         {
             CopyTexture(from, 0, 0, from.width, from.height, to, destinationX, destinationY, destinationTileMode, sourceTileMode);
         }
@@ -230,52 +234,44 @@ namespace HueHades.Utilities
             }
         }
 
-        public static void CopyTexture(RenderTexture from, int sourceX, int sourceY, int sourceWidth, int sourceHeight, RenderTexture to, int destinationX = 0, int destinationY = 0, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
+        public static void CopyTexture(ReusableTexture from, int sourceX, int sourceY, int sourceWidth, int sourceHeight, ReusableTexture to, int destinationX = 0, int destinationY = 0, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
         {
             int sourceTextureWidth = from.width;
             int sourceTextureHeight = from.height;
             int destinationTextureWidth = to.width;
             int destinationTextureHeight = to.height;
 
-            byte sourceTileX = (sourceTileMode == CanvasTileMode.TileX || sourceTileMode == CanvasTileMode.TileXY) ? byte.MaxValue : byte.MinValue;
-            byte sourceTileY = (sourceTileMode == CanvasTileMode.TileY || sourceTileMode == CanvasTileMode.TileXY) ? byte.MaxValue : byte.MinValue;
-            byte destinationTileX = (destinationTileMode == CanvasTileMode.TileX || destinationTileMode == CanvasTileMode.TileXY) ? byte.MaxValue : byte.MinValue;
-            byte destinationTileY = (destinationTileMode == CanvasTileMode.TileY || destinationTileMode == CanvasTileMode.TileXY) ? byte.MaxValue : byte.MinValue;
-            int tileComposite = 0;
-            tileComposite |= sourceTileX;
-            tileComposite <<= 8;
-            tileComposite |= sourceTileY;
-            tileComposite <<= 8;
-            tileComposite |= destinationTileX;
-            tileComposite <<= 8;
-            tileComposite |= destinationTileY;
+            int sourceTileX = (sourceTileMode == CanvasTileMode.TileX || sourceTileMode == CanvasTileMode.TileXY) ? 1 : 0;
+            int sourceTileY = (sourceTileMode == CanvasTileMode.TileY || sourceTileMode == CanvasTileMode.TileXY) ? 1 : 0;
+            int destinationTileX = (destinationTileMode == CanvasTileMode.TileX || destinationTileMode == CanvasTileMode.TileXY) ? 1 : 0;
+            int destinationTileY = (destinationTileMode == CanvasTileMode.TileY || destinationTileMode == CanvasTileMode.TileXY) ? 1 : 0;
 
             ClampSourceToTile(ref sourceX, sourceTextureWidth, ref sourceWidth, sourceTileX, ref destinationX);
             ClampSourceToTile(ref sourceY, sourceTextureHeight, ref sourceHeight, sourceTileY, ref destinationY);
 
-            ClampDestinationToTile(ref destinationX, destinationTextureWidth, ref sourceWidth , sourceTileX, ref sourceX);
-            ClampDestinationToTile(ref destinationY, destinationTextureHeight, ref sourceHeight, sourceTileY, ref sourceY);
+            ClampDestinationToTile(ref destinationX, destinationTextureWidth, ref sourceWidth , destinationTileX, ref sourceX);
+            ClampDestinationToTile(ref destinationY, destinationTextureHeight, ref sourceHeight, destinationTileY, ref sourceY);
 
             if (sourceWidth <= 0 || sourceHeight <= 0) return;
 
-            CopyImageShader.SetTexture(CopyShaderKernel, InputPropertyID, from);
-            CopyImageShader.SetTexture(CopyShaderKernel, ResultPropertyID, to);
+            CopyImageShader.SetTexture(CopyShaderKernel, InputPropertyID, from.texture);
+            CopyImageShader.SetTexture(CopyShaderKernel, ResultPropertyID, to.texture);
             CopyImageShader.SetInts(SrcDstDimPropertyID, sourceTextureWidth, sourceTextureHeight, destinationTextureWidth, destinationTextureHeight);
             CopyImageShader.SetInts(DstXYPropertyID, destinationX, destinationY);
             CopyImageShader.SetInts(SrcRectPropertyID, sourceX, sourceY, sourceWidth, sourceHeight);
 
-            CopyImageShader.SetInt(TileSrcXYDstXYPropertyID, tileComposite);
+            CopyImageShader.SetInts(TileSrcXYDstXYPropertyID, sourceTileX, sourceTileY, destinationTileX, destinationTileY);
             CopyImageShader.Dispatch(CopyShaderKernel, Mathf.CeilToInt(sourceWidth / (float)warpSizeX), Mathf.CeilToInt(sourceHeight / (float)warpSizeY), 1);
         }
 
-        public static void ClearTexture(RenderTexture texture, Color clearColor)
+        public static void ClearTexture(ReusableTexture texture, Color clearColor)
         {
-            ClearImageShader.SetTexture(ClearColorKernel, ResultPropertyID, texture);
+            ClearImageShader.SetTexture(ClearColorKernel, ResultPropertyID, texture.texture);
             ClearImageShader.SetVector(ClearColorPropertyID, clearColor);
             ClearImageShader.Dispatch(ClearColorKernel, Mathf.CeilToInt(texture.width / (float)warpSizeX), Mathf.CeilToInt(texture.height / (float)warpSizeY), 1);
         }
 
-        public static void LayerImage(RenderTexture bottomLayer, RenderTexture topLayer, RenderTexture result, ColorBlendMode colorBlendMode)
+        public static void LayerImage(ReusableTexture bottomLayer, ReusableTexture topLayer, ReusableTexture result, ColorBlendMode colorBlendMode)
         {
             int dispatchKernel;
             switch (colorBlendMode)
@@ -297,13 +293,13 @@ namespace HueHades.Utilities
                     break;
             }
 
-            LayerImageShader.SetTexture(dispatchKernel,BottomLayerPropertyID,bottomLayer);
-            LayerImageShader.SetTexture(dispatchKernel,TopLayerPropertyID,topLayer);
-            LayerImageShader.SetTexture(dispatchKernel,ResultPropertyID,result);
+            LayerImageShader.SetTexture(dispatchKernel,BottomLayerPropertyID,bottomLayer.texture);
+            LayerImageShader.SetTexture(dispatchKernel,TopLayerPropertyID,topLayer.texture);
+            LayerImageShader.SetTexture(dispatchKernel,ResultPropertyID,result.texture);
             LayerImageShader.Dispatch(dispatchKernel, Mathf.CeilToInt(result.width / (float)warpSizeX), Mathf.CeilToInt(result.height / (float)warpSizeY), 1);
         }
 
-        public static void LayerImageArea(RenderTexture bottomLayer, RenderTexture target, int sourceX, int sourceY, int sourceWidth, int sourceHeight, RenderTexture topLayer, ColorBlendMode colorBlendMode, int destinationX = 0, int destinationY = 0, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
+        public static void LayerImageArea(ReusableTexture bottomLayer, ReusableTexture target, int sourceX, int sourceY, int sourceWidth, int sourceHeight, ReusableTexture topLayer, ColorBlendMode colorBlendMode, int destinationX = 0, int destinationY = 0, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
         {
             int sourceTextureWidth = topLayer.width;
             int sourceTextureHeight = topLayer.height;
@@ -330,26 +326,16 @@ namespace HueHades.Utilities
                     break;
             }
 
-
-
-            byte sourceTileX = (sourceTileMode == CanvasTileMode.TileX || sourceTileMode == CanvasTileMode.TileXY) ? byte.MaxValue : byte.MinValue;
-            byte sourceTileY = (sourceTileMode == CanvasTileMode.TileY || sourceTileMode == CanvasTileMode.TileXY) ? byte.MaxValue : byte.MinValue;
-            byte destinationTileX = (destinationTileMode == CanvasTileMode.TileX || destinationTileMode == CanvasTileMode.TileXY) ? byte.MaxValue : byte.MinValue;
-            byte destinationTileY = (destinationTileMode == CanvasTileMode.TileY || destinationTileMode == CanvasTileMode.TileXY) ? byte.MaxValue : byte.MinValue;
-            int tileComposite = 0;
-            tileComposite |= sourceTileX;
-            tileComposite <<= 8;
-            tileComposite |= sourceTileY;
-            tileComposite <<= 8;
-            tileComposite |= destinationTileX;
-            tileComposite <<= 8;
-            tileComposite |= destinationTileY;
-
+            int sourceTileX = (sourceTileMode == CanvasTileMode.TileX || sourceTileMode == CanvasTileMode.TileXY) ? 1 : 0;
+            int sourceTileY = (sourceTileMode == CanvasTileMode.TileY || sourceTileMode == CanvasTileMode.TileXY) ? 1 : 0;
+            int destinationTileX = (destinationTileMode == CanvasTileMode.TileX || destinationTileMode == CanvasTileMode.TileXY) ? 1 : 0;
+            int destinationTileY = (destinationTileMode == CanvasTileMode.TileY || destinationTileMode == CanvasTileMode.TileXY) ? 1 : 0;
+            
             ClampSourceToTile(ref sourceX, sourceTextureWidth, ref sourceWidth, sourceTileX, ref destinationX);
             ClampSourceToTile(ref sourceY, sourceTextureHeight, ref sourceHeight, sourceTileY, ref destinationY);
 
-            ClampDestinationToTile(ref destinationX, destinationTextureWidth, ref sourceWidth, sourceTileX, ref sourceX);
-            ClampDestinationToTile(ref destinationY, destinationTextureHeight, ref sourceHeight, sourceTileY, ref sourceY);
+            ClampDestinationToTile(ref destinationX, destinationTextureWidth, ref sourceWidth, destinationTileX, ref sourceX);
+            ClampDestinationToTile(ref destinationY, destinationTextureHeight, ref sourceHeight, destinationTileY, ref sourceY);
 
             if (sourceWidth <= 0 || sourceHeight <= 0) return;
 
@@ -357,18 +343,18 @@ namespace HueHades.Utilities
             LayerImageAreaShader.SetInts(DstXYPropertyID, destinationX, destinationY);
             LayerImageAreaShader.SetInts(SrcRectPropertyID, sourceX, sourceY, sourceWidth, sourceHeight);
 
-            LayerImageAreaShader.SetInt(TileSrcXYDstXYPropertyID, tileComposite);
-            LayerImageAreaShader.SetTexture(dispatchKernel, BottomLayerPropertyID, bottomLayer);
-            LayerImageAreaShader.SetTexture(dispatchKernel, TopLayerPropertyID, topLayer);
-            LayerImageAreaShader.SetTexture(dispatchKernel, ResultPropertyID, target);
+            LayerImageAreaShader.SetInts(TileSrcXYDstXYPropertyID, sourceTileX, sourceTileY, destinationTileX, destinationTileY);
+            LayerImageAreaShader.SetTexture(dispatchKernel, BottomLayerPropertyID, bottomLayer.texture);
+            LayerImageAreaShader.SetTexture(dispatchKernel, TopLayerPropertyID, topLayer.texture);
+            LayerImageAreaShader.SetTexture(dispatchKernel, ResultPropertyID, target.texture);
             LayerImageAreaShader.Dispatch(dispatchKernel, Mathf.CeilToInt(sourceTextureWidth / (float)warpSizeX), Mathf.CeilToInt(sourceTextureHeight / (float)warpSizeY), 1);
         }
 
 
-        public static void ApplyChannelMask(RenderTexture target, RenderTexture mask)
+        public static void ApplyChannelMask(ReusableTexture target, ReusableTexture mask)
         {
-            MaskChannelsShader.SetTexture(MaskChannelsKernel, TargetPropertyID, target);
-            MaskChannelsShader.SetTexture(MaskChannelsKernel, MaskPropertyID, mask);
+            MaskChannelsShader.SetTexture(MaskChannelsKernel, TargetPropertyID, target.texture);
+            MaskChannelsShader.SetTexture(MaskChannelsKernel, MaskPropertyID, mask.texture);
             MaskChannelsShader.Dispatch(MaskChannelsKernel, Mathf.CeilToInt(target.width / (float)warpSizeX), Mathf.CeilToInt(target.height / (float)warpSizeY), 1);
         }
 
@@ -404,7 +390,7 @@ namespace HueHades.Utilities
                 SizePropertyID = Shader.PropertyToID("Size");
             }
 
-            public static void DrawColorGradientRectangle(RenderTexture target, int rectangleSizeX, int rectangleSizeY, Color colorA, Color colorB, Color colorC, Color colorD)
+            public static void DrawColorGradientRectangle(ReusableTexture target, int rectangleSizeX, int rectangleSizeY, Color colorA, Color colorB, Color colorC, Color colorD)
             {
                 if (rectangleSizeX <= 0 || rectangleSizeY <= 0) return;
                 DrawColorGradientRectangleShader.SetInts(RectangleSizePropertyID, rectangleSizeX, rectangleSizeY);
@@ -412,21 +398,21 @@ namespace HueHades.Utilities
                 DrawColorGradientRectangleShader.SetVector(ColorBPropertyID, colorB);
                 DrawColorGradientRectangleShader.SetVector(ColorCPropertyID, colorC);
                 DrawColorGradientRectangleShader.SetVector(ColorDPropertyID, colorD);
-                DrawColorGradientRectangleShader.SetTexture(GradientRectangleKernel, ResultPropertyID, target);
+                DrawColorGradientRectangleShader.SetTexture(GradientRectangleKernel, ResultPropertyID, target.texture);
                 DrawColorGradientRectangleShader.Dispatch(GradientRectangleKernel, Mathf.CeilToInt(Mathf.Min(target.width, rectangleSizeX) / (float)warpSizeX), Mathf.CeilToInt(Mathf.Min(target.height, rectangleSizeY) / (float)warpSizeY), 1);
             }
-            public static void DrawColorGradient(RenderTexture target, int size, Color colorA, Color colorB)
+            public static void DrawColorGradient(ReusableTexture target, int size, Color colorA, Color colorB)
             {
                 DrawColorGradientShader.SetInt(SizePropertyID, size);
                 DrawColorGradientShader.SetVector(ColorAPropertyID, colorA);
                 DrawColorGradientShader.SetVector(ColorBPropertyID, colorB);
-                DrawColorGradientShader.SetTexture(GradientKernel, ResultPropertyID, target);
+                DrawColorGradientShader.SetTexture(GradientKernel, ResultPropertyID, target.texture);
                 DrawColorGradientShader.Dispatch(GradientKernel, Mathf.CeilToInt(Mathf.Min(target.width, size) / (float)warpSizeX), 1, 1);
             }
-            public static void DrawHueGradient(RenderTexture target, int size)
+            public static void DrawHueGradient(ReusableTexture target, int size)
             {
                 DrawHueGradientShader.SetInt(SizePropertyID, size);
-                DrawHueGradientShader.SetTexture(HueGradientKernel, ResultPropertyID, target);
+                DrawHueGradientShader.SetTexture(HueGradientKernel, ResultPropertyID, target.texture);
                 DrawHueGradientShader.Dispatch(HueGradientKernel, Mathf.CeilToInt(Mathf.Min(target.width, size) / (float)warpSizeX), 1, 1);
             }
         }
@@ -456,7 +442,7 @@ namespace HueHades.Utilities
                 OpacityGradientPropertyID = Shader.PropertyToID("OpacityGradient");
             }
 
-            public static void DrawBrush(RenderTexture target, Vector2 center, Vector2 size, float rotation, BrushShape brushShape, Color color, RenderTexture opacityGradient)
+            public static void DrawBrush(ReusableTexture target, Vector2 center, Vector2 size, float rotation, BrushShape brushShape, Color color, ReusableTexture opacityGradient)
             {
                 int chosenKernel;
                 switch (brushShape)
@@ -475,15 +461,15 @@ namespace HueHades.Utilities
                         break;
                 }
 
-                DrawBrushShader.SetVector(PositionSizePropertyID, new Vector4(center.x, center.y, 1.0f / size.x, 1.0f / size.y * 2.0f));
+                DrawBrushShader.SetVector(PositionSizePropertyID, new Vector4(center.x, center.y, 1.0f / size.x, 1.0f / size.y * 1.0f));
                 DrawBrushShader.SetVector(BrushColorPropertyID, color);
 
                 float cosRotation = Mathf.Cos(rotation / 180.0f * Mathf.PI);
                 float sinRotation = Mathf.Sin(rotation / 180.0f * Mathf.PI);
 
                 DrawBrushShader.SetMatrix(RotationMatrixPropertyID, new Matrix4x4(new Vector4(cosRotation, sinRotation,0,0), new Vector4(-sinRotation, cosRotation,0,0), Vector4.zero, Vector4.zero));
-                DrawBrushShader.SetTexture(chosenKernel, OpacityGradientPropertyID, opacityGradient);
-                DrawBrushShader.SetTexture(chosenKernel, TargetPropertyID, target);
+                DrawBrushShader.SetTexture(chosenKernel, OpacityGradientPropertyID, opacityGradient.texture);
+                DrawBrushShader.SetTexture(chosenKernel, TargetPropertyID, target.texture);
                 DrawBrushShader.Dispatch(chosenKernel, Mathf.CeilToInt(target.width / (float)warpSizeX), Mathf.CeilToInt(target.height / (float)warpSizeY), 1);
             }
 

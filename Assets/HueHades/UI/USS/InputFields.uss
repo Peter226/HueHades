@@ -120,7 +120,7 @@
     margin-left: 1px;
     margin-right: 1px;
     margin-top: 1px;
-    margin-bottom: 1px;
+    margin-bottom: 2px;
     flex-direction: row;
     padding-left: 2px;
     padding-right: 2px;
@@ -135,6 +135,7 @@
     border-right-color: rgba(38, 142, 255, 0.51);
     border-top-color: rgba(38, 142, 255, 0.51);
     border-bottom-color: rgba(38, 142, 255, 0.51);
+    margin-bottom: 2px;
 }
 
 .toggle-button-toggle:hover {
@@ -143,6 +144,7 @@
     border-right-color: rgba(38, 142, 255, 0.81);
     border-top-color: rgba(38, 142, 255, 0.81);
     border-bottom-color: rgba(38, 142, 255, 0.81);
+    margin-bottom: 2px;
 }
 
 .toggle-button-label {
@@ -150,9 +152,10 @@
 
 .toggle-button-icon {
     -unity-background-scale-mode: scale-to-fit;
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 18px;
     justify-content: center;
+    align-self: center;
 }
 
 .unity-text-field__label {

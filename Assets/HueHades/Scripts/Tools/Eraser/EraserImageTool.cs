@@ -94,9 +94,9 @@ namespace HueHades.Tools
                 int bufferStartX = Mathf.RoundToInt(bounds.min.x);
                 int bufferStartY = Mathf.RoundToInt(bounds.min.y);
 
-                var paintBufferA = RenderTextureUtilities.GetTemporary(bufferWidth, bufferHeight, _paintCanvas.Format, out int bufferSizeA);
-                var paintBufferB = RenderTextureUtilities.GetTemporary(bufferWidth, bufferHeight, _paintCanvas.Format, out int bufferSizeB);
-                var paintBufferC = RenderTextureUtilities.GetTemporary(bufferWidth, bufferHeight, _paintCanvas.Format, out int bufferSizeC);
+                var paintBufferA = RenderTextureUtilities.GetTemporary(bufferWidth, bufferHeight, _paintCanvas.Format);
+                var paintBufferB = RenderTextureUtilities.GetTemporary(bufferWidth, bufferHeight, _paintCanvas.Format);
+                var paintBufferC = RenderTextureUtilities.GetTemporary(bufferWidth, bufferHeight, _paintCanvas.Format);
                 RenderTextureUtilities.ClearTexture(paintBufferA, Color.clear);
                 RenderTextureUtilities.ClearTexture(paintBufferB, Color.clear);
 
@@ -109,7 +109,7 @@ namespace HueHades.Tools
                     int pointStartY = Mathf.RoundToInt(point.position.y - point.radius * 0.5f) - bufferStartY;
 
 
-                    var pointBuffer = RenderTextureUtilities.GetTemporary(pointWidth, pointHeight, _paintCanvas.Format, out int pointBufferSize);
+                    var pointBuffer = RenderTextureUtilities.GetTemporary(pointWidth, pointHeight, _paintCanvas.Format);
                     var color = Color.blue;
                     /*if (i == 0)
                     {
@@ -130,11 +130,11 @@ namespace HueHades.Tools
                     paintBufferC = oldBufferB;
                 }
 
-                var sourceBuffer = RenderTextureUtilities.GetTemporary(bufferWidth, bufferHeight, _paintCanvas.Format, out int sourceBufferSize);
-                var resultBuffer = RenderTextureUtilities.GetTemporary(bufferWidth, bufferHeight, _paintCanvas.Format, out int resultBufferSize);
+                var sourceBuffer = RenderTextureUtilities.GetTemporary(bufferWidth, bufferHeight, _paintCanvas.Format);
+                var resultBuffer = RenderTextureUtilities.GetTemporary(bufferWidth, bufferHeight, _paintCanvas.Format);
                 _paintLayer.GetOperatingCopy(sourceBuffer, bufferStartX, bufferStartY);
                 RenderTextureUtilities.LayerImage(sourceBuffer, paintBufferB, resultBuffer, Common.ColorBlendMode.Default);
-                _paintLayer.ApplyBufferArea(resultBuffer, bufferStartX, bufferStartY, 0, 0, bufferWidth, bufferHeight);
+                _paintLayer.ApplyBufferArea(resultBuffer, bufferStartX, bufferStartY, 0, 0, bufferWidth, bufferHeight, _paintCanvas.TileMode);
                 RenderTextureUtilities.ReleaseTemporary(paintBufferA);
                 RenderTextureUtilities.ReleaseTemporary(paintBufferB);
                 RenderTextureUtilities.ReleaseTemporary(paintBufferC);

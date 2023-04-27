@@ -54,7 +54,8 @@ public class HueHadesWindow : VisualElement
 
 
     private Dictionary<ImageCanvas, ImageOperatingWindow> _operatingWindows = new Dictionary<ImageCanvas, ImageOperatingWindow>();
-    private DockingWindow _dockingWindow;
+    private DockingWindow _mainDock;
+    public DockingWindow MainDock { get { return _mainDock; } }
 
     public new class UxmlFactory : UxmlFactory<HueHadesWindow, UxmlTraits> {}
 
@@ -64,8 +65,8 @@ public class HueHadesWindow : VisualElement
     {
         var menuBar = new MenuBar(this);
         hierarchy.Insert(0, menuBar);
-        _dockingWindow = new DockingWindow(this, true);
-        hierarchy.Insert(1, _dockingWindow);
+        _mainDock = new DockingWindow(this, true);
+        hierarchy.Insert(1, _mainDock);
         if (Application.isPlaying) ApplicationManager.OnCanvasCreated += OnCanvasCreated;
         this.RegisterCallback<GeometryChangedEvent>(OnGeometryChange);
         _initialized = false;
@@ -75,9 +76,9 @@ public class HueHadesWindow : VisualElement
     {
         if (!_initialized)
         {
-            var dockingWindowBounds = _dockingWindow.worldBound;
-            _dockingWindow.style.width = dockingWindowBounds.width;
-            _dockingWindow.style.height = dockingWindowBounds.height;
+            var dockingWindowBounds = _mainDock.worldBound;
+            _mainDock.style.width = dockingWindowBounds.width;
+            _mainDock.style.height = dockingWindowBounds.height;
             _initialized = true;
             OnInitialized?.Invoke();
         }
@@ -87,17 +88,17 @@ public class HueHadesWindow : VisualElement
     private void OnCanvasCreated(object sender, ApplicationManager.CanvasChangeEventArgs args)
     {
         ImageOperatingWindow imageOperatingWindow = new ImageOperatingWindow(this, args.Canvas);
-        imageOperatingWindow.Dock(_dockingWindow.Handle);
+        imageOperatingWindow.Dock(_mainDock.Handle);
 
         if (_toolsWindow == null)
         {
             _toolsWindow = new ToolsWindow(this);
-            _toolsWindow.Dock(_dockingWindow.Handle, DockType.Left);
+            _toolsWindow.Dock(_mainDock.Handle, DockType.Left);
         }
         if (_toolSettingsWindow == null)
         {
             _toolSettingsWindow = new ToolSettingsWindow(this);
-            _toolSettingsWindow.Dock(_dockingWindow.Handle,DockType.Right);
+            _toolSettingsWindow.Dock(_mainDock.Handle,DockType.Right);
         }
         if (_colorSelectorWindow == null)
         {

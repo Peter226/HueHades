@@ -109,6 +109,16 @@ public class MainUI : MonoBehaviour
     }
 }
 
+[MenuBarItem("Window_4/Texture Debugger_1")]
+public class DebuggerWindowMenuBarFunction : IMenuBarFunction
+{
+    public void Execute(HueHadesWindow window)
+    {
+        TextureDebuggerWindow textureDebuggerWindow = new TextureDebuggerWindow(window);
+        textureDebuggerWindow.Dock(window.MainDock.Handle, DockType.Bottom);
+    }
+}
+
 [MenuBarItem("Edit_2/Tools_3/Brush Editor_1")]
 public class EditBrushMenuBarFunction : IMenuBarFunction
 {

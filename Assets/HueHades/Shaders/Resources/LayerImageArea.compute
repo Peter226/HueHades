@@ -17,7 +17,6 @@ bool SelectAndTile(uint3 id, out uint2 targetID, out uint2 sourceID){
     uint2 srcID = SrcRect.xy + id.xy;
     uint2 dstID = DstXY + id.xy;
     
-    uint2 zero = uint2(0,0);
     if(all(
             ((srcID < SrcDstDim.xy) || TileSrcXYDstXY.xy) &&
             ((dstID < SrcDstDim.zw) || TileSrcXYDstXY.zw) &&

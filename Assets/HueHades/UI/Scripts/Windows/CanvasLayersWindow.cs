@@ -9,6 +9,11 @@ namespace HueHades.UI
         public CanvasLayersWindow(HueHadesWindow window) : base(window)
         {
             WindowName = "Layers";
+
+
+
+
+
         }
 
         public override Vector2 GetDefaultSize()

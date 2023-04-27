@@ -10,7 +10,7 @@ namespace HueHades.UI
 {
     public class ColorPickerGradient : HueHadesElement
     {
-        private RenderTexture _displayTexture;
+        private ReusableTexture _displayTexture;
         private int2 _displaySize;
         private Image _displayImage;
 
@@ -135,9 +135,9 @@ namespace HueHades.UI
                 RenderTextureUtilities.ReleaseTemporaryGradient(_displayTexture);
 
             }
-            _displayTexture = RenderTextureUtilities.GetTemporaryGradient(size.x, RenderTextureFormat.ARGB32, out int availableSize);
-            _displayImage.image = _displayTexture;
-            _displayImage.uv = new Rect(0, 0, size.x / (float)availableSize, 16);
+            _displayTexture = RenderTextureUtilities.GetTemporaryGradient(size.x, RenderTextureFormat.ARGB32);
+            _displayImage.image = _displayTexture.texture;
+            _displayImage.uv = new Rect(0, 0, size.x / (float)_displayTexture.actualWidth, 16);
             _displaySize = size;
             RegenerateTexture();
         }
