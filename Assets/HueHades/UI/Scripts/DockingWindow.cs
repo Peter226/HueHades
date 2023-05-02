@@ -27,12 +27,27 @@ namespace HueHades.UI
         private DockingWindow _splitB;
         private bool _isDockSplit;
         private DockHandle _dockHandle;
+
+        /// <summary>
+        /// Handle of the docking window
+        /// </summary>
         public DockHandle Handle { get { return _dockHandle; } private set { _dockHandle = value; } }
 
-        public DockingWindow(HueHadesWindow window, bool isFixedWindow = false, DockingWindow dockedIn = null) : base(window)
+        private float _lastWidth;
+        private float _lastHeight;
+
+        private VisualElement _parentElement;
+
+        /// <summary>
+        /// Create a new docking window
+        /// </summary>
+        /// <param name="window">main window of our application</param>
+        /// <param name="isFixedWindow">is this window the fixed docking window of our application</param>
+        /// <param name="dockedIn">possible parent docking window</param>
+        public DockingWindow(HueHadesWindow window, bool isFixedWindow = false, DockingWindow dockedIn = null, bool isFreeWindow = false) : base(window)
         {
             Handle = new DockHandle(this);
-            _headerBar = new HeaderBar(window);
+            _headerBar = new HeaderBar(window, this);
             hierarchy.Add(_headerBar);
             _windowContainer = new HueHadesElement(window);
             _windowContainer.AddToClassList(ussDockingWindowContent);
@@ -45,8 +60,111 @@ namespace HueHades.UI
             AddToClassList(ussDockingWindow);
             _dockedIn = dockedIn;
             this.AddManipulator(new DockResizeManipulator(this));
+            RegisterCallback<AttachToPanelEvent>(OnAttachToPanel);
+            RegisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
+            _isFreeWindow = isFreeWindow;
         }
 
+        /// <summary>
+        /// Called when attached to panel, used for registering geometry events for rescaling child windows
+        /// </summary>
+        /// <param name="evt"></param>
+        private void OnAttachToPanel(AttachToPanelEvent evt)
+        {
+            if (parent == null) return;
+            _parentElement = parent;
+            if (_isFixedWindow)
+            {
+                _parentElement.RegisterCallback<GeometryChangedEvent>(OnParentResized);
+                _lastWidth = _parentElement.worldBound.width;
+                _lastHeight = _parentElement.worldBound.height;
+            }
+        }
+
+        /// <summary>
+        /// Called when detached from panel, used for unregistering geometry events
+        /// </summary>
+        /// <param name="evt"></param>
+        private void OnDetachFromPanel(DetachFromPanelEvent evt)
+        {
+            if (_parentElement == null) return;
+            if (_isFixedWindow)
+            {
+                _parentElement.UnregisterCallback<GeometryChangedEvent>(OnParentResized);
+            }
+
+        }
+
+        /// <summary>
+        /// Resizes the dock to the specified size
+        /// </summary>
+        /// <param name="width">New width</param>
+        /// <param name="height">New height</param>
+        private void ResizeDock(float width, float height)
+        {
+            float currentWidth = style.width.value.value;
+            float currentHeight = style.height.value.value;
+            ResizeDockRatio(width / currentWidth, height / currentHeight);
+        }
+
+        /// <summary>
+        /// Resizes the dock to the specific ratio compared to the current size
+        /// </summary>
+        /// <param name="widthRatio">Width ratio comparing the new size to the current one</param>
+        /// <param name="heightRatio">Height ratio comparing the new size to the current one</param>
+        private void ResizeDockRatio(float widthRatio, float heightRatio)
+        {
+            style.width = style.width.value.value * widthRatio;
+            style.height = style.height.value.value * heightRatio;
+            if (_isDockSplit)
+            {
+                _splitA.ResizeDockRatio(widthRatio, heightRatio);
+                _splitB.ResizeDockRatio(widthRatio, heightRatio);
+            }
+        }
+
+        /// <summary>
+        /// Called when the parent window is resized of a fixed docking window, used for rescaling children.
+        /// </summary>
+        /// <param name="evt"></param>
+        private void OnParentResized(GeometryChangedEvent evt)
+        {
+            if (_parentElement == null) return;
+            if (!_isFixedWindow) return;
+
+            float newWidth = _parentElement.worldBound.width;
+            float newHeight = _parentElement.worldBound.height;
+
+            Debug.Log(newWidth);
+
+
+            if (_isDockSplit)
+            {
+                float deltaWidthRatio = 1;
+                float deltaHeightRatio = 1;
+                if (_lastWidth != 0)
+                {
+                    deltaWidthRatio = newWidth / _lastWidth;
+                }
+                if (_lastHeight != 0)
+                {
+                    deltaHeightRatio = newHeight / _lastHeight;
+                }
+                _splitA.ResizeDockRatio(deltaWidthRatio, deltaHeightRatio);
+                _splitB.ResizeDockRatio(deltaWidthRatio, deltaHeightRatio);
+            }
+
+            _lastWidth = newWidth;
+            _lastHeight = newHeight;
+        }
+
+        /// <summary>
+        /// Used for docking DockableWindows using the specified parameter settings
+        /// </summary>
+        /// <param name="dockableWindow">Window to dock</param>
+        /// <param name="dockType">DockType referring to the preferred position and layout arrangement of the window</param>
+        /// <param name="headerIndex">Insert the window's header button into a specified position in the header bar</param>
+        /// <returns></returns>
         public DockHandle DockWindow(DockableWindow dockableWindow, DockType dockType = DockType.Header, int headerIndex = -1)
         {
             if (_isDockSplit)
@@ -75,15 +193,15 @@ namespace HueHades.UI
                     header.AddManipulator(new HeaderDragManipulator(header));
                     if (headerIndex < 0)
                     {
-                        headerIndex = _headerBar.hierarchy.childCount;
+                        headerIndex = _headerBar.Container.hierarchy.childCount;
                     }
-                    _headerBar.hierarchy.Insert(headerIndex, header);
+                    _headerBar.Container.hierarchy.Insert(headerIndex, header);
                     _dockedWindows.Add(dockableWindow, header);
                     SelectWindow(dockableWindow);
 
                     if (_dockedIn == null && !_isFixedWindow)
                     {
-                        var defaultWindowSize = dockableWindow.GetDefaultSize();
+                        var defaultWindowSize = dockableWindow.DefaultSize;
                         style.position = Position.Absolute;
                         style.width = defaultWindowSize.x;
                         style.height = defaultWindowSize.y;
@@ -93,18 +211,18 @@ namespace HueHades.UI
 
                     break;
                 case DockType.Free:
-                    DockingWindow freeDocker = new DockingWindow(window);
+                    DockingWindow freeDocker = new DockingWindow(window, isFreeWindow: true);
                     window.FreeDockElement.Add(freeDocker);
                     return dockableWindow.Dock(freeDocker.Handle);
                 default:
                     float newSize;
                     if (dockType == DockType.Bottom || dockType == DockType.Top)
                     {
-                        newSize = dockableWindow.GetDefaultSize().y;
+                        newSize = dockableWindow.DefaultSize.y;
                     }
                     else
                     {
-                        newSize = dockableWindow.GetDefaultSize().x;
+                        newSize = dockableWindow.DefaultSize.x;
                     }
                     SplitDock(dockType, out DockingWindow oldHierarchy, out DockingWindow newHierarchy, newSize);
                     return dockableWindow.Dock(newHierarchy.Handle);
@@ -112,9 +230,18 @@ namespace HueHades.UI
             return Handle;
         }
 
+        /// <summary>
+        /// Used for splitting up the dock into two pieces when docking a window. Only called when DockType is Right, Left, Top or Bottom
+        /// </summary>
+        /// <param name="dockType">Position of the new window</param>
+        /// <param name="oldHierarchy">The window used for docking the current hierarchy in the split</param>
+        /// <param name="newHierarchy">The window used for docking the new hierarchy in the split</param>
+        /// <param name="newSize">The size of the new window, depending on the DockType</param>
         private void SplitDock(DockType dockType, out DockingWindow oldHierarchy, out DockingWindow newHierarchy, float newSize = -1.0f)
         {
+            //Activate split display
             _splitHierarchy.style.display = DisplayStyle.Flex;
+            //Calculate bounds of the window
             Rect bounds = this.worldBound;
             if (float.IsNaN(bounds.width) || float.IsNaN(bounds.height))
             {
@@ -127,7 +254,7 @@ namespace HueHades.UI
             oldHierarchy = new DockingWindow(window, dockedIn: this);
             newHierarchy = new DockingWindow(window, dockedIn: this);
 
-            
+            //Assign splits in hierarchy
             if (dockType == DockType.Right || dockType == DockType.Bottom) {
                 _splitHierarchy.Add(oldHierarchy);
                 _splitHierarchy.Add(newHierarchy);
@@ -143,6 +270,8 @@ namespace HueHades.UI
                 _splitA = newHierarchy;
                 _splitB = oldHierarchy;
             }
+
+            //Scale new windows and set layout options
             if (dockType == DockType.Left || dockType == DockType.Right)
             {
                 _splitHierarchy.style.flexDirection = FlexDirection.Row;
@@ -180,8 +309,8 @@ namespace HueHades.UI
             _headerBar.style.display = DisplayStyle.None;
             _splitHierarchy.style.display = DisplayStyle.Flex;
 
+            //Dock the old hierarchy
             var dockedWindows = _dockedWindows.Keys.ToList();
-
             for (int i = 0; i < dockedWindows.Count; i++)
             {
                 var dockedWindow = dockedWindows[i];
@@ -193,7 +322,9 @@ namespace HueHades.UI
 
         }
 
-
+        /// <summary>
+        /// Merges the dock if split, used when one of the splits becomes empty
+        /// </summary>
         void MergeDock()
         {
             if (!_isDockSplit) return;
@@ -209,6 +340,7 @@ namespace HueHades.UI
             _splitHierarchy.Remove(_splitA);
             _splitHierarchy.Remove(_splitB);
 
+            //Check if one of the splits is split
             if (_splitA._isDockSplit || _splitB._isDockSplit)
             {
                 _isDockSplit = true;
@@ -216,27 +348,41 @@ namespace HueHades.UI
                 _headerBar.style.display = DisplayStyle.None;
                 _splitHierarchy.style.display = DisplayStyle.Flex;
 
+                //check which one is split and scale it
                 if (_splitA._isDockSplit)
                 {
+                    var splitGrowWidthRatio = style.width.value.value / _splitA.style.width.value.value;
+                    var splitGrowHeightRatio = style.height.value.value / _splitA.style.height.value.value;
+                    _splitDirection = _splitA._splitDirection;
+                    _splitHierarchy.style.flexDirection = _splitA._splitHierarchy.style.flexDirection;
                     _splitB = _splitA._splitB;
                     _splitA = _splitA._splitA;
+                    _splitA.ResizeDockRatio(splitGrowWidthRatio, splitGrowHeightRatio);
+                    _splitB.ResizeDockRatio(splitGrowWidthRatio, splitGrowHeightRatio);
                 }
                 else
                 {
                     if (_splitB._isDockSplit)
                     {
+                        var splitGrowWidthRatio = style.width.value.value / _splitB.style.width.value.value;
+                        var splitGrowHeightRatio = style.height.value.value / _splitB.style.height.value.value;
+                        _splitDirection = _splitB._splitDirection;
+                        _splitHierarchy.style.flexDirection = _splitB._splitHierarchy.style.flexDirection;
                         _splitA = _splitB._splitA;
                         _splitB = _splitB._splitB;
+                        _splitA.ResizeDockRatio(splitGrowWidthRatio, splitGrowHeightRatio);
+                        _splitB.ResizeDockRatio(splitGrowWidthRatio, splitGrowHeightRatio);
                     }
                 }
                 
+                //assign new splits
                 _splitHierarchy.Add(_splitA);
                 _splitHierarchy.Add(_splitB);
 
                 _splitA._dockedIn = this;
                 _splitB._dockedIn = this;
-
             }
+            //if not, dock windows into self
             else
             {
                 for (int i = 0; i < dockedWindowsA.Count; i++)
@@ -255,13 +401,18 @@ namespace HueHades.UI
                 _splitHierarchy.style.display = DisplayStyle.None;
             }
             
+            //assign new references is unused docker's handles
             oldSplitA.Handle.SetReference(this);
             oldSplitB.Handle.SetReference(this);
         } 
             
-
+        /// <summary>
+        /// Removes window from hierarchy, destroys docker if necessary
+        /// </summary>
+        /// <param name="dockableWindow">Window to undock</param>
         public void UnDockWindow(DockableWindow dockableWindow)
         {
+            //Try to remove window
             int dockedWindowCount = _dockedWindows.Count;
             if (_dockedWindows.TryGetValue(dockableWindow, out HeaderElement header))
             {
@@ -272,11 +423,12 @@ namespace HueHades.UI
                     _windowContainer.hierarchy.Clear();
                     if (_dockedWindows.Count > 0)
                     {
-                        SelectWindow(((HeaderElement)_headerBar.hierarchy[0]).GetDockedWindow());
+                        SelectWindow(((HeaderElement)_headerBar.Container.hierarchy[0]).GetDockedWindow());
                     }
                 }
             }
 
+            //If dock is empty, merge parent dock or destroy free dock
             if (!_isDockSplit && _dockedWindows.Count <= 0 && dockedWindowCount > 0 && !_isFixedWindow)
             {
                 if (_dockedIn != null)
@@ -291,6 +443,10 @@ namespace HueHades.UI
             }
         }
 
+        /// <summary>
+        /// Select a window in header bar to show
+        /// </summary>
+        /// <param name="dockableWindow"></param>
         private void SelectWindow(DockableWindow dockableWindow)
         {
             if (_selectedWindow != null)
@@ -307,7 +463,9 @@ namespace HueHades.UI
             _dockedWindows[dockableWindow].Select();
         }
 
-
+        /// <summary>
+        /// Class used for storing a reference for a docking window. The reference may change while docking and undocking
+        /// </summary>
         public class DockHandle
         {
             private DockingWindow _reference;
@@ -317,52 +475,100 @@ namespace HueHades.UI
             {
                 _reference = dockingWindow;
             }
+
+            /// <summary>
+            /// Change the reference
+            /// </summary>
+            /// <param name="dockingWindow"></param>
             public void SetReference(DockingWindow dockingWindow)
             {
                 _reference = dockingWindow;
             }
         }
 
-
+        /// <summary>
+        /// Header element of a docking window. Shows the current docked window's names
+        /// </summary>
         private class HeaderBar : HueHadesElement
         {
-            
+            private DockingWindow _dockingWindow;
+            public VisualElement Container { get; private set; }
+            private VisualElement _filler;
 
-            public HeaderBar(HueHadesWindow window) : base(window)
+            public HeaderBar(HueHadesWindow window, DockingWindow dockingWindow) : base(window)
             {
                 AddToClassList(ussHeaderBar);
-                
+                _dockingWindow = dockingWindow;
+                _filler = new VisualElement();
+                Container = new VisualElement();
+                Add(Container);
+                Add(_filler);
+                _filler.style.left = 0;
+                _filler.style.right = 0;
+                _filler.style.top = 0;
+                _filler.style.bottom = 0;
+                _filler.style.flexGrow = 1;
+                Container.style.flexDirection = FlexDirection.Row;
+                _filler.AddManipulator(new HeaderBarMoveManipulator(this, _filler));
             }
 
+            /// <summary>
+            /// Manipulator for moving the header bar when docking window is free docked
+            /// </summary>
             private class HeaderBarMoveManipulator : PointerManipulator
             {
-                public HeaderBar Header { get; private set; }   
+                public HeaderBar Header { get; private set; }
+                private bool _dragging;
 
-                public HeaderBarMoveManipulator(HeaderBar target)
+                public HeaderBarMoveManipulator(HeaderBar headerBar, VisualElement target)
                 {
                     this.target = target;
-                    Header = target;
+                    Header = headerBar;
                 }
 
                 protected override void RegisterCallbacksOnTarget()
                 {
-                    target.RegisterCallback<PointerEnterEvent>(OnPointerEnter);
-                    target.RegisterCallback<PointerLeaveEvent>(OnPointerLeave);
+                    target.RegisterCallback<PointerDownEvent>(OnPointerDown);
+                    target.RegisterCallback<PointerUpEvent>(OnPointerUp);
+                    target.RegisterCallback<PointerMoveEvent>(OnPointerMove);
                 }
+
+                
 
                 protected override void UnregisterCallbacksFromTarget()
                 {
-                    target.UnregisterCallback<PointerEnterEvent>(OnPointerEnter);
-                    target.UnregisterCallback<PointerLeaveEvent>(OnPointerLeave);
+                    target.UnregisterCallback<PointerDownEvent>(OnPointerDown);
+                    target.UnregisterCallback<PointerUpEvent>(OnPointerUp);
+                    target.UnregisterCallback<PointerMoveEvent>(OnPointerMove);
                 }
 
-                private void OnPointerEnter(PointerEnterEvent pointerEnterEvent)
+                private void OnPointerMove(PointerMoveEvent evt)
                 {
-                    
+                    if (!_dragging) return;
+                    var rootDock = Header._dockingWindow;
+                    while (rootDock != null && !rootDock._isFreeWindow)
+                    {
+                        var parentDock = rootDock._dockedIn;
+                        if (parentDock == null || (parentDock._splitDirection == FlexDirection.Column && parentDock._splitB == rootDock))
+                        {
+                            return;
+                        }
+                        rootDock = parentDock;
+                    }
+                    if (rootDock == null) return;
+                    rootDock.style.left = rootDock.style.left.value.value + evt.deltaPosition.x;
+                    rootDock.style.top = rootDock.style.top.value.value + evt.deltaPosition.y;
                 }
-                private void OnPointerLeave(PointerLeaveEvent pointerEnterEvent)
-                {
 
+                private void OnPointerDown(PointerDownEvent pointerEvent)
+                {
+                    _dragging = true;
+                    target.CapturePointer(pointerEvent.pointerId);
+                }
+                private void OnPointerUp(PointerUpEvent pointerEvent)
+                {
+                    _dragging = false;
+                    target.ReleasePointer(pointerEvent.pointerId);
                 }
 
             }
@@ -447,6 +653,7 @@ namespace HueHades.UI
             }
 
             private bool _dragging;
+            private bool _draggingSide;
             private Vector2 _lastMousePosition;
 
             protected override void RegisterCallbacksOnTarget()
@@ -469,20 +676,41 @@ namespace HueHades.UI
                     {
                         dist = Mathf.Abs(_targetWindow._splitA.worldBound.yMax - mouseDownEvent.mousePosition.y);
                     }
-                    if (dist < 5.0f)
+                    if (dist <= 5.0f)
                     {
                         _dragging = true;
                         target.CaptureMouse();
                     }
-                    _lastMousePosition = mouseDownEvent.mousePosition;
                 }
 
+
+                if (_targetWindow._isFreeWindow)
+                {
+                    float leftDist = Mathf.Abs(_targetWindow.worldBound.xMin - mouseDownEvent.mousePosition.x);
+                    float rightDist = Mathf.Abs(_targetWindow.worldBound.xMax - mouseDownEvent.mousePosition.x);
+                    float topDist = Mathf.Abs(_targetWindow.worldBound.yMin - mouseDownEvent.mousePosition.y);
+                    float bottomDist = Mathf.Abs(_targetWindow.worldBound.yMax - mouseDownEvent.mousePosition.y);
+                    float dist = Mathf.Min(leftDist, rightDist, topDist, bottomDist);
+                    if (dist <= 5.0f)
+                    {
+                        _draggingSide = true;
+                        target.CaptureMouse();
+                    }
+                }
+
+
+
+                _lastMousePosition = mouseDownEvent.mousePosition;
             }
 
             private void OnMouseUp(MouseUpEvent mouseUpEvent)
             {
-                _dragging = false;
-                target.ReleaseMouse();
+                if (_dragging || _draggingSide)
+                {
+                    _dragging = false;
+                    _draggingSide = false;
+                    target.ReleaseMouse();
+                }
             }
 
             protected override void UnregisterCallbacksFromTarget()
@@ -494,22 +722,65 @@ namespace HueHades.UI
 
             private void OnMouseMove(MouseMoveEvent mouseMoveEvent)
             {
-                if (!_dragging) return;
-                if (_targetWindow._isDockSplit)
+                if (_dragging)
                 {
-                    if (_targetWindow._splitDirection == FlexDirection.Row)
+                    if (_targetWindow._isDockSplit)
                     {
-                        float moveAmount = mouseMoveEvent.mousePosition.x - _lastMousePosition.x;
-                        _targetWindow._splitA.style.width = _targetWindow._splitA.style.width.value.value + moveAmount;
-                        _targetWindow._splitB.style.width = _targetWindow._splitB.style.width.value.value - moveAmount;
-                    }
-                    else
-                    {
-                        float moveAmount = mouseMoveEvent.mousePosition.y - _lastMousePosition.y;
-                        _targetWindow._splitA.style.height = _targetWindow._splitA.style.height.value.value + moveAmount;
-                        _targetWindow._splitB.style.height = _targetWindow._splitB.style.height.value.value - moveAmount;
+                        if (_targetWindow._splitDirection == FlexDirection.Row)
+                        {
+                            float moveAmount = mouseMoveEvent.mousePosition.x - _lastMousePosition.x;
+                            _targetWindow._splitA.ResizeDock(_targetWindow._splitA.style.width.value.value + moveAmount, _targetWindow._splitA.style.height.value.value);
+                            _targetWindow._splitB.ResizeDock(_targetWindow._splitB.style.width.value.value - moveAmount, _targetWindow._splitB.style.height.value.value);
+                        }
+                        else
+                        {
+                            float moveAmount = mouseMoveEvent.mousePosition.y - _lastMousePosition.y;
+                            _targetWindow._splitA.ResizeDock(_targetWindow._splitA.style.width.value.value, _targetWindow._splitA.style.height.value.value + moveAmount);
+                            _targetWindow._splitB.ResizeDock(_targetWindow._splitB.style.width.value.value, _targetWindow._splitB.style.height.value.value - moveAmount);
+                        }
                     }
                 }
+
+                if (_draggingSide)
+                {
+                    if (_targetWindow._isFreeWindow)
+                    {
+
+
+                        float leftDist = Mathf.Abs(_targetWindow.worldBound.xMin - _lastMousePosition.x);
+                        float rightDist = Mathf.Abs(_targetWindow.worldBound.xMax - _lastMousePosition.x);
+                        float topDist = Mathf.Abs(_targetWindow.worldBound.yMin - _lastMousePosition.y);
+                        float bottomDist = Mathf.Abs(_targetWindow.worldBound.yMax - _lastMousePosition.y);
+
+                        if (leftDist <= 5.0f)
+                        {
+                            _targetWindow.style.width = _targetWindow.style.width.value.value - mouseMoveEvent.mouseDelta.x;
+                            _targetWindow.style.left = _targetWindow.style.left.value.value + mouseMoveEvent.mouseDelta.x;
+                        }
+                        else
+                        {
+                            if (rightDist <= 5.0f )
+                            {
+                                _targetWindow.style.width = _targetWindow.style.width.value.value + mouseMoveEvent.mouseDelta.x;
+                            }
+                        }
+
+                        if (topDist <= 5.0f)
+                        {
+                            _targetWindow.style.height = _targetWindow.style.height.value.value - mouseMoveEvent.mouseDelta.y;
+                            _targetWindow.style.top = _targetWindow.style.top.value.value + mouseMoveEvent.mouseDelta.y;
+                        }
+                        else
+                        {
+                            if (bottomDist <= 5.0f)
+                            {
+                                _targetWindow.style.height = _targetWindow.style.height.value.value + mouseMoveEvent.mouseDelta.y;
+                            }
+                        }
+                    }
+                }
+
+
 
                 _lastMousePosition = mouseMoveEvent.mousePosition;
             }
@@ -635,23 +906,24 @@ namespace HueHades.UI
 
                     if (overlapType == typeof(HeaderBar))
                     {
+                        var headerBar = (HeaderBar)overlap;
                         correctedPosition.y = overlap.parent.LocalToWorld(overlap.transform.position).y;
 
                         var headerBarChildIndex = 0;
-                        for (int i = 0; i < overlap.childCount; i++)
+                        for (int i = 0; i < headerBar.Container.childCount; i++)
                         {
-                            var child = overlap.ElementAt(i);
+                            var child = headerBar.Container.ElementAt(i);
                             if (child.worldBound.center.x <= pointer.x) headerBarChildIndex++;
                         }
 
-                        overlap.Insert(headerBarChildIndex, dragPreview);
+                        headerBar.Container.Insert(headerBarChildIndex, dragPreview);
                         dragPreview.style.width = _header.localBound.width;
                         dragPreview.style.height = _header.localBound.height;
                         dragPreview.style.top = 0;
                         dragPreview.style.left = 0;
 
                         dragDockType = DockType.Header;
-                        dragDockTarget = (DockingWindow)((HeaderBar)overlap).parent;
+                        dragDockTarget = (DockingWindow)(headerBar).parent;
                         barTargetIndex = headerBarChildIndex;
                     }
                     else

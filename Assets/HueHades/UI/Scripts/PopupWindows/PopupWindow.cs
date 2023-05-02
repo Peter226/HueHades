@@ -34,6 +34,8 @@ public abstract class PopupWindow : HueHadesElement
         windowClose.AddToClassList(_ussPopupWindowClose);
 
         hierarchy.Add(container);
+
+        label.AddManipulator(new PopupMoveManipulator(label, this));
     }
 
     public void Open()
@@ -74,8 +76,54 @@ public abstract class PopupWindow : HueHadesElement
         return new Vector2(400, 300);
     }
 
+    private class PopupMoveManipulator : PointerManipulator
+    {
+        VisualElement _window;
+        private bool _dragging;
 
-    protected abstract void OnOpen();
+        public PopupMoveManipulator(VisualElement target, VisualElement window)
+        {
+            this.target = target;
+            _window = window;
+        }
+
+
+        protected override void RegisterCallbacksOnTarget()
+        {
+            target.RegisterCallback<PointerDownEvent>(OnPointerDown);
+            target.RegisterCallback<PointerUpEvent>(OnPointerUp);
+            target.RegisterCallback<PointerMoveEvent>(OnPointerMove);
+        }
+
+        protected override void UnregisterCallbacksFromTarget()
+        {
+            target.UnregisterCallback<PointerDownEvent>(OnPointerDown);
+            target.UnregisterCallback<PointerUpEvent>(OnPointerUp);
+            target.UnregisterCallback<PointerMoveEvent>(OnPointerMove);
+        }
+
+        private void OnPointerMove(PointerMoveEvent evt)
+        {
+            if (!_dragging) return;
+            _window.style.left = _window.style.left.value.value + evt.deltaPosition.x;
+            _window.style.top = _window.style.top.value.value + evt.deltaPosition.y;
+        }
+
+        private void OnPointerDown(PointerDownEvent pointerEvent)
+        {
+            _dragging = true;
+            target.CapturePointer(pointerEvent.pointerId);
+        }
+        private void OnPointerUp(PointerUpEvent pointerEvent)
+        {
+            _dragging = false;
+            target.ReleasePointer(pointerEvent.pointerId);
+        }
+    }
+
+
+
+    protected virtual void OnOpen() { }
 
     protected virtual void OnClose() { }
 

@@ -19,12 +19,12 @@ public class HueHadesWindow : VisualElement
     private CanvasHistoryWindow _historyWindow;
     private CanvasLayersWindow _layersWindow;
 
-    public ToolsWindow Tools { get { return _toolsWindow; } }
-    public ToolSettingsWindow ToolSettings { get { return _toolSettingsWindow; } }
-    public ColorSelectorWindow ColorSelector { get { return _colorSelectorWindow; } }
-    public CanvasHistoryWindow History { get { return _historyWindow; } }
-    public CanvasLayersWindow Layers { get { return _layersWindow; } }
-
+    public ToolsWindow Tools { get { return _toolsWindow; } set { _toolsWindow = value; } }
+    public ToolSettingsWindow ToolSettings { get { return _toolSettingsWindow; } set { _toolSettingsWindow = value; } }
+    public ColorSelectorWindow ColorSelector { get { return _colorSelectorWindow; } set { _colorSelectorWindow = value; } }
+    public CanvasHistoryWindow History { get { return _historyWindow; } set { _historyWindow = value; } }
+    public CanvasLayersWindow Layers { get { return _layersWindow; } set { _layersWindow = value; } }
+    public ImageOperatingWindow ActiveOperatingWindow { get; set; }
 
     public VisualElement FreeDockElement
     {
@@ -65,8 +65,12 @@ public class HueHadesWindow : VisualElement
     {
         var menuBar = new MenuBar(this);
         hierarchy.Insert(0, menuBar);
+
+        VisualElement dockParent = new VisualElement();
+        dockParent.style.flexGrow = 1;
         _mainDock = new DockingWindow(this, true);
-        hierarchy.Insert(1, _mainDock);
+        dockParent.Add(_mainDock);
+        hierarchy.Insert(1, dockParent);
         if (Application.isPlaying) ApplicationManager.OnCanvasCreated += OnCanvasCreated;
         this.RegisterCallback<GeometryChangedEvent>(OnGeometryChange);
         _initialized = false;

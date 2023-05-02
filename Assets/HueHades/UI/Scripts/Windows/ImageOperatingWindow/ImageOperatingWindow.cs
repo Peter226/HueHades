@@ -13,7 +13,7 @@ namespace HueHades.UI
     {
         private static Material ImageDisplayMaterial;
         private static Material SelectionDisplayMaterial;
-        private static CameraUpdater CameraUpdateManager;
+        public static CameraUpdater CameraUpdateManager { get; private set; }
         private static int TexturePropertyID = Shader.PropertyToID("_BaseMap");
         private static int TilePropertyID = Shader.PropertyToID("_BaseMap_ST");
         private Image _windowDisplay;
@@ -153,6 +153,8 @@ namespace HueHades.UI
         /// <param name="evt"></param>
         private void OnAttachToPanel(AttachToPanelEvent evt)
         {
+            window.ActiveOperatingWindow = this;
+
             //create main hierarchy
             _operatingWindowHierarchy = new GameObject("OpWindow_" + WindowName);
             _operatingWindowHierarchy.SetActive(false);
@@ -241,6 +243,7 @@ namespace HueHades.UI
 
         private void OnPointerDown(PointerDownEvent pointerDownEvent)
         {
+            window.ActiveOperatingWindow = this;
             this.CapturePointer(pointerDownEvent.pointerId);
             if (IsMouseButtonPressed(pointerDownEvent.pressedButtons, MouseButton.Middle)) return;
             var tools = window.Tools;
@@ -334,6 +337,7 @@ namespace HueHades.UI
 
         void WheelCallback(WheelEvent e)
         {
+            window.ActiveOperatingWindow = this;
             var _lastZoom = _zoomAmount;
             _zoomAmount = Mathf.Min(100.0f,Mathf.Max(0.01f,_zoomAmount - e.delta.y * _zoomAmount * 0.3f));
 

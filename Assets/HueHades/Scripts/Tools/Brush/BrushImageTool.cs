@@ -144,7 +144,7 @@ namespace HueHades.Tools
                     int pointHeight = Mathf.CeilToInt(point.paintRadius * 2);
                     int pointStartX = Mathf.FloorToInt(point.position.x - point.paintRadius);
                     int pointStartY = Mathf.FloorToInt(point.position.y - point.paintRadius);
-
+                    if (pointWidth <= 0 || pointHeight <= 0) continue;
                     var pointBuffer = RenderTextureUtilities.GetTemporary(pointWidth, pointHeight, _paintCanvas.Format);
                     var paintCopyBuffer = RenderTextureUtilities.GetTemporary(pointWidth, pointHeight, _paintCanvas.Format);
                     TextureDebugger.DebugRenderTexture(paintCopyBuffer, "paint copy buffer fresh");

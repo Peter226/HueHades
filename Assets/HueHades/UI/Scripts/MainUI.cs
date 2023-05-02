@@ -109,7 +109,81 @@ public class MainUI : MonoBehaviour
     }
 }
 
-[MenuBarItem("Window_4/Texture Debugger_1")]
+[MenuBarItem("Effects_4/Color Adjustments_1")]
+public class ColorAdjustmentsMenuBarFunction : IMenuBarFunction
+{
+    public void Execute(HueHadesWindow window)
+    {
+        ColorAdjustmentsEffectWindow effectWindow = new ColorAdjustmentsEffectWindow(window);
+        effectWindow.Open();
+    }
+}
+
+
+
+[MenuBarItem("Window_5/Tools_1")]
+public class ToolsMenuBarFunction : IMenuBarFunction
+{
+    public void Execute(HueHadesWindow window)
+    {
+        if (window.Tools != null) window.Tools.UnDock();
+        window.Tools = null;
+        ToolsWindow dockableWindow = new ToolsWindow(window);
+        dockableWindow.Dock(window.MainDock.Handle, DockType.Free);
+        window.Tools = dockableWindow;
+    }
+}
+
+[MenuBarItem("Window_5/Colors_2")]
+public class ColorPickerMenuBarFunction : IMenuBarFunction
+{
+    public void Execute(HueHadesWindow window)
+    {
+        if (window.ColorSelector != null) window.ColorSelector.UnDock();
+        window.ColorSelector = null;
+        ColorSelectorWindow dockableWindow = new ColorSelectorWindow(window);
+        dockableWindow.Dock(window.MainDock.Handle, DockType.Free);
+        window.ColorSelector = dockableWindow;
+    }
+}
+
+[MenuBarItem("Window_5/Tool Settings_3")]
+public class ToolSettingsMenuBarFunction : IMenuBarFunction
+{
+    public void Execute(HueHadesWindow window)
+    {
+        if (window.ToolSettings != null) window.ToolSettings.UnDock();
+        window.ToolSettings = null;
+        ToolSettingsWindow dockableWindow = new ToolSettingsWindow(window);
+        dockableWindow.Dock(window.MainDock.Handle, DockType.Free);
+        window.ToolSettings = dockableWindow;
+    }
+}
+
+
+[MenuBarItem("Window_5/Layers_4")]
+public class LayersMenuBarFunction : IMenuBarFunction
+{
+    public void Execute(HueHadesWindow window)
+    {
+        CanvasLayersWindow dockableWindow = new CanvasLayersWindow(window);
+        dockableWindow.Dock(window.MainDock.Handle, DockType.Free);
+    }
+}
+
+[MenuBarItem("Window_5/History_5")]
+public class HistoryMenuBarFunction : IMenuBarFunction
+{
+    public void Execute(HueHadesWindow window)
+    {
+        CanvasHistoryWindow dockableWindow = new CanvasHistoryWindow(window);
+        dockableWindow.Dock(window.MainDock.Handle, DockType.Free);
+    }
+}
+
+
+
+[MenuBarItem("Window_5/Texture Debugger_100")]
 public class DebuggerWindowMenuBarFunction : IMenuBarFunction
 {
     public void Execute(HueHadesWindow window)

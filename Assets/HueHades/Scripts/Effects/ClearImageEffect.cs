@@ -4,10 +4,25 @@ namespace HueHades.Effects
 {
     public class ClearImageEffect : ImageEffect
     {
-        public override void StartEffect(ImageCanvas canvas, ImageEffectContext context)
+        public override void ApplyEffect()
         {
-            var selectedLayer = canvas.GetLayer(context.selectedLayer);
+            throw new System.NotImplementedException();
+        }
 
+        public override void BeginEffect(ImageCanvas canvas)
+        {
+            
+
+        }
+
+        public override void CancelEffect()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override void RenderEffect()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

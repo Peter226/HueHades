@@ -125,11 +125,6 @@ namespace HueHades.UI
             _softnessSlider.value = preset.softness;
         }
 
-        protected override void OnOpen()
-        {
-
-        }
-
         protected override string GetWindowName()
         {
             return "Brush Editor";

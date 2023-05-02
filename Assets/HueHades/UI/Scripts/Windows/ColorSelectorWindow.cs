@@ -54,9 +54,9 @@ namespace HueHades.UI
         }
 
 
-        public override Vector2 GetDefaultSize()
+        public override Vector2 DefaultSize
         {
-            return new Vector2(200, 200);
+            get { return new Vector2(200, 200); }
         }
 
     }

@@ -1,5 +1,6 @@
 .gradient-color-picker-display {
     -unity-background-scale-mode: scale-and-crop;
+    flex-grow: 1;
 }
 
 .dropdown {
@@ -127,6 +128,7 @@
     padding-top: 2px;
     padding-bottom: 2px;
     align-items: stretch;
+    background-color: rgba(0, 0, 0, 0);
 }
 
 .toggle-button-toggle {
@@ -164,12 +166,33 @@
 .unity-text-field__input {
     font-size: 12px;
     background-color: rgb(25, 25, 25);
-    padding-left: 12px;
-    padding-right: 12px;
+    padding-left: 6px;
+    padding-right: 6px;
     padding-top: 4px;
     padding-bottom: 4px;
 }
 
 .unity-text-element--inner-input-field-component {
     justify-content: center;
+}
+
+.gradient-color-picker {
+    justify-content: center;
+    align-items: center;
+    margin-left: 4px;
+    margin-right: 4px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+.gradient-color-picker-label {
+}
+
+.gradient-color-picker-field {
+    width: 55px;
+    height: 27px;
+    margin-left: 4px;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
 }

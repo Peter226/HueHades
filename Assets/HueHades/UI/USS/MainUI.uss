@@ -198,6 +198,7 @@
     left: 0;
     bottom: 0;
     flex-grow: 1;
+    background-color: rgb(32, 32, 32);
 }
 
 .docking-window-split {

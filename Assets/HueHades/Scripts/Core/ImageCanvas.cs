@@ -31,6 +31,7 @@ namespace HueHades.Core {
         private FilterMode _previewFilterMode = FilterMode.Bilinear;
         public FilterMode PreviewFilterMode { get { return _previewFilterMode; } set { bool changed = _previewFilterMode != value; _previewFilterMode = value; if(changed) UpdateFilterMode(); } }
 
+        public int SelectedLayer { get; set; }
 
         void UpdateTileMode()
         {

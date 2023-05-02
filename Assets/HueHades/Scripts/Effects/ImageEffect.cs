@@ -4,16 +4,9 @@ namespace HueHades.Effects
 {
     public abstract class ImageEffect
     {
-        public abstract void StartEffect(ImageCanvas canvas, ImageEffectContext context);
-    }
-
-    public class ImageEffectContext
-    {
-        public readonly int selectedLayer;
-
-        public ImageEffectContext(int selectedLayer)
-        {
-            this.selectedLayer = selectedLayer;
-        }
+        public abstract void BeginEffect(ImageCanvas canvas);
+        public abstract void RenderEffect();
+        public abstract void ApplyEffect();
+        public abstract void CancelEffect();
     }
 }
