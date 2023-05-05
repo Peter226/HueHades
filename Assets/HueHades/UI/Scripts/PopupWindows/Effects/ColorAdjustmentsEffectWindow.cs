@@ -26,6 +26,7 @@ namespace HueHades.UI
             _hueGradient.OnValueChanged += (v) => {
                 _effect.Hue = v;
                 _saturationGradient.ColorB = Color.HSVToRGB(v, 1, 1);
+                dataDirty = true;
             };
             _hueGradient.label = "Hue";
             _hueGradient.showInputField = true;
@@ -34,7 +35,7 @@ namespace HueHades.UI
             _saturationGradient.PickerPosition = 0.5f;
             _saturationGradient.ColorA = Color.white;
             _saturationGradient.ColorB = Color.HSVToRGB(_hueGradient.PickerPosition,1,1);
-            _saturationGradient.OnValueChanged += (v) => _effect.Saturation = v;
+            _saturationGradient.OnValueChanged += (v) => { _effect.Saturation = v; dataDirty = true; };
             _saturationGradient.label = "Saturation";
             _saturationGradient.showInputField = true;
 
@@ -42,7 +43,7 @@ namespace HueHades.UI
             _brightnessGradient.ColorA = Color.black;
             _brightnessGradient.ColorB = Color.white;
             _brightnessGradient.PickerPosition = 0.5f;
-            _brightnessGradient.OnValueChanged += (v) => _effect.Brightness = v;
+            _brightnessGradient.OnValueChanged += (v) => { _effect.Brightness = v; dataDirty = true; };
             _brightnessGradient.label = "Brightness";
             _brightnessGradient.showInputField = true;
 
@@ -63,6 +64,7 @@ namespace HueHades.UI
         private void OnContrastChanged(ChangeEvent<float> evt)
         {
             _effect.Contrast = evt.newValue;
+            dataDirty = true;
         }
 
         protected override string GetWindowName()

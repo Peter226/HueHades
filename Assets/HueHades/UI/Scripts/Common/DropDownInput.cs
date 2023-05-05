@@ -101,6 +101,7 @@ public class DropDownInput<T> : HueHadesElement
         }
         value = value;
 
+        _overlay.Clear();
         foreach (var dataElement in data)
         {
             var dataButton = new Button();

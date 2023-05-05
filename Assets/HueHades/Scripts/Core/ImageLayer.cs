@@ -9,7 +9,7 @@ using HueHades.Common;
 
 namespace HueHades.Core
 {
-    public class ImageLayer
+    public class ImageLayer : IDisposable
     {
         private ReusableTexture _renderTexture;
         internal ReusableTexture Texture { get { return _renderTexture; } }
@@ -66,6 +66,11 @@ namespace HueHades.Core
         {
             RenderTextureUtilities.CopyTexture(copyBuffer, 0, 0, copyHandle.SizeX, copyHandle.SizeY, _renderTexture, copyHandle.OffsetX, copyHandle.OffsetY);
             LayerChanged?.Invoke();
+        }
+
+        public void Dispose()
+        {
+            RenderTextureUtilities.ReleaseTemporary(_renderTexture);
         }
     }
 }

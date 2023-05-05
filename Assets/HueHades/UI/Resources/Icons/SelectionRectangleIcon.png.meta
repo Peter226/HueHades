@@ -1,0 +1,437 @@
+fileFormatVersion: 2
+guid: fbbf4db4b5bf3344f933bc20c3994e00
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -762987260535873613
+    second: SelectionRectangleIcon_0
+  - first:
+      213: -7311260657911348034
+    second: SelectionRectangleIcon_1
+  - first:
+      213: -8190264753753292207
+    second: SelectionRectangleIcon_2
+  - first:
+      213: 8365287504827047747
+    second: SelectionRectangleIcon_3
+  - first:
+      213: 2681723650010290757
+    second: SelectionRectangleIcon_4
+  - first:
+      213: -9154771177834860294
+    second: SelectionRectangleIcon_5
+  - first:
+      213: -4117504454702081310
+    second: SelectionRectangleIcon_6
+  - first:
+      213: 1821369873784131800
+    second: SelectionRectangleIcon_7
+  - first:
+      213: -7770931651882314587
+    second: SelectionRectangleIcon_8
+  - first:
+      213: 5816801136750069075
+    second: SelectionRectangleIcon_9
+  - first:
+      213: 4998625084687626534
+    second: SelectionRectangleIcon_10
+  - first:
+      213: 1134298633031903007
+    second: SelectionRectangleIcon_11
+  - first:
+      213: -3578784276665762492
+    second: SelectionRectangleIcon_12
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 32
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: SelectionRectangleIcon_0
+      rect:
+        serializedVersion: 2
+        x: 25
+        y: 419
+        width: 103
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3bf5c9701235965f0800000000000000
+      internalID: -762987260535873613
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SelectionRectangleIcon_1
+      rect:
+        serializedVersion: 2
+        x: 138
+        y: 418
+        width: 103
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eb4c7e81b2f298a90800000000000000
+      internalID: -7311260657911348034
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SelectionRectangleIcon_2
+      rect:
+        serializedVersion: 2
+        x: 253
+        y: 418
+        width: 103
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1520220b995565e80800000000000000
+      internalID: -8190264753753292207
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SelectionRectangleIcon_3
+      rect:
+        serializedVersion: 2
+        x: 367
+        y: 418
+        width: 103
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 34fda391aa8771470800000000000000
+      internalID: 8365287504827047747
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SelectionRectangleIcon_4
+      rect:
+        serializedVersion: 2
+        x: 17
+        y: 303
+        width: 42
+        height: 103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 54a90a88375673520800000000000000
+      internalID: 2681723650010290757
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SelectionRectangleIcon_5
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 118
+        width: 390
+        height: 284
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: af03b292e18b3f080800000000000000
+      internalID: -9154771177834860294
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SelectionRectangleIcon_6
+      rect:
+        serializedVersion: 2
+        x: 461
+        y: 290
+        width: 42
+        height: 103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2ead460938fabd6c0800000000000000
+      internalID: -4117504454702081310
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SelectionRectangleIcon_7
+      rect:
+        serializedVersion: 2
+        x: 14
+        y: 162
+        width: 42
+        height: 103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d0508b004ec64910800000000000000
+      internalID: 1821369873784131800
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SelectionRectangleIcon_8
+      rect:
+        serializedVersion: 2
+        x: 469
+        y: 169
+        width: 42
+        height: 103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5a417b3b5da182490800000000000000
+      internalID: -7770931651882314587
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SelectionRectangleIcon_9
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 63
+        width: 103
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 355831da0dd69b050800000000000000
+      internalID: 5816801136750069075
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SelectionRectangleIcon_10
+      rect:
+        serializedVersion: 2
+        x: 147
+        y: 66
+        width: 103
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 621b92ad70fae5540800000000000000
+      internalID: 4998625084687626534
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SelectionRectangleIcon_11
+      rect:
+        serializedVersion: 2
+        x: 266
+        y: 64
+        width: 103
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f17e313d896ddbf00800000000000000
+      internalID: 1134298633031903007
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SelectionRectangleIcon_12
+      rect:
+        serializedVersion: 2
+        x: 399
+        y: 66
+        width: 103
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 44d759d59aa955ec0800000000000000
+      internalID: -3578784276665762492
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      SelectionRectangleIcon_0: -762987260535873613
+      SelectionRectangleIcon_1: -7311260657911348034
+      SelectionRectangleIcon_10: 4998625084687626534
+      SelectionRectangleIcon_11: 1134298633031903007
+      SelectionRectangleIcon_12: -3578784276665762492
+      SelectionRectangleIcon_2: -8190264753753292207
+      SelectionRectangleIcon_3: 8365287504827047747
+      SelectionRectangleIcon_4: 2681723650010290757
+      SelectionRectangleIcon_5: -9154771177834860294
+      SelectionRectangleIcon_6: -4117504454702081310
+      SelectionRectangleIcon_7: 1821369873784131800
+      SelectionRectangleIcon_8: -7770931651882314587
+      SelectionRectangleIcon_9: 5816801136750069075
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -24,7 +24,11 @@ public class HueHadesWindow : VisualElement
     public ColorSelectorWindow ColorSelector { get { return _colorSelectorWindow; } set { _colorSelectorWindow = value; } }
     public CanvasHistoryWindow History { get { return _historyWindow; } set { _historyWindow = value; } }
     public CanvasLayersWindow Layers { get { return _layersWindow; } set { _layersWindow = value; } }
-    public ImageOperatingWindow ActiveOperatingWindow { get; set; }
+
+    public Action<ImageOperatingWindow> ActiveOperatingWindowChanged;
+
+    private ImageOperatingWindow _activeOperatingWindow;
+    public ImageOperatingWindow ActiveOperatingWindow { get { return _activeOperatingWindow; } set { _activeOperatingWindow = value; ActiveOperatingWindowChanged?.Invoke(_activeOperatingWindow); } }
 
     public VisualElement FreeDockElement
     {

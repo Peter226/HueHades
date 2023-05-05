@@ -9,11 +9,6 @@ namespace HueHades.Tools {
         private bool _isSelected;
         private bool _isUsing;
 
-
-        public abstract Texture GetIcon();
-
-
-
         public void Select()
         {
             if (_isSelected) return;

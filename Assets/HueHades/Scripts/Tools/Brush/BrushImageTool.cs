@@ -40,17 +40,6 @@ namespace HueHades.Tools
             public float pressure;
         }
 
-        public override Texture GetIcon()
-        {
-            if (Icon == null)
-            {
-                Icon = Resources.Load<Texture2D>("Icons/BrushIcon");
-            }
-            return Icon;
-        }
-
-
-
 
         protected override void OnBeginUse(IToolContext toolContext, ImageCanvas canvas, int layer, Vector2 startPoint, float startPressure, float startTilt)
         {

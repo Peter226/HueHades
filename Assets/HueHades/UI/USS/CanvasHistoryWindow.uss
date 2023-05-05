@@ -1,0 +1,27 @@
+.canvas-history-window-container {
+    flex-grow: 1;
+}
+
+.canvas-history-window-scrollview {
+    flex-grow: 1;
+    border-left-color: rgb(94, 94, 94);
+    border-right-color: rgb(94, 94, 94);
+    border-top-color: rgb(94, 94, 94);
+    border-bottom-color: rgb(94, 94, 94);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    margin-left: 4px;
+    margin-right: 4px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.canvas-history-window-footer {
+    height: 28px;
+    background-color: rgb(25, 25, 25);
+    flex-direction: row;
+}

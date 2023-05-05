@@ -10,7 +10,7 @@ namespace HueHades.UI
         {
             WindowName = "Layers";
 
-
+            hierarchy.Add(new LayersFooter(window, this));
 
 
 

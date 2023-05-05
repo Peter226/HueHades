@@ -401,7 +401,7 @@ namespace HueHades.UI
                 _splitHierarchy.style.display = DisplayStyle.None;
             }
             
-            //assign new references is unused docker's handles
+            //assign new references in unused docker's handles
             oldSplitA.Handle.SetReference(this);
             oldSplitB.Handle.SetReference(this);
         } 
@@ -526,6 +526,9 @@ namespace HueHades.UI
                     Header = headerBar;
                 }
 
+                /// <summary>
+                /// Register events when element is active
+                /// </summary>
                 protected override void RegisterCallbacksOnTarget()
                 {
                     target.RegisterCallback<PointerDownEvent>(OnPointerDown);
@@ -534,7 +537,9 @@ namespace HueHades.UI
                 }
 
                 
-
+                /// <summary>
+                /// Unregister events when no longer needed
+                /// </summary>
                 protected override void UnregisterCallbacksFromTarget()
                 {
                     target.UnregisterCallback<PointerDownEvent>(OnPointerDown);
@@ -542,6 +547,10 @@ namespace HueHades.UI
                     target.UnregisterCallback<PointerMoveEvent>(OnPointerMove);
                 }
 
+                /// <summary>
+                /// Drag free window using header
+                /// </summary>
+                /// <param name="evt"></param>
                 private void OnPointerMove(PointerMoveEvent evt)
                 {
                     if (!_dragging) return;
@@ -560,11 +569,20 @@ namespace HueHades.UI
                     rootDock.style.top = rootDock.style.top.value.value + evt.deltaPosition.y;
                 }
 
+                /// <summary>
+                /// Begin dragging
+                /// </summary>
+                /// <param name="pointerEvent"></param>
                 private void OnPointerDown(PointerDownEvent pointerEvent)
                 {
                     _dragging = true;
                     target.CapturePointer(pointerEvent.pointerId);
                 }
+
+                /// <summary>
+                /// End dragging
+                /// </summary>
+                /// <param name="pointerEvent"></param>
                 private void OnPointerUp(PointerUpEvent pointerEvent)
                 {
                     _dragging = false;
@@ -611,27 +629,45 @@ namespace HueHades.UI
                 _dockedWindow = dockableWindow;
             }
 
+            /// <summary>
+            /// SUbscribed to the event when the window's name changes, so the label can update
+            /// </summary>
+            /// <param name="windowName"></param>
             private void OnWindowNameChanged(string windowName)
             {
                 _label.text = windowName;
             }
 
+            /// <summary>
+            /// Called when close button is clicked, undocks the window
+            /// </summary>
+            /// <param name="clickEvent"></param>
             private void OnCloseClicked(ClickEvent clickEvent)
             {
                 _dockedWindow.UnDock();
             }
 
+            /// <summary>
+            /// Selects the assigned dockable window in the dock's view so it is in the foreground
+            /// </summary>
+            /// <param name="clickEvent"></param>
             private void OnClicked(ClickEvent clickEvent)
             {
                 _dockingIn.SelectWindow(_dockedWindow);
             }
 
-
+            /// <summary>
+            /// Assign uss classes to display header element as selected
+            /// </summary>
             public void Select()
             {
                 RemoveFromClassList(ussHeaderBar);
                 AddToClassList(ussHeaderBarSelected);
             }
+
+            /// <summary>
+            /// Assign uss classes to display header element as not selected
+            /// </summary>
             public void Deselect()
             {
                 RemoveFromClassList(ussHeaderBarSelected);
@@ -663,6 +699,11 @@ namespace HueHades.UI
                 target.RegisterCallback<MouseUpEvent>(OnMouseUp);
             }
 
+            /// <summary>
+            /// When mouse is down, check if we are at a valid scaling position. 
+            /// This is the dividing line in split windows, and the edge of free docks.
+            /// </summary>
+            /// <param name="mouseDownEvent"></param>
             private void OnMouseDown(MouseDownEvent mouseDownEvent)
             {
                 if (_targetWindow._isDockSplit)
@@ -703,6 +744,10 @@ namespace HueHades.UI
                 _lastMousePosition = mouseDownEvent.mousePosition;
             }
 
+            /// <summary>
+            /// End draggin, release mouse
+            /// </summary>
+            /// <param name="mouseUpEvent"></param>
             private void OnMouseUp(MouseUpEvent mouseUpEvent)
             {
                 if (_dragging || _draggingSide)
@@ -720,6 +765,10 @@ namespace HueHades.UI
                 target.UnregisterCallback<MouseUpEvent>(OnMouseUp);
             }
 
+            /// <summary>
+            /// Resize windows
+            /// </summary>
+            /// <param name="mouseMoveEvent"></param>
             private void OnMouseMove(MouseMoveEvent mouseMoveEvent)
             {
                 if (_dragging)
@@ -786,7 +835,9 @@ namespace HueHades.UI
             }
         }
 
-
+        /// <summary>
+        /// Used for moving a docked window using it's header into another docking window or reordering header list
+        /// </summary>
         private class HeaderDragManipulator : PointerManipulator
         {
             private HeaderElement _header;
@@ -831,9 +882,11 @@ namespace HueHades.UI
             private DockingWindow dragDockTarget { get; set; }
             private int barTargetIndex { get; set; }
 
-
-            // This method stores the starting position of target and the pointer, 
-            // makes target capture the pointer, and denotes that a drag is now in progress.
+            /// <summary>
+            /// This method stores the starting position of target and the pointer,
+            /// makes target capture the pointer, and denotes that a drag is now in progress.
+            /// </summary>
+            /// <param name="evt"></param>
             private void PointerDownHandler(PointerDownEvent evt)
             {
                 targetStartPosition = target.LocalToWorld(target.transform.position);
@@ -845,6 +898,9 @@ namespace HueHades.UI
                 barTargetIndex = -1;
             }
 
+            /// <summary>
+            /// Initialize the drag preview, and the needed variables for dragging
+            /// </summary>
             private void BeginDragging()
             {
                 dragDockType = DockType.Free;
@@ -858,9 +914,11 @@ namespace HueHades.UI
                 target.transform.position = targetStartPosition;
             }
 
-
-            // This method checks whether a drag is in progress and whether target has captured the pointer. 
-            // If both are true, calculates a new position for target within the bounds of the window.
+            /// <summary>
+            /// This method checks whether a drag is in progress and whether target has captured the pointer. 
+            /// If both are true, calculates a new position for target within the bounds of the window.
+            /// </summary>
+            /// <param name="evt"></param>
             private void PointerMoveHandler(PointerMoveEvent evt)
             {
                 if (!startedDrag && initiatedDrag && Vector2.Distance(evt.position, pointerStartPosition) >= _header.worldBound.height * 0.25f)
@@ -881,6 +939,12 @@ namespace HueHades.UI
                 }
             }
 
+
+            /// <summary>
+            /// Place the preview element in the desired position, to show where the new docking position will be
+            /// </summary>
+            /// <param name="pointer"></param>
+            /// <param name="destination"></param>
             private void ShowDragTarget(Vector2 pointer, Vector2 destination)
             {
 
@@ -1020,7 +1084,10 @@ namespace HueHades.UI
             }
 
 
-
+            /// <summary>
+            /// End dragging
+            /// </summary>
+            /// <param name="evt"></param>
             private void PointerUpHandler(PointerUpEvent evt)
             {
                 initiatedDrag = false;
@@ -1052,16 +1119,18 @@ namespace HueHades.UI
                 }
             }
 
+            /// <summary>
+            /// Check if a visual element's bounds contain a point
+            /// </summary>
+            /// <param name="element"></param>
+            /// <param name="position"></param>
+            /// <returns></returns>
             private bool OverlapsPosition(VisualElement element, Vector2 position)
             {
                 return new Rect(position, Vector3.zero).Overlaps(element.worldBound);
             }
 
         }
-
-
-
-
 
     }
 

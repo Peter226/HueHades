@@ -13,21 +13,31 @@ namespace HueHades.UI
         private const string ussToolWindow = "tool-window";
 
         private List<ToolButton> toolButtons = new List<ToolButton>();
-        ImageTool _selectedTool;
-        ToolContextCollector _selectedContextCollector;
+        ToolController _selectedTool;
 
-        public Action<ImageTool> ToolSelected;
+        public Action<ToolController> ToolSelected;
 
         public ToolsWindow(HueHadesWindow window) : base(window)
         {
             if (window.Tools != null) throw new Exception("Tool window already exists for HueHades window!");
             AddToClassList(ussToolWindow);
 
-            (ImageTool, ToolContextCollector)[] imageTools = new (ImageTool, ToolContextCollector)[] { (new BrushImageTool(), new BrushContextCollector()), (new EraserImageTool(), new EraserContextCollector()) };
+            ToolController[] toolControllers = new ToolController[] {
+                new BrushToolController(),
+                new EraserToolController(),
+                new SelectionRectangleToolController(),
+                new SelectionEllipseToolController(),
+                new SelectionBrushToolController(),
+                new MoveSelectedToolController(),
+                new ColorPickerToolController(),
+                new MoveSelectionToolController(),
+                new StampToolController(),
+                
+            };
 
-            foreach (var (imageTool, contextCollector) in imageTools)
+            foreach (var toolController in toolControllers)
             {
-                ToolButton toolButton = new ToolButton(window, imageTool, contextCollector);
+                ToolButton toolButton = new ToolButton(window, toolController);
                 toolButtons.Add(toolButton);
                 toolButton.Selected += OnSelectedButton;
                 hierarchy.Add(toolButton);
@@ -38,7 +48,7 @@ namespace HueHades.UI
         public void OnToolBeginUse(ImageCanvas canvas, int layer, Vector2 startPoint, float startPressure, float startTilt)
         {
             if (_selectedTool == null) return;
-            _selectedTool.BeginUse(_selectedContextCollector.CollectContext(window), canvas, layer, startPoint, startPressure, startTilt);
+            _selectedTool.BeginUse(_selectedTool.CollectContext(window), canvas, layer, startPoint, startPressure, startTilt);
         }
         public void OnToolEndUse(Vector2 endPoint, float endPressure, float endTilt)
         {
@@ -54,9 +64,8 @@ namespace HueHades.UI
 
         private void OnSelectedButton(ToolButton button)
         {
-            _selectedTool = button.ImageTool;
+            _selectedTool = button.ToolController;
             ToolSelected?.Invoke(_selectedTool);
-            _selectedContextCollector = button.ContextCollector;
             foreach (ToolButton toolButton in toolButtons)
             {
                 if (toolButton != button) toolButton.Deselect();

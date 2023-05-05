@@ -16,29 +16,40 @@ namespace HueHades.Effects
 
         private ImageCanvas canvas;
         private ReusableTexture backupSnapshot;
+        private ReusableTexture targetBuffer;
         private ImageLayer selectedLayer;
+        private ImageLayer.CopyHandle copyHandle;
 
         public override void BeginEffect(ImageCanvas canvas)
         {
             this.canvas = canvas;
-            //backupSnapshot = RenderTextureUtilities.GetTemporary(canvas.Dimensions.x,canvas.Dimensions.y, canvas.Format);
+            backupSnapshot = RenderTextureUtilities.GetTemporary(canvas.Dimensions.x,canvas.Dimensions.y, canvas.Format);
+            targetBuffer = RenderTextureUtilities.GetTemporary(canvas.Dimensions.x,canvas.Dimensions.y, canvas.Format);
             selectedLayer = canvas.GetLayer(canvas.SelectedLayer);
-            //RenderTextureUtilities.CopyTexture(selectedLayer.get);
+            copyHandle = selectedLayer.GetOperatingCopy(backupSnapshot);
         }
         public override void ApplyEffect()
         {
-            
+            RenderTextureUtilities.Effects.ColorAdjustments(backupSnapshot, targetBuffer, Hue, Saturation, Brightness, Contrast);
+            selectedLayer.PasteOperatingCopy(targetBuffer,copyHandle);
+
+            RenderTextureUtilities.ReleaseTemporary(backupSnapshot);
+            RenderTextureUtilities.ReleaseTemporary(targetBuffer);
         }
+    
 
         public override void RenderEffect()
         {
-            
+            RenderTextureUtilities.Effects.ColorAdjustments(backupSnapshot, targetBuffer, Hue, Saturation, Brightness, Contrast);
+            selectedLayer.PasteOperatingCopy(targetBuffer, copyHandle);
         }
 
         public override void CancelEffect()
         {
-
-            //RenderTextureUtilities.ReleaseTemporary(backupSnapshot);
+            selectedLayer.PasteOperatingCopy(backupSnapshot, copyHandle);
+            RenderTextureUtilities.ReleaseTemporary(backupSnapshot);
+            RenderTextureUtilities.ReleaseTemporary(targetBuffer);
+            Debug.Log("cancelled");
         }
     }
 }

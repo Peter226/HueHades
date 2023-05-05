@@ -24,6 +24,7 @@ namespace HueHades.UI
         float _pickerPosition;
 
         public Action<float> OnValueChanged;
+        public Action<float> OnValueChangedByUser;
         public float PickerPosition { get { return _pickerPosition; } set { _pickerPosition = value; UpdatePickerRelative(value); OnValueChanged?.Invoke(value); _textFieldElement.value = value.ToString("0.###", CultureInfo.InvariantCulture); } }
         private Image _pickerCenter;
 
@@ -72,6 +73,9 @@ namespace HueHades.UI
             _textFieldElement.AddToClassList(ussGradientColorPickerField);
             _textFieldElement.RegisterCallback<FocusOutEvent>(OnFieldFocusOut);
             _textFieldElement.RegisterValueChangedCallback(OnFieldValueChange);
+
+            _textFieldElement.RegisterCallback<KeyUpEvent>(OnKeyPressed);
+
             Add(_textFieldElement);
 
             _gradientContainer.RegisterCallback<AttachToPanelEvent>(OnAttachToPanel);
@@ -114,9 +118,17 @@ namespace HueHades.UI
             _colorB = new Color(1,1,1,1);
         }
 
+        private void OnKeyPressed(KeyUpEvent evt)
+        {
+            if (!(_textFieldElement.value.EndsWith(".") || (_textFieldElement.value.EndsWith("0") && _textFieldElement.value.Contains("."))))
+            {
+                OnValueChangedByUser?.Invoke(PickerPosition);
+            }
+        }
+
         private void OnFieldValueChange(ChangeEvent<string> evt)
         {
-            if (!_textFieldElement.value.EndsWith(".") && float.TryParse(_textFieldElement.value, NumberStyles.Float, CultureInfo.InvariantCulture, out float newPick))
+            if (!(_textFieldElement.value.EndsWith(".") || (_textFieldElement.value.EndsWith("0") && _textFieldElement.value.Contains("."))) && float.TryParse(_textFieldElement.value, NumberStyles.Float, CultureInfo.InvariantCulture, out float newPick))
             {
                 OnFieldChanged();
             }
@@ -125,6 +137,7 @@ namespace HueHades.UI
         private void OnFieldFocusOut(FocusOutEvent evt)
         {
             OnFieldChanged();
+            OnValueChangedByUser?.Invoke(PickerPosition);
         }
 
         private void OnFieldChanged()
@@ -159,6 +172,7 @@ namespace HueHades.UI
         {
             if (!_picking) return;
             UpdatePicker(evt.position);
+            OnValueChangedByUser?.Invoke(PickerPosition);
         }
 
         private void OnPointerUp(PointerUpEvent evt)
@@ -172,6 +186,7 @@ namespace HueHades.UI
             _picking = true;
             _gradientContainer.CapturePointer(evt.pointerId);
             UpdatePicker(evt.position);
+            OnValueChangedByUser?.Invoke(PickerPosition);
         }
 
         private void RegenerateTexture()

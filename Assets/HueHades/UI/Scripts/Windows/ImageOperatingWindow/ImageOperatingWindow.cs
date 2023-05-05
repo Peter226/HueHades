@@ -63,6 +63,8 @@ namespace HueHades.UI
 
             imageCanvas.TileDisplayModeChanged += TileModeChanged;
             imageCanvas.PreviewFilterModeChanged += FilterModeChanged;
+
+            imageCanvas.PreviewChanged += RedrawCamera;
         }
 
         private void FilterModeChanged(FilterMode obj)
@@ -219,6 +221,11 @@ namespace HueHades.UI
             RedrawCamera();
         }
 
+        /// <summary>
+        /// Converts screen position into pixel position on the canvas texture
+        /// </summary>
+        /// <param name="pointerPosition"></param>
+        /// <returns></returns>
         private Vector2 GetPixelPosition(Vector2 pointerPosition)
         {
             var pos = GetWorldPosition(pointerPosition);
@@ -231,7 +238,11 @@ namespace HueHades.UI
             return pos;
         }
 
-
+        /// <summary>
+        /// Converts screen position into world position
+        /// </summary>
+        /// <param name="pointerPosition"></param>
+        /// <returns></returns>
         private Vector2 GetWorldPosition(Vector2 pointerPosition)
         {
             var pos = _windowDisplay.contentContainer.WorldToLocal(pointerPosition);
@@ -335,6 +346,10 @@ namespace HueHades.UI
         }
 
 
+        /// <summary>
+        /// Resize canvas when scrolled
+        /// </summary>
+        /// <param name="e"></param>
         void WheelCallback(WheelEvent e)
         {
             window.ActiveOperatingWindow = this;

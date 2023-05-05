@@ -20,8 +20,11 @@ namespace HueHades.UI
 
         private bool _picking;
 
+        public Action<Vector2> OnValueChanged;
+        public Action<Vector2> OnValueChangedByUser;
+
         Vector2 _pickerPosition;
-        public Vector2 PickerPosition { get { return _pickerPosition; } set { _pickerPosition = value; UpdatePickerRelative(value); } }
+        public Vector2 PickerPosition { get { return _pickerPosition; } set { _pickerPosition = value; UpdatePickerRelative(value); OnValueChanged?.Invoke(value); } }
 
         private Image _pickerCenter;
 
@@ -86,6 +89,7 @@ namespace HueHades.UI
         {
             if (!_picking) return;
             UpdatePicker(evt.position);
+            OnValueChangedByUser?.Invoke(PickerPosition);
         }
 
         private void OnPointerUp(PointerUpEvent evt)
@@ -99,6 +103,7 @@ namespace HueHades.UI
             _picking = true;
             this.CapturePointer(evt.pointerId);
             UpdatePicker(evt.position);
+            OnValueChangedByUser?.Invoke(PickerPosition);
         }
 
         private void RegenerateTexture()

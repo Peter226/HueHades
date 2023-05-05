@@ -1,0 +1,5 @@
+.layers-window-footer {
+    height: 28px;
+    background-color: rgb(25, 25, 25);
+    flex-direction: row;
+}

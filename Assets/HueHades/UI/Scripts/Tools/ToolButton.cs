@@ -7,25 +7,22 @@ using UnityEngine.UIElements;
 
 public class ToolButton : HueHadesElement
 {
-    private ImageTool _imageTool;
-    private ToolContextCollector _contextCollector;
-    public ToolContextCollector ContextCollector { get { return _contextCollector; } }
-    public ImageTool ImageTool { get { return _imageTool; } }
+    private ToolController _toolController;
+    public ToolController ToolController { get { return _toolController; } }
     private const string ussToolButton = "tool-button";
     private const string ussToolButtonSelected = "tool-button-selected";
 
     public Action<ToolButton> Selected;
     private bool _selected;
 
-    public ToolButton(HueHadesWindow window, ImageTool imageTool, ToolContextCollector toolContextCollector) : base(window)
+    public ToolButton(HueHadesWindow window, ToolController toolController) : base(window)
     {
         this.RegisterCallback<ClickEvent>(OnClicked);
-        _imageTool = imageTool;
-        _contextCollector = toolContextCollector;
+        _toolController = toolController;
         AddToClassList(ussToolButton);
 
         var image = new Image();
-        image.image = _imageTool.GetIcon();
+        image.image = _toolController.GetIcon();
         Add(image);
     }
 
@@ -33,7 +30,7 @@ public class ToolButton : HueHadesElement
     {
         if (!_selected) return;
         RemoveFromClassList(ussToolButtonSelected);
-        _imageTool.Deselect();
+        _toolController.Deselect();
         _selected = false;
     }
 
@@ -44,7 +41,7 @@ public class ToolButton : HueHadesElement
         _selected = true;
         AddToClassList(ussToolButtonSelected);
         Selected?.Invoke(this);
-        _imageTool.Select();
+        _toolController.Select();
     }
 
 

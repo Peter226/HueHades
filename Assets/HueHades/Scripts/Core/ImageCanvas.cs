@@ -31,7 +31,14 @@ namespace HueHades.Core {
         private FilterMode _previewFilterMode = FilterMode.Bilinear;
         public FilterMode PreviewFilterMode { get { return _previewFilterMode; } set { bool changed = _previewFilterMode != value; _previewFilterMode = value; if(changed) UpdateFilterMode(); } }
 
+        public Action PreviewChanged;
+
         public int SelectedLayer { get; set; }
+
+        private string _fileName = "Image.png";
+        private string _filePath;
+        public string FileName { get { return _fileName; } }
+
 
         void UpdateTileMode()
         {
@@ -63,9 +70,11 @@ namespace HueHades.Core {
 
         public ImageCanvas(int2 dimensions, RenderTextureFormat format)
         {
+            _canvasHistory = new CanvasHistory(this);
             _dimensions = dimensions;
             _format = format;
             AddLayer(0);
+            History.AddRecord(new NewLayerHistoryRecord(0));
             _previewTexture = new ReusableTexture(_dimensions.x, _dimensions.y,_format,0);
             Selection = new CanvasSelection(dimensions, format);
             RenderPreview();
@@ -78,9 +87,19 @@ namespace HueHades.Core {
             layer.LayerChanged += RenderPreview;
         }
 
+        public void RemoveLayer(int index)
+        {
+            if (_imageLayers.Count < index) return;
+            var layer = _imageLayers[index];
+            layer.LayerChanged -= RenderPreview;
+            layer.Dispose();
+            _imageLayers.RemoveAt(index);
+        }
+
         public void RenderPreview()
         {
             RenderTextureUtilities.CopyTexture(_imageLayers[0].Texture, _previewTexture);
+            PreviewChanged?.Invoke();
         }
 
 

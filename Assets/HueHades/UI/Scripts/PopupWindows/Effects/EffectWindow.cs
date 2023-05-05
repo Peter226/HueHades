@@ -9,6 +9,7 @@ namespace HueHades.UI {
     public abstract class EffectWindow : PopupWindow
     {
         protected bool dataDirty;
+        private bool _didApply;
 
         public EffectWindow(HueHadesWindow window) : base(window)
         {
@@ -43,11 +44,12 @@ namespace HueHades.UI {
             ImageOperatingWindow.CameraUpdateManager.OnUpdate += BeginRender;
             
             OnBeginEffect(window.ActiveOperatingWindow.Canvas);
+            OnRenderEffect();
         }
 
         protected sealed override void OnClose()
         {
-            BeginCancel();
+            if(!_didApply) BeginCancel();
         }
 
         private void BeginCancel()
@@ -61,6 +63,7 @@ namespace HueHades.UI {
         }
         private void BeginApply()
         {
+            _didApply = true;
             ImageOperatingWindow.CameraUpdateManager.OnUpdate -= BeginRender;
             OnApplyEffect();
             Close();

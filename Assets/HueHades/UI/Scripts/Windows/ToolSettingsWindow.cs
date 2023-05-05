@@ -11,7 +11,7 @@ namespace HueHades.UI
     public class ToolSettingsWindow : DockableWindow
     {
         private BrushPreset brushPreset;
-        private ImageTool selectedTool;
+        private ToolController selectedToolController;
         private const string ussToolSettingsContainer = "tool-settings-content";
 
         public ToolSettingsWindow(HueHadesWindow window) : base(window)
@@ -21,13 +21,13 @@ namespace HueHades.UI
             contentContainer.AddToClassList(ussToolSettingsContainer);
         }
 
-        private void OnToolSelected(ImageTool tool)
+        private void OnToolSelected(ToolController toolController)
         {
-            selectedTool = tool;
+            selectedToolController = toolController;
             contentContainer.Clear();
 
             WindowName = "Tool Settings";
-            if (selectedTool is BrushImageTool)
+            if (selectedToolController is BrushToolController)
             {
                 BrushPresetSelector brushPresetSelector = new BrushPresetSelector(window);
                 brushPreset = brushPresetSelector.selectedPreset;

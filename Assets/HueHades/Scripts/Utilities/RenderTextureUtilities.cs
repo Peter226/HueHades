@@ -2,8 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using HueHades.Common;
-using UnityEngine.Profiling;
-using UnityEngine.TerrainUtils;
 
 namespace HueHades.Utilities
 {
@@ -88,6 +86,7 @@ namespace HueHades.Utilities
 
             Gradients.Initialize();
             Brushes.Initialize();
+            Effects.Initialize();
         }
 
         public static void InitializePool()
@@ -128,6 +127,7 @@ namespace HueHades.Utilities
             {
                 temp = new ReusableTexture(new RenderTexture(availableSize, availableSize, 0, format, 0), sizeX, sizeY);
                 temp.texture.enableRandomWrite = true;
+                
                 temp.texture.Create();
             }
             return temp;
@@ -472,9 +472,28 @@ namespace HueHades.Utilities
                 DrawBrushShader.SetTexture(chosenKernel, TargetPropertyID, target.texture);
                 DrawBrushShader.Dispatch(chosenKernel, Mathf.CeilToInt(target.width / (float)warpSizeX), Mathf.CeilToInt(target.height / (float)warpSizeY), 1);
             }
+        }
 
-            
+        public static class Effects
+        {
+            private static ComputeShader ColorAdjustmentsShader;
+            private static int AdjustmentParamsPropertyID;
+            private static int ColorAdjustmentsKernel;
 
+            public static void Initialize()
+            {
+                ColorAdjustmentsShader = Resources.Load<ComputeShader>("Effects/ColorAdjustments");
+                AdjustmentParamsPropertyID = Shader.PropertyToID("AdjustmentParams");
+                ColorAdjustmentsKernel = ColorAdjustmentsShader.FindKernel("CSMain");
+            }
+
+            public static void ColorAdjustments(ReusableTexture input, ReusableTexture result, float hue, float saturation, float brightness, float contrast)
+            {
+                ColorAdjustmentsShader.SetVector(AdjustmentParamsPropertyID, new Vector4(hue, saturation, brightness, contrast));
+                ColorAdjustmentsShader.SetTexture(ColorAdjustmentsKernel, InputPropertyID, input.texture);
+                ColorAdjustmentsShader.SetTexture(ColorAdjustmentsKernel, ResultPropertyID, result.texture);
+                ColorAdjustmentsShader.Dispatch(ColorAdjustmentsKernel, Mathf.CeilToInt(input.width / (float)warpSizeX), Mathf.CeilToInt(input.height / (float)warpSizeY), 1);
+            }
         }
 
 
