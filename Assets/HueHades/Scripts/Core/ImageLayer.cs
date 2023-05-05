@@ -12,7 +12,7 @@ namespace HueHades.Core
     public class ImageLayer : IDisposable
     {
         private ReusableTexture _renderTexture;
-        internal ReusableTexture Texture { get { return _renderTexture; } }
+        public ReusableTexture Texture { get { return _renderTexture; } }
         public Action LayerChanged;
         private int2 _dimensions;
 

@@ -9,6 +9,7 @@ public class ReusableTexture
     private int _actualWidth;
     private int _actualHeight;
     private RenderTexture _texture;
+    private RenderTextureFormat _format;
 
     public ReusableTexture(RenderTexture renderTexture, int width, int height)
     {
@@ -19,6 +20,7 @@ public class ReusableTexture
         _actualHeight = renderTexture.height;
 
         _texture = renderTexture;
+        _format = renderTexture.format;
     }
 
     public ReusableTexture(int width, int height, RenderTextureFormat format, int mipCount)
@@ -32,6 +34,7 @@ public class ReusableTexture
         _usedHeight = height;
         _actualWidth = width;
         _actualHeight = height;
+        _format = format;
     }
 
     public void ReuseAs(int width, int height) {
@@ -47,4 +50,5 @@ public class ReusableTexture
     public int actualHeight { get { return _actualHeight; } }
 
     public RenderTexture texture { get { return _texture; } }
+    public RenderTextureFormat format { get { return _format; } }
 }

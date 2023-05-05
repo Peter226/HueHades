@@ -21,9 +21,9 @@
     padding-right: 0;
     padding-top: 0;
     padding-bottom: 0;
-    align-self: flex-start;
+    align-self: center;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
 }
 
 .dropdown-arrow-label {
@@ -36,6 +36,8 @@
     padding-top: 0;
     padding-bottom: 0;
     font-size: 8px;
+    align-self: center;
+    align-items: center;
 }
 
 .dropdown-button {
@@ -58,6 +60,7 @@
     border-right-color: rgb(100, 100, 100);
     border-top-color: rgb(100, 100, 100);
     border-bottom-color: rgb(100, 100, 100);
+    justify-content: center;
 }
 
 .brush-preset-selector {

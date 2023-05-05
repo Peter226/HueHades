@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using HueHades.Common;
+using UnityEngine.Windows;
 
 namespace HueHades.Utilities
 {
@@ -47,6 +48,10 @@ namespace HueHades.Utilities
         private static int TargetPropertyID;
         private static int MaskPropertyID;
 
+        private static int PositionSizePropertyID;
+        private static int RotationMatrixPropertyID;
+
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void Initialize()
         {
@@ -84,9 +89,14 @@ namespace HueHades.Utilities
             TargetPropertyID = Shader.PropertyToID("Target");
             MaskPropertyID = Shader.PropertyToID("Mask");
 
+
+            PositionSizePropertyID = Shader.PropertyToID("PositionSize");
+            RotationMatrixPropertyID = Shader.PropertyToID("RotationMatrix");
+
             Gradients.Initialize();
             Brushes.Initialize();
             Effects.Initialize();
+            Sampling.Initialize();
         }
 
         public static void InitializePool()
@@ -127,7 +137,6 @@ namespace HueHades.Utilities
             {
                 temp = new ReusableTexture(new RenderTexture(availableSize, availableSize, 0, format, 0), sizeX, sizeY);
                 temp.texture.enableRandomWrite = true;
-                
                 temp.texture.Create();
             }
             return temp;
@@ -425,8 +434,6 @@ namespace HueHades.Utilities
             private static int TextureKernel;
 
             private static int BrushColorPropertyID;
-            private static int PositionSizePropertyID;
-            private static int RotationMatrixPropertyID;
             private static int OpacityGradientPropertyID;
 
             public static void Initialize()
@@ -437,8 +444,7 @@ namespace HueHades.Utilities
                 TextureKernel = DrawBrushShader.FindKernel("TextureBrush");
 
                 BrushColorPropertyID = Shader.PropertyToID("BrushColor");
-                PositionSizePropertyID = Shader.PropertyToID("PositionSize");
-                RotationMatrixPropertyID = Shader.PropertyToID("RotationMatrix");
+
                 OpacityGradientPropertyID = Shader.PropertyToID("OpacityGradient");
             }
 
@@ -495,6 +501,62 @@ namespace HueHades.Utilities
                 ColorAdjustmentsShader.Dispatch(ColorAdjustmentsKernel, Mathf.CeilToInt(input.width / (float)warpSizeX), Mathf.CeilToInt(input.height / (float)warpSizeY), 1);
             }
         }
+
+        public static class Sampling
+        {
+            private static ComputeShader ResampleShader;
+            private static int PointKernel;
+            private static int LinearKernel;
+            private static int CubicKernel;
+            private static int LánczosKernel;
+            private static int TargetPivotPropertyID;
+
+            public static void Initialize()
+            {
+                ResampleShader = Resources.Load<ComputeShader>("Sampling/ResampleImage");
+
+                PointKernel = ResampleShader.FindKernel("PointKernel");
+                LinearKernel = ResampleShader.FindKernel("LinearKernel");
+                CubicKernel = ResampleShader.FindKernel("CubicKernel");
+                LánczosKernel = ResampleShader.FindKernel("LanczosKernel");
+
+                TargetPivotPropertyID = Shader.PropertyToID("TargetPivot");
+            }
+
+            public static void Resample(ReusableTexture source, ReusableTexture target, Vector2 size, float rotation, Vector2 pivot, Vector2 targetPivot, SamplerMode samplerMode)
+            {
+                var inverseSize = new Vector2(1.0f / size.x, 1.0f / size.y);
+
+                ResampleShader.SetVector(TargetPivotPropertyID, targetPivot);
+                ResampleShader.SetVector(PositionSizePropertyID, new Vector4(pivot.x, pivot.y, inverseSize.x, inverseSize.y));
+
+                float cosRotation = Mathf.Cos(rotation / 180.0f * Mathf.PI);
+                float sinRotation = Mathf.Sin(rotation / 180.0f * Mathf.PI);
+
+                ResampleShader.SetMatrix(RotationMatrixPropertyID, new Matrix4x4(new Vector4(cosRotation, sinRotation, 0, 0), new Vector4(-sinRotation, cosRotation, 0, 0), Vector4.zero, Vector4.zero));
+
+                switch (samplerMode)
+                {
+                    case SamplerMode.Point:
+                        ResampleShader.SetTexture(PointKernel, InputPropertyID, source.texture);
+                        ResampleShader.SetTexture(PointKernel, TargetPropertyID, target.texture);
+                        ResampleShader.Dispatch(PointKernel, Mathf.CeilToInt(source.width / (float)warpSizeX), Mathf.CeilToInt(source.height / (float)warpSizeY), 1);
+                        break;
+                    case SamplerMode.Linear:
+
+                        break;
+                    case SamplerMode.Cubic:
+
+                        break;
+                    case SamplerMode.Lánczos:
+
+                        break;
+
+                }
+
+            }
+        }
+        
 
 
 

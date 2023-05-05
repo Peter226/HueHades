@@ -1,7 +1,5 @@
 using HueHades.Core;
 using HueHades.Utilities;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace HueHades.Effects
@@ -32,6 +30,10 @@ namespace HueHades.Effects
         {
             RenderTextureUtilities.Effects.ColorAdjustments(backupSnapshot, targetBuffer, Hue, Saturation, Brightness, Contrast);
             selectedLayer.PasteOperatingCopy(targetBuffer,copyHandle);
+
+            ModifyLayerHistoryRecord modifyLayerHistoryRecord = new ModifyLayerHistoryRecord(canvas.SelectedLayer, backupSnapshot, selectedLayer.Texture, "Color Adjustments");
+            canvas.History.AddRecord(modifyLayerHistoryRecord);
+
 
             RenderTextureUtilities.ReleaseTemporary(backupSnapshot);
             RenderTextureUtilities.ReleaseTemporary(targetBuffer);

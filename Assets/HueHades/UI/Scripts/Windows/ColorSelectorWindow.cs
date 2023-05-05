@@ -95,7 +95,7 @@ namespace HueHades.UI
             }
         }
 
-        private void UpdateColors(Color color, bool updateHex = true)
+        private void UpdateColors(Color color, bool updateHex = true, bool updateHue = true, bool updateRectangle = true)
         {
 
             _colorPickerAlpha.PickerPosition = color.a;
@@ -130,20 +130,22 @@ namespace HueHades.UI
 
             Color.RGBToHSV(color, out float h, out float s, out float v);
 
-            _colorPickerHue.PickerPosition = h;
-            _colorPickerRectangle.HueColor = Color.HSVToRGB(_colorPickerHue.PickerPosition, 1, 1);
-            _colorPickerRectangle.PickerPosition = new Vector2(s,1 - v);
-
+            if(updateHue) _colorPickerHue.PickerPosition = h;
+            if (updateRectangle)
+            {
+                _colorPickerRectangle.HueColor = Color.HSVToRGB(_colorPickerHue.PickerPosition, 1, 1);
+                _colorPickerRectangle.PickerPosition = new Vector2(s, 1 - v);
+            }
             if (updateHex)
             {
                 color = GetPrimaryColorDefault();
-                _hexField.value = ColorUtility.ToHtmlStringRGBA(color);
+                _hexField.SetValueWithoutNotify(ColorUtility.ToHtmlStringRGBA(color));
             }
         }
 
         private void OnRectangleChanged(Vector2 obj)
         {
-            UpdateColors(GetPrimaryColorDefault());
+            UpdateColors(GetPrimaryColorDefault(), updateHue: false, updateRectangle: false);
         }
 
         private void OnBlueChanged(float pickerPosition)
@@ -169,7 +171,7 @@ namespace HueHades.UI
 
         private void OnHueChanged(float hue)
         {
-            UpdateColors(GetPrimaryColorDefault());
+            UpdateColors(GetPrimaryColorDefault(), updateHue: false);
         }
 
 

@@ -20,6 +20,10 @@ public class CanvasSelector : DropDownInput<CanvasEntry>
     private void OnOperatingWindowChanged(ImageOperatingWindow operatingWindow)
     {
         _entries[0].canvas = operatingWindow.Canvas;
+        if (value.isDefault)
+        {
+            CanvasSelected?.Invoke(operatingWindow.Canvas);
+        }
     }
 
     private void OnCanvasCountChanged(object sender, ApplicationManager.CanvasChangeEventArgs e)

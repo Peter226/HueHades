@@ -135,9 +135,6 @@ namespace HueHades.UI
             float newWidth = _parentElement.worldBound.width;
             float newHeight = _parentElement.worldBound.height;
 
-            Debug.Log(newWidth);
-
-
             if (_isDockSplit)
             {
                 float deltaWidthRatio = 1;

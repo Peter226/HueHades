@@ -7,7 +7,7 @@ public class MoveSelectedToolController : ToolController
 {
     public override IToolContext CollectContext(HueHadesWindow window)
     {
-        throw new System.NotImplementedException();
+        return new EraserToolContext();
     }
 
     public override Texture GetIcon()
@@ -21,7 +21,7 @@ public class MoveSelectedToolController : ToolController
 
     protected override ImageTool InitializeTool()
     {
-        throw new System.NotImplementedException();
+        return new MoveSelectedImageTool();
     }
 
 }

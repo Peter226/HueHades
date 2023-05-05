@@ -1,0 +1,68 @@
+
+#pragma kernel PointKernel
+#pragma kernel LinearKernel
+#pragma kernel CubicKernel
+#pragma kernel LanczosKernel
+
+float4 PositionSize;
+float2 TargetPivot;
+float2x2 RotationMatrix;
+
+Texture2D<float4> Input;
+RWTexture2D<float4> Target;
+
+float2 transformPoint (uint2 pos)
+{
+    float2 pivot = PositionSize.xy;
+    return (mul(RotationMatrix, (((float2)pos) - TargetPivot)) * PositionSize.zw + pivot);
+}
+
+float4 sampleAt(float2 pos){
+    return all(pos >= 0) ? Input[pos] : 0;
+}
+
+
+[numthreads(8,8,1)]
+void PointKernel (uint3 id : SV_DispatchThreadID)
+{
+   float2 newID = transformPoint(id.xy);
+
+   float4 color;
+   color = sampleAt(newID);
+
+   Target[id.xy] = color;
+}
+
+[numthreads(8,8,1)]
+void LinearKernel (uint3 id : SV_DispatchThreadID)
+{
+   float2 newID = transformPoint(id.xy);
+   float4 color;
+   
+   float2 floorCoord = floor(newID);
+   float2 ceilCoord = ceil(newID);
+
+   float4 sample00 = sampleAt(floorCoord);
+   float4 sample10 = sampleAt(float2(ceilCoord.x,floorCoord.y));
+   float4 sample01 = sampleAt(float2(floorCoord.x,ceilCoord.y));
+   float4 sample11 = sampleAt(ceilCoord);
+   float xlerp = newID.x - floorCoord.x;
+
+   float4 colorTop = lerp(sample00,sample10,xlerp);
+   float4 colorBottom = lerp(sample01,sample11,xlerp);
+   color = lerp(colorTop,colorBottom,newID.y - floorCoord.y);
+
+   Target[id.xy] = color;
+}
+
+[numthreads(8,8,1)]
+void CubicKernel (uint3 id : SV_DispatchThreadID)
+{
+    Target[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+}
+
+[numthreads(8,8,1)]
+void LanczosKernel (uint3 id : SV_DispatchThreadID)
+{
+    Target[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+}

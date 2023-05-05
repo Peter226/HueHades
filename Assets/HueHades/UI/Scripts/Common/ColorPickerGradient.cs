@@ -91,7 +91,6 @@ namespace HueHades.UI
             _displayImage.style.height = 16.0f;
             style.height = 27.0f;
             style.display = DisplayStyle.Flex;
-            style.flexGrow = 1;
 
             _pickerCenter = new Image();
             if (PickerIcon == null)

@@ -20,6 +20,10 @@ namespace HueHades.UI
         private const string ussCanvasHistoryWindowContainer = "canvas-history-window-container";
         private const string ussCanvasHistoryWindowScrollview = "canvas-history-window-scrollview";
 
+        HistoryEntryElement activeEntry = null;
+
+        private List<HistoryEntryElement> historyEntryElements = new List<HistoryEntryElement>();
+
         public CanvasHistoryWindow(HueHadesWindow window) : base(window)
         {
             WindowName = "History";
@@ -68,17 +72,37 @@ namespace HueHades.UI
 
         void RenderHistory()
         {
+            foreach (var historyEntryElement in historyEntryElements)
+            {
+                historyEntryElement.EntryActivated -= ScrollToElement;
+            }
             _scrollView.Clear();
+            historyEntryElements.Clear();
 
             foreach (var historyRecord in _selectedCanvas.History.HistoryRecords)
             {
-                HistoryEntryElement historyEntryElement = new HistoryEntryElement(window, historyRecord);
+                HistoryEntryElement historyEntryElement = new HistoryEntryElement(window, historyRecord, _selectedCanvas.History);
+                historyEntryElements.Add(historyEntryElement);
+                if (historyEntryElement.HistoryRecord.isActiveRecord) ScrollToElement(historyEntryElement);
                 _scrollView.Add(historyEntryElement);
             }
-
         }
 
+        void ScrollToElement(HistoryEntryElement historyEntryElement)
+        {
+            activeEntry = historyEntryElement;
+            _scrollView.contentContainer.UnregisterCallback<GeometryChangedEvent>(OnScrollGeometryUpdated);
+            _scrollView.contentContainer.RegisterCallback<GeometryChangedEvent>(OnScrollGeometryUpdated);
+        }
 
+        private void OnScrollGeometryUpdated(GeometryChangedEvent evt)
+        {
+            if (activeEntry != null)
+            {
+                _scrollView.ScrollTo(activeEntry);
+            }
+            _scrollView.contentContainer.UnregisterCallback<GeometryChangedEvent>(OnScrollGeometryUpdated);
+        }
 
         public override Vector2 DefaultSize
         {

@@ -34,14 +34,19 @@ public class ToolButton : HueHadesElement
         _selected = false;
     }
 
-
-    void OnClicked(ClickEvent clicked)
+    public void OnForceClick()
     {
         if (_selected) return;
         _selected = true;
         AddToClassList(ussToolButtonSelected);
         Selected?.Invoke(this);
         _toolController.Select();
+    }
+
+
+    void OnClicked(ClickEvent clicked)
+    {
+        OnForceClick();
     }
 
 

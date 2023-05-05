@@ -17,6 +17,10 @@ namespace HueHades.UI
         public ToolSettingsWindow(HueHadesWindow window) : base(window)
         {
             window.Tools.ToolSelected += OnToolSelected;
+            if (window.Tools.SelectedTool != null)
+            {
+                OnToolSelected(window.Tools.SelectedTool);
+            }
             WindowName = "Tool Settings";
             contentContainer.AddToClassList(ussToolSettingsContainer);
         }

@@ -4,10 +4,11 @@ using HueHades.Utilities;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 namespace HueHades.Tools
 {
-    public class BrushImageTool : ImageTool
+    public abstract class GenericBrushImageTool : ImageTool
     {
         private ImageCanvas _paintCanvas;
         private ImageLayer _paintLayer;
@@ -40,7 +41,6 @@ namespace HueHades.Tools
             public float paintRadius;
             public float pressure;
         }
-
 
         protected override void OnBeginUse(IToolContext toolContext, ImageCanvas canvas, int layer, Vector2 startPoint, float startPressure, float startTilt)
         {
@@ -93,15 +93,15 @@ namespace HueHades.Tools
                 pathDistance += _paintInterval * _lastRadius;
                 float pathTime = pathDistance / distance;
                 var point = Vector2.Lerp(_lastPoint, currentPoint, pathTime);
-                
+
                 var pressure = Mathf.Lerp(_lastPressure, currentPressure, pathTime);
 
                 var rotation = -Vector2.SignedAngle(Vector2.up, Vector2.Lerp(_lastDirection, direction, pathTime));
-                
+
                 var radius = Mathf.Max(0.5f, _toolContext.BrushPreset.size * pressure * pressure);
                 _lastRadius = radius;
                 var rad = Mathf.Deg2Rad * (rotation + 45);
-                var maxRotationMargin = (Mathf.Max(Mathf.Abs(Mathf.Cos(rad)),Mathf.Abs(Mathf.Sin(rad))) / SqrtTwoReciprocal);
+                var maxRotationMargin = (Mathf.Max(Mathf.Abs(Mathf.Cos(rad)), Mathf.Abs(Mathf.Sin(rad))) / SqrtTwoReciprocal);
                 var marginAppliedRadius = radius * maxRotationMargin;
                 var paintPoint = new PaintPoint()
                 {
@@ -143,7 +143,7 @@ namespace HueHades.Tools
                     TextureDebugger.DebugRenderTexture(paintCopyBuffer, "paint copy buffer copied");
                     var color = _toolContext.BrushPreset.color;
                     color.a *= _toolContext.BrushPreset.opacity;
-                    RenderTextureUtilities.Brushes.DrawBrush(pointBuffer, new Vector2(point.position.x - pointStartX, point.position.y - pointStartY), new Vector2(point.radius, point.radius), point.rotation, BrushShape.Rectangle, color, tempGradient);
+                    DrawBrush(pointBuffer, new Vector2(point.position.x - pointStartX, point.position.y - pointStartY), new Vector2(point.radius, point.radius), point.rotation, BrushShape.Rectangle, color, tempGradient);
                     TextureDebugger.DebugRenderTexture(pointBuffer, "point buffer drawn brush");
                     RenderTextureUtilities.LayerImageArea(paintCopyBuffer, _paintBuffer, 0, 0, pointWidth, pointHeight, pointBuffer, Common.ColorBlendMode.Default, pointStartX, pointStartY, _paintCanvas.TileMode);
                     TextureDebugger.DebugRenderTexture(_paintBuffer, "paint buffer layered point buffer on top");
@@ -169,6 +169,9 @@ namespace HueHades.Tools
             TextureDebugger.EndSession("Brush Image Tool Paint");
         }
 
+        protected abstract void DrawBrush(ReusableTexture brushTarget, Vector2 center, Vector2 size, float rotation, BrushShape shape, Color color, ReusableTexture softnessGradient);
+
+
         protected override void OnEndUse(Vector2 endPoint, float endPressure, float endTilt)
         {
             ModifyLayerHistoryRecord modifyLayerHistoryRecord = new ModifyLayerHistoryRecord(_layer, _layerCopyBuffer, _paintLayer.Texture, "Brush Stroke");
@@ -181,12 +184,12 @@ namespace HueHades.Tools
 
         protected override void OnSelected()
         {
-            
+
         }
 
         protected override void OnDeselected()
         {
-            
+
         }
     }
 }

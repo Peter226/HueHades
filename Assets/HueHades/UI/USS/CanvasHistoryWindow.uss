@@ -24,4 +24,53 @@
     height: 28px;
     background-color: rgb(25, 25, 25);
     flex-direction: row;
+    flex-shrink: 0;
+}
+
+.history-element-button {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.history-element-button-selected {
+    background-color: rgba(38, 142, 255, 0.04);
+    border-left-color: rgba(38, 142, 255, 0.51);
+    border-right-color: rgba(38, 142, 255, 0.51);
+    border-top-color: rgba(38, 142, 255, 0.51);
+    border-bottom-color: rgba(38, 142, 255, 0.51);
+}
+
+.history-element-button-inactive {
+    background-color: rgb(40, 40, 40);
+    opacity: 0.52;
+}
+
+.history-element {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-left: 1px;
+    margin-right: 1px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+
+.history-element-label {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    align-items: flex-start;
+    align-self: flex-start;
 }

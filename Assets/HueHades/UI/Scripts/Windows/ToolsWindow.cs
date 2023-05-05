@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace HueHades.UI
 {
@@ -14,8 +15,10 @@ namespace HueHades.UI
 
         private List<ToolButton> toolButtons = new List<ToolButton>();
         ToolController _selectedTool;
+        public ToolController SelectedTool { get { return _selectedTool; } }
 
         public Action<ToolController> ToolSelected;
+        ToolButton defaultToolButton;
 
         public ToolsWindow(HueHadesWindow window) : base(window)
         {
@@ -38,11 +41,21 @@ namespace HueHades.UI
             foreach (var toolController in toolControllers)
             {
                 ToolButton toolButton = new ToolButton(window, toolController);
+                if (toolController is BrushToolController)
+                {
+                    defaultToolButton = toolButton;
+                }
                 toolButtons.Add(toolButton);
                 toolButton.Selected += OnSelectedButton;
                 hierarchy.Add(toolButton);
             }
             WindowName = "Tools";
+
+            // Select brush tool to start out with
+            if (_selectedTool == null)
+            {
+                defaultToolButton.OnForceClick();
+            }
         }
 
         public void OnToolBeginUse(ImageCanvas canvas, int layer, Vector2 startPoint, float startPressure, float startTilt)

@@ -95,7 +95,7 @@ public class DropDownInput<T> : HueHadesElement
     {
         _data = data;
         _displayNameMethod = displayNameMethod;
-        if (value == null && data.Count > 0)
+        if ((value == null || (!data.Contains(value))) && data.Count > 0)
         {
             value = data[0];
         }
