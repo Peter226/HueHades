@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using HueHades.Common;
 using UnityEngine.Windows;
+using static UnityEngine.GraphicsBuffer;
 
 namespace HueHades.Utilities
 {
@@ -97,6 +98,7 @@ namespace HueHades.Utilities
             Brushes.Initialize();
             Effects.Initialize();
             Sampling.Initialize();
+            Selection.Initialize();
         }
 
         public static void InitializePool()
@@ -194,11 +196,11 @@ namespace HueHades.Utilities
         }
 
 
-        public static void CopyTexture(ReusableTexture from, ReusableTexture to, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
+        public static void CopyTexture(IReadableTexture from, ReusableTexture to, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
         {
             CopyTexture(from, to, 0, 0, destinationTileMode, sourceTileMode);
         }
-        public static void CopyTexture(ReusableTexture from, ReusableTexture to, int destinationX, int destinationY, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
+        public static void CopyTexture(IReadableTexture from, ReusableTexture to, int destinationX, int destinationY, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
         {
             CopyTexture(from, 0, 0, from.width, from.height, to, destinationX, destinationY, destinationTileMode, sourceTileMode);
         }
@@ -243,7 +245,7 @@ namespace HueHades.Utilities
             }
         }
 
-        public static void CopyTexture(ReusableTexture from, int sourceX, int sourceY, int sourceWidth, int sourceHeight, ReusableTexture to, int destinationX = 0, int destinationY = 0, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
+        public static void CopyTexture(IReadableTexture from, int sourceX, int sourceY, int sourceWidth, int sourceHeight, ReusableTexture to, int destinationX = 0, int destinationY = 0, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
         {
             int sourceTextureWidth = from.width;
             int sourceTextureHeight = from.height;
@@ -435,6 +437,7 @@ namespace HueHades.Utilities
 
             private static int BrushColorPropertyID;
             private static int OpacityGradientPropertyID;
+            private static int SoftnessPropertyID;
 
             public static void Initialize()
             {
@@ -446,9 +449,10 @@ namespace HueHades.Utilities
                 BrushColorPropertyID = Shader.PropertyToID("BrushColor");
 
                 OpacityGradientPropertyID = Shader.PropertyToID("OpacityGradient");
+                SoftnessPropertyID = Shader.PropertyToID("Softness");
             }
 
-            public static void DrawBrush(ReusableTexture target, Vector2 center, Vector2 size, float rotation, BrushShape brushShape, Color color, ReusableTexture opacityGradient)
+            public static void DrawBrush(ReusableTexture target, Vector2 center, Vector2 size, float rotation, BrushShape brushShape, Color color, ReusableTexture opacityGradient, float softness)
             {
                 int chosenKernel;
                 switch (brushShape)
@@ -467,6 +471,7 @@ namespace HueHades.Utilities
                         break;
                 }
 
+                DrawBrushShader.SetFloat(SoftnessPropertyID, 1.0f / softness);
                 DrawBrushShader.SetVector(PositionSizePropertyID, new Vector4(center.x, center.y, 1.0f / size.x, 1.0f / size.y * 1.0f));
                 DrawBrushShader.SetVector(BrushColorPropertyID, color);
 
@@ -505,15 +510,20 @@ namespace HueHades.Utilities
         public static class Sampling
         {
             private static ComputeShader ResampleShader;
+            private static ComputeShader ColorspaceSwitchShader;
             private static int PointKernel;
             private static int LinearKernel;
             private static int CubicKernel;
             private static int LánczosKernel;
             private static int TargetPivotPropertyID;
 
+            private static int LinearToGammaKernel;
+            private static int LinearToSRGBKernel;
+
             public static void Initialize()
             {
                 ResampleShader = Resources.Load<ComputeShader>("Sampling/ResampleImage");
+                ColorspaceSwitchShader = Resources.Load<ComputeShader>("Sampling/ColorspaceSwitch");
 
                 PointKernel = ResampleShader.FindKernel("PointKernel");
                 LinearKernel = ResampleShader.FindKernel("LinearKernel");
@@ -521,6 +531,9 @@ namespace HueHades.Utilities
                 LánczosKernel = ResampleShader.FindKernel("LanczosKernel");
 
                 TargetPivotPropertyID = Shader.PropertyToID("TargetPivot");
+
+                LinearToGammaKernel = ColorspaceSwitchShader.FindKernel("LinearToGamma");
+                LinearToSRGBKernel = ColorspaceSwitchShader.FindKernel("LinearToSRGB");
             }
 
             public static void Resample(ReusableTexture source, ReusableTexture target, Vector2 size, float rotation, Vector2 pivot, Vector2 targetPivot, SamplerMode samplerMode)
@@ -540,7 +553,7 @@ namespace HueHades.Utilities
                     case SamplerMode.Point:
                         ResampleShader.SetTexture(PointKernel, InputPropertyID, source.texture);
                         ResampleShader.SetTexture(PointKernel, TargetPropertyID, target.texture);
-                        ResampleShader.Dispatch(PointKernel, Mathf.CeilToInt(source.width / (float)warpSizeX), Mathf.CeilToInt(source.height / (float)warpSizeY), 1);
+                        ResampleShader.Dispatch(PointKernel, Mathf.CeilToInt(target.width / (float)warpSizeX), Mathf.CeilToInt(target.height / (float)warpSizeY), 1);
                         break;
                     case SamplerMode.Linear:
 
@@ -555,8 +568,87 @@ namespace HueHades.Utilities
                 }
 
             }
+
+
+            public static void Mirror(ReusableTexture input, ReusableTexture result, MirrorMode mirrorMode)
+            {
+                Vector2 size = new Vector2(1,-1);
+                if (mirrorMode == MirrorMode.Horizontal)
+                {
+                    size = new Vector2(-1,1);
+                }
+
+                Vector2 pivot = new Vector2((input.width - 1) * 0.5f, (input.height - 1) * 0.5f);
+
+                Resample(input, result, size, 0, pivot, pivot, SamplerMode.Point);
+            }
+
+
+            public static void Rotate(ReusableTexture input, ReusableTexture result, RotateMode rotateMode)
+            {
+                Vector2 pivot = new Vector2((input.width - 1) * 0.5f, (input.height - 1) * 0.5f);
+                Vector2 pivotTarget = new Vector2((result.width - 1) * 0.5f, (result.height - 1) * 0.5f);
+
+                float angle = 0;
+                switch (rotateMode)
+                {
+                    case RotateMode.Clockwise:
+                        angle = 90;
+                        break;
+                    case RotateMode.CounterClockwise:
+                        angle = -90;
+                        break;
+                    case RotateMode.OneEighty:
+                        angle = 180;
+                        break;
+                }
+
+                Resample(input, result, Vector2.one, angle, pivot, pivotTarget, SamplerMode.Point);
+            }
+
+
+            public static void LinearToGamma(ReusableTexture input, ReusableTexture result)
+            {
+                ColorspaceSwitchShader.SetTexture(LinearToGammaKernel, InputPropertyID, input.texture);
+                ColorspaceSwitchShader.SetTexture(LinearToGammaKernel, ResultPropertyID, result.texture);
+                ColorspaceSwitchShader.Dispatch(LinearToGammaKernel, Mathf.CeilToInt(result.width / (float)warpSizeX), Mathf.CeilToInt(result.height / (float)warpSizeY), 1);
+            }
+            public static void LinearToSRGB(ReusableTexture input, ReusableTexture result)
+            {
+                ColorspaceSwitchShader.SetTexture(LinearToSRGBKernel, InputPropertyID, input.texture);
+                ColorspaceSwitchShader.SetTexture(LinearToSRGBKernel, ResultPropertyID, result.texture);
+                ColorspaceSwitchShader.Dispatch(LinearToSRGBKernel, Mathf.CeilToInt(result.width / (float)warpSizeX), Mathf.CeilToInt(result.height / (float)warpSizeY), 1);
+            }
+
+
         }
         
+        public static class Selection
+        {
+
+
+
+            public static void Initialize()
+            {
+
+            }
+
+            public static void DrawRectangle()
+            {
+
+            }
+
+            public static void DrawEllipse()
+            {
+
+            }
+
+            public static void DrawBrush()
+            {
+
+            }
+
+        }
 
 
 

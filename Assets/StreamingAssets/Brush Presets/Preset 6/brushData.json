@@ -1,1 +1,1 @@
-{"name":"Preset 6","iconPath":"Icons/BrushIcon","opacity":1.0,"rotation":0.0,"baseSize":50.0,"softness":0.0,"spacing":0.0,"shape":"Ellipse"}
+{"name":"Preset 6","iconPath":"Icons/BrushIcon","baseOpacity":1.0,"rotation":0.0,"autoRotation":false,"baseSize":50.0,"sizeHeightRatio":1.0,"softness":1.0,"spacing":0.10000000149011612,"autoSpacing":true,"shape":"Ellipse"}

@@ -171,15 +171,18 @@ namespace HueHades.Core
         public override string name { get { return "New Layer"; } }
         public override int MemoryConsumption { get { return 1; } }
 
-        public NewLayerHistoryRecord(int layerIndex)
+        private Color _clearColor;
+
+        public NewLayerHistoryRecord(int layerIndex, Color clearColor)
         {
             _layerIndex = layerIndex;
+            _clearColor = clearColor;
         }
 
         private int _layerIndex;
         protected override void OnRedo(ImageCanvas canvas)
         {
-            canvas.AddLayer(_layerIndex);
+            canvas.AddLayer(_layerIndex, _clearColor);
         }
 
         protected override void OnUndo(ImageCanvas canvas)

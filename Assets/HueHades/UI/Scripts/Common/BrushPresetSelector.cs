@@ -15,7 +15,7 @@ namespace HueHades.UI
 
         private ScrollView _scrollView;
         public BrushPreset selectedPreset { get; set; }
-
+        public Action<BrushPreset> PresetSelected;
 
         private List<PresetContainer> _presetContainers = new List<PresetContainer>();
 
@@ -37,7 +37,7 @@ namespace HueHades.UI
             }
         }
 
-        public Action<BrushPreset> PresetSelected;
+        
 
         private void OnPresetSelected(BrushPreset preset)
         {

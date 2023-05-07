@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using HueHades.Utilities;
 using HueHades.Common;
 using System;
+using static HueHades.Core.ImageLayer;
 
 namespace HueHades.Core {
     public class ImageCanvas
@@ -37,8 +38,25 @@ namespace HueHades.Core {
 
         private string _fileName = "Image.png";
         private string _filePath;
-        public string FileName { get { return _fileName; } }
+        public string FilePath { get { return _filePath; } set { _filePath = value; } }
+        public string FileName { get { return _fileName; } set { _fileName = value; FileNameChanged?.Invoke(_fileName); } }
+        public Action<string> FileNameChanged;
 
+        public void SetDimensions(int2 dimensions, Action<ResizeLayerEventArgs> onLayerResizedMethod = null)
+        {
+            _dimensions = dimensions;
+            foreach (var layer in _imageLayers)
+            {
+                layer.SetDimensions(dimensions, onLayerResizedMethod);
+            }
+
+            _previewTexture?.Dispose();
+            _previewTexture = new ReusableTexture(_dimensions.x, _dimensions.y, _format, 0);
+            Selection?.Dispose();
+            Selection = new CanvasSelection(dimensions, _format);
+            CanvasDimensionsChanged?.Invoke(_dimensions);
+            RenderPreview();
+        }
 
         void UpdateTileMode()
         {
@@ -73,16 +91,16 @@ namespace HueHades.Core {
             _canvasHistory = new CanvasHistory(this);
             _dimensions = dimensions;
             _format = format;
-            AddLayer(0);
-            History.AddRecord(new NewLayerHistoryRecord(0));
+            AddLayer(0, Color.white);
+            History.AddRecord(new NewLayerHistoryRecord(0, Color.white));
             _previewTexture = new ReusableTexture(_dimensions.x, _dimensions.y,_format,0);
             Selection = new CanvasSelection(dimensions, format);
             RenderPreview();
         }
 
-        public void AddLayer(int index)
+        public void AddLayer(int index, Color clearColor)
         {
-            var layer = new ImageLayer(_dimensions, _format);
+            var layer = new ImageLayer(_dimensions, _format, clearColor);
             _imageLayers.Insert(index, layer);
             layer.LayerChanged += RenderPreview;
         }
@@ -105,6 +123,9 @@ namespace HueHades.Core {
 
         public ReusableTexture PreviewTexture { get { return _previewTexture; } }
         public int2 Dimensions { get { return _dimensions; } }
+
+        public Action<int2> CanvasDimensionsChanged;
+
         public RenderTextureFormat Format { get { return _format; } }
         public int LayerCount { get { return _imageLayers.Count; } }
         public ImageLayer GetLayer(int index)

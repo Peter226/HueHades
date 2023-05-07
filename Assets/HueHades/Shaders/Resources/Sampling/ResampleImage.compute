@@ -28,7 +28,7 @@ void PointKernel (uint3 id : SV_DispatchThreadID)
    float2 newID = transformPoint(id.xy);
 
    float4 color;
-   color = sampleAt(newID);
+   color = sampleAt(newID + 0.5);
 
    Target[id.xy] = color;
 }

@@ -54,6 +54,7 @@ namespace HueHades.Tools
             _leftOverLength = 0.0f;
             _toolContext = (BrushToolContext)toolContext;
             _layer = layer;
+            _paintInterval = Mathf.Max(0.001f,_toolContext.BrushPreset.spacing);
 
             var canvasDimensions = _paintCanvas.Dimensions;
             _layerOperatingCopyBuffer = RenderTextureUtilities.GetTemporary(canvasDimensions.x, canvasDimensions.y, _paintCanvas.Format);
@@ -88,15 +89,18 @@ namespace HueHades.Tools
 
             ReusableTexture tempGradient = RenderTextureUtilities.GetTemporaryGradient(512, RenderTextureFormat.ARGBFloat);
 
-            while (travelAmount >= _paintInterval * _lastRadius)
+            bool autoSpacing = _toolContext.BrushPreset.autoSpacing;
+
+            while (travelAmount >= (autoSpacing ? _paintInterval * _lastRadius : _paintInterval))
             {
-                pathDistance += _paintInterval * _lastRadius;
+                pathDistance += (autoSpacing ? _paintInterval * _lastRadius : _paintInterval);
                 float pathTime = pathDistance / distance;
                 var point = Vector2.Lerp(_lastPoint, currentPoint, pathTime);
                 
                 var pressure = Mathf.Lerp(_lastPressure, currentPressure, pathTime);
 
-                var rotation = -Vector2.SignedAngle(Vector2.up, Vector2.Lerp(_lastDirection, direction, pathTime));
+                var rotation = _toolContext.BrushPreset.rotation;
+                if (_toolContext.BrushPreset.autoRotation) rotation -= Vector2.SignedAngle(Vector2.up, Vector2.Lerp(_lastDirection, direction, pathTime)); ;
                 
                 var radius = Mathf.Max(0.5f, _toolContext.BrushPreset.size * pressure * pressure);
                 _lastRadius = radius;
@@ -117,7 +121,7 @@ namespace HueHades.Tools
 
                 paintPoints.Add(paintPoint);
 
-                travelAmount -= _paintInterval * _lastRadius;
+                travelAmount -= (autoSpacing ? _paintInterval * _lastRadius : _paintInterval);
             }
 
             if (paintPoints.Count > 0)
@@ -143,7 +147,7 @@ namespace HueHades.Tools
                     TextureDebugger.DebugRenderTexture(paintCopyBuffer, "paint copy buffer copied");
                     var color = _toolContext.BrushPreset.color;
                     color.a *= _toolContext.BrushPreset.opacity;
-                    RenderTextureUtilities.Brushes.DrawBrush(pointBuffer, new Vector2(point.position.x - pointStartX, point.position.y - pointStartY), new Vector2(point.radius, point.radius), point.rotation, BrushShape.Rectangle, color, tempGradient);
+                    RenderTextureUtilities.Brushes.DrawBrush(pointBuffer, new Vector2(point.position.x - pointStartX, point.position.y - pointStartY), new Vector2(point.radius, point.radius * _toolContext.BrushPreset.sizeHeightRatio), point.rotation, BrushShape.Rectangle, color, tempGradient, _toolContext.BrushPreset.softness);
                     TextureDebugger.DebugRenderTexture(pointBuffer, "point buffer drawn brush");
                     RenderTextureUtilities.LayerImageArea(paintCopyBuffer, _paintBuffer, 0, 0, pointWidth, pointHeight, pointBuffer, Common.ColorBlendMode.Default, pointStartX, pointStartY, _paintCanvas.TileMode);
                     TextureDebugger.DebugRenderTexture(_paintBuffer, "paint buffer layered point buffer on top");

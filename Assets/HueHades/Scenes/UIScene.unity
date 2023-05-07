@@ -364,8 +364,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialCanvasDimensions:
-    x: 3000
-    y: 2000
+    x: 1000
+    y: 750
 --- !u!114 &1820424177
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,0 +1,29 @@
+#pragma kernel LinearToGamma
+#pragma kernel LinearToSRGB
+
+Texture2D<float4> Input;
+RWTexture2D<float4> Result;
+
+
+static const float gamma = 2.2;
+
+static const float invGamma = 1.0 / 2.2;
+
+static const float sRGB = 1.0 / 2.4;
+
+[numthreads(8,8,1)]
+void LinearToSRGB (uint3 id : SV_DispatchThreadID)
+{
+    float4 pixels = Input[id.xy];
+
+    pixels.rgb = (pixels.rgb <= 0.0031308) ? pixels.rgb * 12.92 : 1.055 * pow(pixels.rgb, sRGB) - 0.055;
+
+    Result[id.xy] = pixels;
+}
+
+[numthreads(8,8,1)]
+void LinearToGamma (uint3 id : SV_DispatchThreadID)
+{
+    float4 pixels = Input[id.xy];
+    Result[id.xy] = pow(pixels,float4(invGamma,invGamma,invGamma,1));
+}

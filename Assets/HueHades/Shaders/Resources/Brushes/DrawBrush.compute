@@ -9,6 +9,7 @@ RWTexture2D<float4> Target;
 float4 BrushColor;
 float4 PositionSize;
 float2x2 RotationMatrix;
+float Softness;
 Texture2D<float4> OpacityGradient;
 
 float distanceRectangle(float2 pos){
@@ -27,7 +28,7 @@ void RectangleBrush (uint3 id : SV_DispatchThreadID)
 {
     float2 pos = transformPoint(id.xy);
     float dist = distanceRectangle(pos);
-    Target[id.xy] = float4(BrushColor.rgb,BrushColor.a * saturate(1 - dist));
+    Target[id.xy] = float4(BrushColor.rgb,BrushColor.a * saturate((1 - dist) * Softness));
 }
 
 [numthreads(8,8,1)]

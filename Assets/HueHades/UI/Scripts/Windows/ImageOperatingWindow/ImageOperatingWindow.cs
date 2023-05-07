@@ -65,6 +65,13 @@ namespace HueHades.UI
             imageCanvas.PreviewFilterModeChanged += FilterModeChanged;
 
             imageCanvas.PreviewChanged += RedrawCamera;
+            imageCanvas.CanvasDimensionsChanged += OnCanvasDimensionsChanged;
+            imageCanvas.FileNameChanged += OnCanvasNameChange;
+        }
+
+        private void OnCanvasNameChange(string fileName)
+        {
+            WindowName = fileName;
         }
 
         private void FilterModeChanged(FilterMode obj)
@@ -123,8 +130,16 @@ namespace HueHades.UI
             _needsUpdate = true;
         }
 
-        private void OnCanvasDimensionsChanged()
+        private void OnCanvasDimensionsChanged(int2 dimensions)
         {
+            if (_canvasPropertyBlock == null)
+            {
+                _canvasPropertyBlock = new MaterialPropertyBlock();
+            }
+            _canvasObjectRenderer.sharedMaterial = ImageDisplayMaterial;
+            _canvasObjectRenderer.GetPropertyBlock(_canvasPropertyBlock);
+            _canvasPropertyBlock.SetTexture(TexturePropertyID, _imageCanvas.PreviewTexture.texture);
+            _canvasObjectRenderer.SetPropertyBlock(_canvasPropertyBlock);
             UpdateCanvasTransform();
         }
 
@@ -210,7 +225,7 @@ namespace HueHades.UI
             _selectionPropertyBlock.SetTexture(TexturePropertyID, _imageCanvas.Selection.SelectionTexture.texture);
             _selectionObjectRenderer.SetPropertyBlock(_selectionPropertyBlock);
 
-            OnCanvasDimensionsChanged();
+            OnCanvasDimensionsChanged(Canvas.Dimensions);
 
             if (CameraUpdateManager == null)
             {

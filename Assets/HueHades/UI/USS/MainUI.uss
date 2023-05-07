@@ -306,3 +306,9 @@
 .unity-label {
     font-size: 12px;
 }
+
+.unity-toggle__checkmark {
+    background-color: rgb(25, 25, 25);
+    color: rgb(195, 195, 195);
+    -unity-background-image-tint-color: rgb(195, 195, 195);
+}

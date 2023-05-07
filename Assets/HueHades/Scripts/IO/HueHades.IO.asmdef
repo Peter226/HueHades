@@ -1,0 +1,20 @@
+{
+    "name": "HueHades.IO",
+    "rootNamespace": "",
+    "references": [
+        "GUID:e8fe8090edc99924b97c0842f52dccd1",
+        "GUID:a777b3326b37d884f934313866b2c72e",
+        "GUID:726e3f7fc1d92f54f895c59b7a25b975",
+        "GUID:6bee0c35f3f1e9a47beb7a9c2b7f2412",
+        "GUID:d8b63aba1907145bea998dd612889d6b"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

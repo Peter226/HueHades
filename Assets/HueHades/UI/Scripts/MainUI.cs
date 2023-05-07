@@ -9,6 +9,8 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using HueHades.UI;
 using HueHades.Tools;
+using HueHades.Core.Utilities;
+using HueHades.IO;
 
 [RequireComponent(typeof(UIDocument))]
 public class MainUI : MonoBehaviour
@@ -25,7 +27,7 @@ public class MainUI : MonoBehaviour
         //fill with dummy data if empty
         if (BrushPreset.Presets.Count <= 0)
         {
-            BrushPreset.Presets = new List<BrushPreset> {
+            var presets = new List<BrushPreset> {
                 new BrushPreset() {
                     name = "Preset 1",
                     iconPath = "Icons/BrushIcon",
@@ -66,19 +68,9 @@ public class MainUI : MonoBehaviour
                     name = "Preset 9",
                     iconPath = "Icons/BrushIcon"
                 }
-                ,
-                new BrushPreset() {
-                    name = "Preset 10",
-                    iconPath = "Icons/BrushIcon"
-                }
-                ,
-                new BrushPreset() {
-                    name = "Preset 11",
-                    iconPath = "Icons/BrushIcon"
-                }
             };
 
-            foreach (var preset in BrushPreset.Presets) {
+            foreach (var preset in presets) {
                 preset.Save();
             }
 
@@ -209,7 +201,11 @@ public class MirrorHorizontalMenuBarFunction : IMenuBarFunction
 {
     public void Execute(HueHadesWindow window)
     {
-        Debug.Log("Mirror horizontal");
+        var opWindow = window.ActiveOperatingWindow;
+        if (opWindow != null)
+        {
+            CanvasUtilities.MirrorCanvas(opWindow.Canvas, MirrorMode.Horizontal);
+        }
     }
 }
 
@@ -218,7 +214,50 @@ public class MirrorVerticalMenuBarFunction : IMenuBarFunction
 {
     public void Execute(HueHadesWindow window)
     {
-        Debug.Log("Mirror vertical");
+        var opWindow = window.ActiveOperatingWindow;
+        if (opWindow != null)
+        {
+            CanvasUtilities.MirrorCanvas(opWindow.Canvas, MirrorMode.Vertical);
+        }
+    }
+}
+
+[MenuBarItem("Image_3/Rotate 90 Clockwise_5")]
+public class RotateClockwiseMenuBarFunction : IMenuBarFunction
+{
+    public void Execute(HueHadesWindow window)
+    {
+        var opWindow = window.ActiveOperatingWindow;
+        if (opWindow != null)
+        {
+            CanvasUtilities.RotateCanvas(opWindow.Canvas, RotateMode.Clockwise);
+        }
+    }
+}
+
+[MenuBarItem("Image_3/Rotate 90 Counter Clockwise_5")]
+public class RotateCounterClockwiseMenuBarFunction : IMenuBarFunction
+{
+    public void Execute(HueHadesWindow window)
+    {
+        var opWindow = window.ActiveOperatingWindow;
+        if (opWindow != null)
+        {
+            CanvasUtilities.RotateCanvas(opWindow.Canvas, RotateMode.CounterClockwise);
+        }
+    }
+}
+
+[MenuBarItem("Image_3/Rotate 180_5")]
+public class RotateOneEightyMenuBarFunction : IMenuBarFunction
+{
+    public void Execute(HueHadesWindow window)
+    {
+        var opWindow = window.ActiveOperatingWindow;
+        if (opWindow != null)
+        {
+            CanvasUtilities.RotateCanvas(opWindow.Canvas, RotateMode.OneEighty);
+        }
     }
 }
 
@@ -247,7 +286,11 @@ public class UndoMenuBarFunction : IMenuBarFunction
 {
     public void Execute(HueHadesWindow window)
     {
-        Debug.Log("Undo");
+        var opWindow = window.ActiveOperatingWindow;
+        if (opWindow != null)
+        {
+            opWindow.Canvas.History.Undo();
+        }
     }
 }
 
@@ -256,25 +299,55 @@ public class RedoMenuBarFunction : IMenuBarFunction
 {
     public void Execute(HueHadesWindow window)
     {
-        Debug.Log("Redo");
+        var opWindow = window.ActiveOperatingWindow;
+        if (opWindow != null)
+        {
+            opWindow.Canvas.History.Redo();
+        }
     }
 }
 
 
-[MenuBarItem("File_1/Save_1")]
+[MenuBarItem("File_1/New_1")]
+public class NewFileMenuBarFunction : IMenuBarFunction
+{
+    public void Execute(HueHadesWindow window)
+    {
+        ApplicationManager.Instance.CreateCanvas(new int2(1000,750), Color.white, RenderTextureFormat.ARGBFloat);
+    }
+}
+
+[MenuBarItem("File_1/Open_2")]
+public class OpenFileMenuBarFunction : IMenuBarFunction
+{
+    public void Execute(HueHadesWindow window)
+    {
+        CanvasIO.Open();
+    }
+}
+
+[MenuBarItem("File_1/Save_3")]
 public class SaveMenuBarFunction : IMenuBarFunction
 {
     public void Execute(HueHadesWindow window)
     {
-        Debug.Log("Saving file");
+        var opWindow = window.ActiveOperatingWindow;
+        if (opWindow != null)
+        {
+            CanvasIO.Save(opWindow.Canvas);
+        }
     }
 }
 
-[MenuBarItem("File_1/Save as..._2")]
+[MenuBarItem("File_1/Save as..._4")]
 public class SaveAsMenuBarFunction : IMenuBarFunction
 {
     public void Execute(HueHadesWindow window)
     {
-        Debug.Log("Saving as file");
+        var opWindow = window.ActiveOperatingWindow;
+        if (opWindow != null)
+        {
+            CanvasIO.SaveAs(opWindow.Canvas);
+        }
     }
 }

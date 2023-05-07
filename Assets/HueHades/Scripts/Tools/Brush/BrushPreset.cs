@@ -22,8 +22,11 @@ namespace HueHades.Tools
         public string iconPath { get { return _iconPath; } set { _iconPath = value; if (_icon != null) _icon = Resources.Load<Texture2D>(value); } }
         public Color color { get; set; }
         public float opacity { get; set; }
+        public float baseOpacity { get; set; }
         public float rotation { get; set; }
+        public bool autoRotation { get; set; }
         public float baseSize { get; set; }
+        public float sizeHeightRatio { get; set; }
         public float size { get; set; }
         public float softness { get; set; }
         private AnimationCurve _softnessCurve;
@@ -31,6 +34,7 @@ namespace HueHades.Tools
         private Texture2D _softnessTexture;
         public Texture2D softnessTexture { get { if (_softnessTexture == null) BakeSoftness(); return _softnessTexture; } }
         public float spacing { get; set; }
+        public bool autoSpacing { get; set; }
         public Texture2D texture { get; set; }
         public string savePath { get; private set; }
 
@@ -54,8 +58,13 @@ namespace HueHades.Tools
         public BrushPreset()
         {
             baseSize = 50.0f;
-            size = baseSize;
-            opacity = 1.0f;
+            size = -1;
+            opacity = -1;
+            baseOpacity = 1.0f;
+            spacing = 0.1f;
+            softness = 1.0f;
+            sizeHeightRatio = 1.0f;
+            autoSpacing = true;
             _softnessCurve = new AnimationCurve();
             _softnessCurve.AddKey(0,1);
             _softnessCurve.AddKey(1,0);
@@ -64,14 +73,19 @@ namespace HueHades.Tools
 
         private BrushPreset(BrushData data, string path)
         {
+            size = -1;
+            opacity = -1;
             name = data.name;
             iconPath = data.iconPath;
-            opacity = data.opacity;
+            baseOpacity = data.baseOpacity;
             rotation = data.rotation;
+            autoRotation = data.autoRotation;
             baseSize = data.baseSize;
+            sizeHeightRatio = data.sizeHeightRatio;
             softness = data.softness;
             shape = Enum.Parse<BrushShape>(data.shape);
             spacing = data.spacing;
+            autoSpacing = data.autoSpacing;
             _softnessCurve = new AnimationCurve(data.softnessCurve);
             
             if (shape == BrushShape.Texture)
@@ -96,6 +110,8 @@ namespace HueHades.Tools
                 }
 
                 savePath = Path.Combine(brushPath, savePath);
+
+                Presets.Add(this);
             }
 
             if (!Directory.Exists(savePath)) Directory.CreateDirectory(savePath);
@@ -105,12 +121,15 @@ namespace HueHades.Tools
             {
                 name = name,
                 iconPath = iconPath,
-                opacity = opacity,
+                baseOpacity = baseOpacity,
                 rotation = rotation,
+                autoRotation = autoRotation,
                 baseSize = baseSize,
+                sizeHeightRatio = sizeHeightRatio,
                 softness = softness,
                 shape = Enum.GetName(typeof(BrushShape), shape),
                 spacing = spacing,
+                autoSpacing = autoSpacing,
                 softnessCurve = _softnessCurve.keys
             };
 
@@ -122,6 +141,8 @@ namespace HueHades.Tools
                 var textureData = texture.EncodeToPNG();
                 File.WriteAllBytes(dataPath, textureData);
             }
+
+            PresetsChanged?.Invoke();
         }
 
         private static string GetBrushPath()
@@ -150,6 +171,7 @@ namespace HueHades.Tools
                 string json = File.ReadAllText(dataPath);
                 BrushData data = JsonUtility.FromJson<BrushData>(json);
                 BrushPreset preset = new BrushPreset(data, path);
+                preset.savePath = path;
                 return preset;
             }
             catch (Exception e)
@@ -185,12 +207,15 @@ namespace HueHades.Tools
         {
             public string name;
             public string iconPath;
-            public float opacity;
+            public float baseOpacity;
             public float rotation;
+            public bool autoRotation;
             public float baseSize;
+            public float sizeHeightRatio;
             public float softness;
             public Keyframe[] softnessCurve;
             public float spacing;
+            public bool autoSpacing;
             public string shape;
         }
     }

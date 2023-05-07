@@ -33,26 +33,37 @@ namespace HueHades.UI
             WindowName = "Tool Settings";
             if (selectedToolController is BrushToolController)
             {
-                BrushPresetSelector brushPresetSelector = new BrushPresetSelector(window);
-                brushPreset = brushPresetSelector.selectedPreset;
 
                 Slider sizeSlider = new Slider();
                 sizeSlider.lowValue = 1.0f;
-                sizeSlider.highValue = 50.0f;
-                brushPreset.size = brushPreset.baseSize;
-                sizeSlider.value = Mathf.Sqrt(brushPreset.baseSize);
+                sizeSlider.highValue = 30.0f;
                 sizeSlider.label = "Size";
                 contentContainer.Add(sizeSlider);
                 sizeSlider.RegisterValueChangedCallback(OnSizeChanged);
 
                 Slider opacitySlider = new Slider();
-                opacitySlider.lowValue = 0.0f;
+                opacitySlider.lowValue = 0.001f;
                 opacitySlider.highValue = 1.0f;
-                opacitySlider.value = brushPreset.opacity;
                 opacitySlider.label = "Opacity";
+                contentContainer.Add(opacitySlider);
                 opacitySlider.RegisterValueChangedCallback(OnOpacityChanged);
 
-                contentContainer.Add(opacitySlider);
+                BrushPresetSelector brushPresetSelector = new BrushPresetSelector(window);
+                brushPreset = brushPresetSelector.selectedPreset;
+                if (brushPreset.opacity < 0) brushPreset.opacity = brushPreset.baseOpacity;
+                if (brushPreset.size < 0) brushPreset.size = brushPreset.baseSize;
+                sizeSlider.value = Mathf.Sqrt(brushPreset.size);
+                opacitySlider.value = brushPreset.opacity;
+
+                brushPresetSelector.PresetSelected += (p) => { 
+                    brushPreset = p;
+                    if (brushPreset.opacity < 0) brushPreset.opacity = brushPreset.baseOpacity;
+                    if (brushPreset.size < 0) brushPreset.size = brushPreset.baseSize;
+                    sizeSlider.value = Mathf.Sqrt(brushPreset.size);
+                    opacitySlider.value = brushPreset.opacity;
+                };
+
+
 
                 contentContainer.Add(brushPresetSelector);
                 WindowName = "Brush Settings";

@@ -15,13 +15,30 @@ namespace HueHades.Core
         public ReusableTexture Texture { get { return _renderTexture; } }
         public Action LayerChanged;
         private int2 _dimensions;
+        private Color clearColor;
 
-        public ImageLayer(int2 dimensions, RenderTextureFormat format)
+        public ImageLayer(int2 dimensions, RenderTextureFormat format, Color clearColor)
         {
             _dimensions = dimensions;
             _renderTexture = new ReusableTexture( _dimensions.x, _dimensions.y, format, 0);
-            RenderTextureUtilities.ClearTexture(_renderTexture, Color.white);
+            RenderTextureUtilities.ClearTexture(_renderTexture, clearColor);
+            this.clearColor = clearColor;
         }
+
+        internal void SetDimensions(int2 dimensions, Action<ResizeLayerEventArgs> onResizeMethod)
+        {
+            _dimensions = dimensions;
+            var oldTexture = _renderTexture;
+            _renderTexture = new ReusableTexture(_dimensions.x, _dimensions.y, oldTexture.format, 0);
+            RenderTextureUtilities.ClearTexture(_renderTexture, clearColor);
+            if (onResizeMethod != null)
+            {
+                onResizeMethod.Invoke(new ResizeLayerEventArgs(oldTexture,_renderTexture));
+            }
+            oldTexture.Dispose();
+        }
+
+
 
         public struct CopyHandle
         {
@@ -72,5 +89,19 @@ namespace HueHades.Core
         {
             RenderTextureUtilities.ReleaseTemporary(_renderTexture);
         }
-    }
+
+
+        public class ResizeLayerEventArgs : EventArgs
+        {
+            public ReusableTexture oldTexture { get; private set; }
+            public ReusableTexture newTexture { get; private set; }
+
+            public ResizeLayerEventArgs(ReusableTexture oldTexture, ReusableTexture newTexture)
+            {
+                this.oldTexture = oldTexture;
+                this.newTexture = newTexture;
+            }
+
+        }
+}
 }

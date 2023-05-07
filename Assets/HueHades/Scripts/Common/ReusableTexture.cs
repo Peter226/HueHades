@@ -1,8 +1,47 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
-public class ReusableTexture
+public interface IReadableTexture
+{
+    public int width { get; }
+    public int height { get; }
+    public int actualWidth { get; }
+    public int actualHeight { get; }
+    public Texture texture { get; }
+}
+
+public class ReadableTexture2D : IDisposable, IReadableTexture
+{
+    private Texture2D _texture;
+    public ReadableTexture2D(Texture2D texture)
+    {
+        _texture = texture;
+        _usedWidth = _texture.width;
+        _usedHeight = _texture.height;
+        _actualHeight = _texture.height;
+        _actualWidth = _texture.width;
+    }
+
+    private int _usedWidth;
+    private int _usedHeight;
+    private int _actualWidth;
+    private int _actualHeight;
+
+    public int width => _usedWidth;
+    public int height => _usedHeight;
+    public int actualWidth => _actualWidth;
+    public int actualHeight => _actualHeight;
+
+    public Texture texture => _texture;
+
+    public void Dispose()
+    {
+        UnityEngine.Object.Destroy(_texture);
+    }
+}
+
+
+public class ReusableTexture : IDisposable, IReadableTexture
 {
     private int _usedWidth;
     private int _usedHeight;
@@ -42,6 +81,10 @@ public class ReusableTexture
         _usedHeight = height;
     }
 
+    public void Dispose()
+    {
+        _texture.Release();
+    }
 
     public int width { get { return _usedWidth; } }
     public int height { get { return _usedHeight; } }
@@ -51,4 +94,6 @@ public class ReusableTexture
 
     public RenderTexture texture { get { return _texture; } }
     public RenderTextureFormat format { get { return _format; } }
+
+    Texture IReadableTexture.texture => _texture;
 }

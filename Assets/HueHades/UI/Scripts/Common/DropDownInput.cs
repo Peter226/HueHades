@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -18,12 +19,18 @@ public class DropDownInput<T> : HueHadesElement
     private List<T> _data = new List<T>();
     Func<T, string> _displayNameMethod;
     private T _selectedValue;
-    public T value { get { return _selectedValue; } set { _selectedLabel.text = _displayNameMethod(value); _selectedValue = value; } }
+    public T value { get { return _selectedValue; } set { _selectedLabel.text = _displayNameMethod(value); _selectedValue = value; ValueChanged?.Invoke(value); } }
+
+    public Action<T> ValueChanged;
+    
     private List<Button> _buttons = new List<Button>();
 
     private VisualElement _overlay;
     private Label _inputLabel;
     private string _label = "";
+
+    private bool _dropped;
+
     public string label { get { return _label; } 
         set {
             if (value.Length > 0) _inputLabel.style.display = DisplayStyle.Flex;
@@ -61,34 +68,47 @@ public class DropDownInput<T> : HueHadesElement
         
         _overlay = new VisualElement();
         _overlay.style.position = Position.Absolute;
-        _overlay.RegisterCallback<FocusOutEvent>(OnLostFocus);
+
+        _button.RegisterCallback<FocusOutEvent>(OnLostFocus);
     }
 
     private void OnLostFocus(FocusOutEvent evt)
     {
-        Debug.Log($"LostFocusTo: {evt.target}");
         foreach (Button button in _buttons)
         {
-            if (button == evt.target)
+            if (button == evt.relatedTarget)
             {
                 return;
             }
         }
-        if (_overlay == evt.target)
-        {
-            return;
-        }
-        if (this == evt.target)
+        if (_overlay == evt.relatedTarget)
         {
             return;
         }
         window.HideOverlay(_overlay);
+        _dropped = false;
     }
+
+    private void SelectValue(T value)
+    {
+        this.value = value;
+        window.HideOverlay(_overlay);
+        _dropped = false;
+    }
+
 
     private void OnClicked()
     {
+        if (_dropped)
+        {
+            _dropped = false;
+            window.HideOverlay(_overlay);
+            return;
+        }
+        _dropped = true;
         window.ShowOverlay(_overlay, _button, OverlayPlacement.Bottom);
-        _overlay.Focus();
+        _button.Focus();
+        
     }
 
     public void SetDataSource(List<T> data, Func<T, string> displayNameMethod)
@@ -102,12 +122,30 @@ public class DropDownInput<T> : HueHadesElement
         value = value;
 
         _overlay.Clear();
+        _buttons.Clear();
         foreach (var dataElement in data)
         {
-            var dataButton = new Button();
+            var dataButton = new DropDownButton(this, dataElement);
             dataButton.text = displayNameMethod(dataElement);
+            _buttons.Add(dataButton);
             _overlay.Add(dataButton);
         }
+    }
 
+    private class DropDownButton : Button
+    {
+        T _dropdownValue;
+        DropDownInput<T> _dropdownInput;
+        public DropDownButton(DropDownInput<T> dropdown, T dropdownValue)
+        {
+            _dropdownValue = dropdownValue;
+            _dropdownInput = dropdown;
+            clicked += OnClicked;
+        }
+
+        private void OnClicked()
+        {
+            _dropdownInput.SelectValue(_dropdownValue);
+        }
     }
 }
