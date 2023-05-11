@@ -58,10 +58,10 @@ namespace HueHades.UI
             }
         }
 
-        public void OnToolBeginUse(ImageCanvas canvas, int layer, Vector2 startPoint, float startPressure, float startTilt)
+        public void OnToolBeginUse(ImageCanvas canvas, int globalLayerIndex, Vector2 startPoint, float startPressure, float startTilt)
         {
             if (_selectedTool == null) return;
-            _selectedTool.BeginUse(_selectedTool.CollectContext(window), canvas, layer, startPoint, startPressure, startTilt);
+            _selectedTool.BeginUse(_selectedTool.CollectContext(window), canvas, globalLayerIndex, startPoint, startPressure, startTilt);
         }
         public void OnToolEndUse(Vector2 endPoint, float endPressure, float endTilt)
         {

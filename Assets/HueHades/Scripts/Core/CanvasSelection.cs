@@ -10,7 +10,6 @@ namespace HueHades.Core
 {
     public class CanvasSelection : IDisposable
     {
-
         ReusableTexture _selectionTexture;
         private bool _hasSelection;
         private int2 _dimensions;
@@ -21,7 +20,12 @@ namespace HueHades.Core
         {
             _format = format;
             _dimensions = dimensions;
-            _selectionTexture = RenderTextureUtilities.GetTemporary(_dimensions.x, _dimensions.y, _format);
+            var rt = new RenderTexture(_dimensions.x, _dimensions.y, 0, _format);
+            rt.enableRandomWrite = true;
+            rt.wrapMode = TextureWrapMode.Repeat;
+            rt.filterMode = FilterMode.Point;
+            rt.Create();
+            _selectionTexture = new ReusableTexture(rt, _dimensions.x, _dimensions.y);
             RenderTextureUtilities.ClearTexture(_selectionTexture, new Color(1, 1, 1, 0));
         }
 

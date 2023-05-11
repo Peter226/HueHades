@@ -11,9 +11,9 @@ namespace HueHades.Core.Utilities
         public static void MirrorCanvas(ImageCanvas canvas, MirrorMode mirrorMode, bool addHistoryRecord = true)
         {
             var mirrorBuffer = RenderTextureUtilities.GetTemporary(canvas.Dimensions.x, canvas.Dimensions.y, canvas.Format);
-            for (int i = 0;i < canvas.LayerCount;i++)
+
+            foreach (var layer in canvas.GetGlobalLayers())
             {
-                var layer = canvas.GetLayer(i);
                 RenderTextureUtilities.Sampling.Mirror(layer.Texture, mirrorBuffer, mirrorMode);
                 RenderTextureUtilities.CopyTexture(mirrorBuffer, layer.Texture);
             }
@@ -36,12 +36,11 @@ namespace HueHades.Core.Utilities
             if (math.all(canvasDimensions == newCanvasDimensions)) {
 
                 var rotateBuffer = RenderTextureUtilities.GetTemporary(canvas.Dimensions.x, canvas.Dimensions.y, canvas.Format);
-                for (int i = 0;i < canvas.LayerCount;i++)
+                foreach (var layer in canvas.GetGlobalLayers())
                 {
-                    var layer = canvas.GetLayer(i);
-
                     RenderTextureUtilities.Sampling.Rotate(layer.Texture, rotateBuffer, rotateMode);
                     RenderTextureUtilities.CopyTexture(rotateBuffer, layer.Texture);
+                    layer.LayerChanged?.Invoke();
                 }
                 RenderTextureUtilities.ReleaseTemporary(rotateBuffer);
 

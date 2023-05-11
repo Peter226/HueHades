@@ -107,5 +107,26 @@ namespace HueHades.UI
             return _dockedIn;
         }
 
+
+        public Action Closed;
+
+        public void Close()
+        {
+            this.UnDock();
+            OnClosed();
+            Closed?.Invoke();
+        }
+
+        protected virtual void OnClosed()
+        {
+
+        }
+
+        public void Select()
+        {
+            DockedIn.DockingWindow.SelectWindow(this);
+        }
+
     }
+
 }

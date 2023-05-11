@@ -9,10 +9,22 @@ public class CategoryButton : HueHadesButton
 
     private const string ussCategoryButton = "category-button";
 
-    public CategoryButton(HueHadesWindow window) : base(window)
+    public CategoryButton(HueHadesWindow window, bool isMainCategory = false) : base(window)
     {
         RegisterCallback<FocusOutEvent>(FocusOutCallback);
-        RegisterCallback<MouseEnterEvent>(MouseEnterCallback);
+        if (!isMainCategory)
+        {
+            RegisterCallback<MouseEnterEvent>(MouseEnterCallback);
+        }
+        else
+        {
+            clicked += () =>
+            {
+                Focus();
+                GetMouse?.Invoke();
+            };
+        }
+
         AddToClassList(ussCategoryButton);
     }
 

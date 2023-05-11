@@ -6,26 +6,23 @@ using System;
 using Unity.Mathematics;
 using static HueHades.Core.ImageLayer;
 using HueHades.Common;
+using System.Windows.Forms;
 
 namespace HueHades.Core
 {
-    public class ImageLayer : IDisposable
+    public class ImageLayer : LayerBase
     {
-        private ReusableTexture _renderTexture;
-        public ReusableTexture Texture { get { return _renderTexture; } }
-        public Action LayerChanged;
-        private int2 _dimensions;
+        public override ReusableTexture Texture { get { return _renderTexture; } }
+        
         private Color clearColor;
 
-        public ImageLayer(int2 dimensions, RenderTextureFormat format, Color clearColor)
+        public ImageLayer(int2 dimensions, RenderTextureFormat format, Color clearColor) : base(dimensions, format)
         {
-            _dimensions = dimensions;
-            _renderTexture = new ReusableTexture( _dimensions.x, _dimensions.y, format, 0);
             RenderTextureUtilities.ClearTexture(_renderTexture, clearColor);
             this.clearColor = clearColor;
         }
 
-        internal void SetDimensions(int2 dimensions, Action<ResizeLayerEventArgs> onResizeMethod)
+        internal override void SetDimensions(int2 dimensions, Action<ResizeLayerEventArgs> onResizeMethod)
         {
             _dimensions = dimensions;
             var oldTexture = _renderTexture;
@@ -33,7 +30,7 @@ namespace HueHades.Core
             RenderTextureUtilities.ClearTexture(_renderTexture, clearColor);
             if (onResizeMethod != null)
             {
-                onResizeMethod.Invoke(new ResizeLayerEventArgs(oldTexture,_renderTexture));
+                onResizeMethod.Invoke(new ResizeLayerEventArgs(oldTexture, _renderTexture));
             }
             oldTexture.Dispose();
         }
@@ -83,11 +80,6 @@ namespace HueHades.Core
         {
             RenderTextureUtilities.CopyTexture(copyBuffer, 0, 0, copyHandle.SizeX, copyHandle.SizeY, _renderTexture, copyHandle.OffsetX, copyHandle.OffsetY);
             LayerChanged?.Invoke();
-        }
-
-        public void Dispose()
-        {
-            RenderTextureUtilities.ReleaseTemporary(_renderTexture);
         }
 
 

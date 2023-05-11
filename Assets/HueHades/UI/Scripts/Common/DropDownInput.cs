@@ -72,6 +72,10 @@ public class DropDownInput<T> : HueHadesElement
         _button.RegisterCallback<FocusOutEvent>(OnLostFocus);
     }
 
+    /// <summary>
+    /// Check if lost focus to another element which isn't it's own overlay elements, if yes close overlay
+    /// </summary>
+    /// <param name="evt"></param>
     private void OnLostFocus(FocusOutEvent evt)
     {
         foreach (Button button in _buttons)
@@ -89,6 +93,10 @@ public class DropDownInput<T> : HueHadesElement
         _dropped = false;
     }
 
+    /// <summary>
+    /// Update selected value and hide overlay
+    /// </summary>
+    /// <param name="value"></param>
     private void SelectValue(T value)
     {
         this.value = value;
@@ -96,7 +104,9 @@ public class DropDownInput<T> : HueHadesElement
         _dropped = false;
     }
 
-
+    /// <summary>
+    /// Show overlay if clicked, hide it on second time
+    /// </summary>
     private void OnClicked()
     {
         if (_dropped)
@@ -111,6 +121,11 @@ public class DropDownInput<T> : HueHadesElement
         
     }
 
+    /// <summary>
+    /// Set the data source of the dropdown, from which elements will be generated
+    /// </summary>
+    /// <param name="data">The data object to be selected</param>
+    /// <param name="displayNameMethod">The function which is able to generate a name for the data object</param>
     public void SetDataSource(List<T> data, Func<T, string> displayNameMethod)
     {
         _data = data;

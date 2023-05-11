@@ -11,7 +11,7 @@ namespace HueHades.Tools
     {
         private ImageCanvas _paintCanvas;
         private ImageLayer _paintLayer;
-        private int _layer;
+        private int _globalLayerIndex;
         private Vector2 _lastPoint;
         private Vector2 _lastUniquePoint;
         private Vector2 _lastDirection;
@@ -24,7 +24,6 @@ namespace HueHades.Tools
         private List<PaintPoint> paintPoints = new List<PaintPoint>();
         private BrushToolContext _toolContext;
         private bool _firstMovement;
-        private static Texture Icon;
 
         private ReusableTexture _layerOperatingCopyBuffer;
         private ReusableTexture _layerCopyBuffer;
@@ -42,10 +41,10 @@ namespace HueHades.Tools
         }
 
 
-        protected override void OnBeginUse(IToolContext toolContext, ImageCanvas canvas, int layer, Vector2 startPoint, float startPressure, float startTilt)
+        protected override void OnBeginUse(IToolContext toolContext, ImageCanvas canvas, int globalLayerIndex, Vector2 startPoint, float startPressure, float startTilt)
         {
             _paintCanvas = canvas;
-            _paintLayer = _paintCanvas.GetLayer(layer);
+            _paintLayer = _paintCanvas.GetLayerByGlobalID(globalLayerIndex) as ImageLayer;
             _lastPoint = startPoint;
             _lastUniquePoint = startPoint;
             _lastPressure = startPressure;
@@ -53,7 +52,7 @@ namespace HueHades.Tools
             _lastDirection = Vector2.up;
             _leftOverLength = 0.0f;
             _toolContext = (BrushToolContext)toolContext;
-            _layer = layer;
+            _globalLayerIndex = globalLayerIndex;
             _paintInterval = Mathf.Max(0.001f,_toolContext.BrushPreset.spacing);
 
             var canvasDimensions = _paintCanvas.Dimensions;
@@ -146,8 +145,8 @@ namespace HueHades.Tools
                     RenderTextureUtilities.CopyTexture(_paintBuffer, pointStartX, pointStartY, pointWidth, pointHeight, paintCopyBuffer, 0, 0, CanvasTileMode.None, _paintCanvas.TileMode);
                     TextureDebugger.DebugRenderTexture(paintCopyBuffer, "paint copy buffer copied");
                     var color = _toolContext.BrushPreset.color;
-                    color.a *= _toolContext.BrushPreset.opacity;
-                    RenderTextureUtilities.Brushes.DrawBrush(pointBuffer, new Vector2(point.position.x - pointStartX, point.position.y - pointStartY), new Vector2(point.radius, point.radius * _toolContext.BrushPreset.sizeHeightRatio), point.rotation, BrushShape.Rectangle, color, tempGradient, _toolContext.BrushPreset.softness);
+                    color.a = _toolContext.BrushPreset.opacity;
+                    RenderTextureUtilities.Brushes.DrawBrush(pointBuffer, new Vector2(point.position.x - pointStartX, point.position.y - pointStartY), new Vector2(point.radius, point.radius * _toolContext.BrushPreset.sizeHeightRatio), point.rotation, _toolContext.BrushPreset.shape, color, tempGradient, _toolContext.BrushPreset.softness);
                     TextureDebugger.DebugRenderTexture(pointBuffer, "point buffer drawn brush");
                     RenderTextureUtilities.LayerImageArea(paintCopyBuffer, _paintBuffer, 0, 0, pointWidth, pointHeight, pointBuffer, Common.ColorBlendMode.Default, pointStartX, pointStartY, _paintCanvas.TileMode);
                     TextureDebugger.DebugRenderTexture(_paintBuffer, "paint buffer layered point buffer on top");
@@ -155,7 +154,7 @@ namespace HueHades.Tools
                     RenderTextureUtilities.ReleaseTemporary(paintCopyBuffer);
                 }
 
-                RenderTextureUtilities.LayerImageArea(_layerCopyBuffer, _layerOperatingCopyBuffer, bufferStartX, bufferStartY, bufferWidth, bufferHeight, _paintBuffer, Common.ColorBlendMode.Default, bufferStartX, bufferStartY, _paintCanvas.TileMode, _paintCanvas.TileMode);
+                RenderTextureUtilities.LayerImageArea(_layerCopyBuffer, _layerOperatingCopyBuffer, bufferStartX, bufferStartY, bufferWidth, bufferHeight, _paintBuffer, Common.ColorBlendMode.Default, bufferStartX, bufferStartY, _paintCanvas.TileMode, _paintCanvas.TileMode, _toolContext.BrushPreset.color.a);
                 TextureDebugger.DebugRenderTexture(_layerOperatingCopyBuffer, "painting done, layering onto original copy");
                 _paintLayer.ApplyBufferArea(_layerOperatingCopyBuffer, bufferStartX, bufferStartY, bufferStartX, bufferStartY, bufferWidth, bufferHeight, _paintCanvas.TileMode);
             }
@@ -175,7 +174,7 @@ namespace HueHades.Tools
 
         protected override void OnEndUse(Vector2 endPoint, float endPressure, float endTilt)
         {
-            ModifyLayerHistoryRecord modifyLayerHistoryRecord = new ModifyLayerHistoryRecord(_layer, _layerCopyBuffer, _paintLayer.Texture, "Brush Stroke");
+            ModifyLayerHistoryRecord modifyLayerHistoryRecord = new ModifyLayerHistoryRecord(_globalLayerIndex, _layerCopyBuffer, _paintLayer.Texture, "Brush Stroke");
             _paintCanvas.History.AddRecord(modifyLayerHistoryRecord);
 
             RenderTextureUtilities.ReleaseTemporary(_layerOperatingCopyBuffer);

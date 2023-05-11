@@ -17,6 +17,10 @@ float distanceRectangle(float2 pos){
     return max(absPos.x,absPos.y);
 }
 
+float distanceCircle(float2 pos){
+    return length(pos);
+}
+
 float2 transformPoint (uint2 pos)
 {
     float2 pivot = PositionSize.xy;
@@ -34,7 +38,9 @@ void RectangleBrush (uint3 id : SV_DispatchThreadID)
 [numthreads(8,8,1)]
 void EllipseBrush (uint3 id : SV_DispatchThreadID)
 {
-    Target[id.xy] = float4(transformPoint(id.xy),0,1);
+    float2 pos = transformPoint(id.xy);
+    float dist = distanceCircle(pos);
+    Target[id.xy] = float4(BrushColor.rgb,BrushColor.a * saturate((1 - dist) * Softness));
 }
 
 [numthreads(8,8,1)]

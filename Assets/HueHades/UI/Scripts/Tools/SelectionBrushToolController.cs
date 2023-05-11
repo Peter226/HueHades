@@ -7,7 +7,8 @@ public class SelectionBrushToolController : ToolController
 {
     public override IToolContext CollectContext(HueHadesWindow window)
     {
-        throw new System.NotImplementedException();
+        var context = new SelectionBrushToolContext(window.ToolSettings.GetActiveBrushPreset());
+        return context;
     }
 
     public override Texture GetIcon()
@@ -21,6 +22,6 @@ public class SelectionBrushToolController : ToolController
 
     protected override ImageTool InitializeTool()
     {
-        throw new System.NotImplementedException();
+        return new SelectionBrushImageTool();
     }
 }

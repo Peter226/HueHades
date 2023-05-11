@@ -18,7 +18,7 @@ public class MainCategory : HueHadesElement, IMenuBarElement
 
     public VisualElement Element => this;
 
-    public void AddFunction(string path, Type classType)
+    public void AddFunction(string path, Type classType, MenuBarItemAttribute attribute)
     {
         //get necessary string parts
         var splitPath = path.Split('/');
@@ -32,7 +32,7 @@ public class MainCategory : HueHadesElement, IMenuBarElement
                 functionName = orderSplit[0];
             }
 
-            var menuBarItem = new MenuBarItemButton(window, functionName, classType);
+            var menuBarItem = new MenuBarItemButton(window, functionName, attribute, classType);
             _elementsToAdd.Add(menuBarItem, order);
             menuBarItem.LoseMouse += OnLoseMouse;
             return;
@@ -63,13 +63,13 @@ public class MainCategory : HueHadesElement, IMenuBarElement
         {
             _elementsToAdd[subCategoryButton] = Mathf.Min(categoryOrder, _elementsToAdd[subCategoryButton]);
         }
-        subCategoryButton.AddFunction(leftoverPath, classType);
+        subCategoryButton.AddFunction(leftoverPath, classType, attribute);
     }
 
 
     public MainCategory(HueHadesWindow window, string name) : base(window)
     {
-        _categoryButton = new CategoryButton(window);
+        _categoryButton = new CategoryButton(window, true);
         _categoryButton.text = name;
         hierarchy.Add(_categoryButton);
         _categoryButton.LoseMouse += OnLoseMouse;

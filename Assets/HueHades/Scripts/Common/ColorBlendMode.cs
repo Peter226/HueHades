@@ -9,6 +9,7 @@ namespace HueHades.Common
         Default,
         Multiply,
         Add,
-        Subtract
+        Subtract,
+        Erase
     }
 }

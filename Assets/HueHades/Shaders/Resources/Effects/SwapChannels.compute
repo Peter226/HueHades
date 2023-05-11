@@ -1,0 +1,16 @@
+#pragma kernel CSMain
+
+Texture2D<float4> Input;
+RWTexture2D<float4> Result;
+
+float4 RedChannelMask;
+float4 GreenChannelMask;
+float4 BlueChannelMask;
+float4 AlphaChannelMask;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    float4 input = Input[id.xy];
+    Result[id.xy] = input.r * RedChannelMask + input.g * GreenChannelMask + input.b * BlueChannelMask + input.a * AlphaChannelMask;
+}

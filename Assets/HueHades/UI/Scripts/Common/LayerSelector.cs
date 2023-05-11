@@ -26,7 +26,7 @@ public class LayerSelector : HueHadesElement
             _layerScrollView.Add(label);
             return;
         }
-        if (_canvas.LayerCount <= 0)
+        if (_canvas.GetLayerCount() <= 0)
         {
             Label label = new Label();
             label.text = "No layers in canvas";

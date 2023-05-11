@@ -8,7 +8,8 @@ public class EraserToolController : ToolController
 
     public override IToolContext CollectContext(HueHadesWindow window)
     {
-        return new EraserToolContext();
+        var context = new EraserToolContext(window.ToolSettings.GetActiveBrushPreset());
+        return context;
     }
 
     public override Texture GetIcon()

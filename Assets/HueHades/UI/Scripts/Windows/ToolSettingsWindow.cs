@@ -31,7 +31,7 @@ namespace HueHades.UI
             contentContainer.Clear();
 
             WindowName = "Tool Settings";
-            if (selectedToolController is BrushToolController)
+            if (selectedToolController is BrushToolController || selectedToolController is EraserToolController || selectedToolController is SelectionBrushToolController)
             {
 
                 Slider sizeSlider = new Slider();
@@ -66,7 +66,10 @@ namespace HueHades.UI
 
 
                 contentContainer.Add(brushPresetSelector);
-                WindowName = "Brush Settings";
+
+                if(selectedToolController is BrushToolController) WindowName = "Brush Settings";
+                if(selectedToolController is EraserToolController) WindowName = "Eraser Settings";
+                if(selectedToolController is SelectionBrushToolController) WindowName = "Select Brush Settings";
             }
         }
 

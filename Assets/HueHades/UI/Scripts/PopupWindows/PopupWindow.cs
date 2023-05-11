@@ -38,6 +38,9 @@ public abstract class PopupWindow : HueHadesElement
         label.AddManipulator(new PopupMoveManipulator(label, this));
     }
 
+    /// <summary>
+    /// Open the window after creating the instance
+    /// </summary>
     public void Open()
     {
         if (_parentElement != null) return;
@@ -52,9 +55,11 @@ public abstract class PopupWindow : HueHadesElement
         this.style.height = defaultSize.y;
 
         OnOpen();
-        
     }
 
+    /// <summary>
+    /// Close the window
+    /// </summary>
     public void Close()
     {
         OnClose();
@@ -66,16 +71,28 @@ public abstract class PopupWindow : HueHadesElement
         _parentElement = null;
     }
 
+    /// <summary>
+    /// Window name that will be displayed on the header
+    /// </summary>
+    /// <returns></returns>
     protected virtual string GetWindowName()
     {
         return "Unknown";
     }
 
+    /// <summary>
+    /// The window's size as it'll appear on screen
+    /// </summary>
+    /// <returns></returns>
     protected virtual Vector2 GetDefaultSize()
     {
         return new Vector2(400, 300);
     }
 
+
+    /// <summary>
+    /// Manipulator for moving the window
+    /// </summary>
     private class PopupMoveManipulator : PointerManipulator
     {
         VisualElement _window;

@@ -7,7 +7,8 @@ public class MoveSelectedToolController : ToolController
 {
     public override IToolContext CollectContext(HueHadesWindow window)
     {
-        return new EraserToolContext();
+        var context = new BrushToolContext(window.ToolSettings.GetActiveBrushPreset());
+        return context;
     }
 
     public override Texture GetIcon()

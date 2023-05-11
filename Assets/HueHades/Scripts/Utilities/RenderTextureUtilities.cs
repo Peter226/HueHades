@@ -1,9 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using HueHades.Common;
-using UnityEngine.Windows;
-using static UnityEngine.GraphicsBuffer;
 
 namespace HueHades.Utilities
 {
@@ -36,14 +33,18 @@ namespace HueHades.Utilities
         private static int BlendAddKernel;
         private static int BlendMultiplyKernel;
         private static int BlendSubtractKernel;
+        private static int InheritAlphaKernel;
 
         private static int TopLayerPropertyID;
         private static int BottomLayerPropertyID;
+
+        private static int OpacityPropertyID;
 
         private static int BlendAreaNormalKernel;
         private static int BlendAreaAddKernel;
         private static int BlendAreaMultiplyKernel;
         private static int BlendAreaSubtractKernel;
+        private static int EraseAreaKernel;
 
         private static int MaskChannelsKernel;
         private static int TargetPropertyID;
@@ -74,8 +75,11 @@ namespace HueHades.Utilities
             BlendAddKernel = LayerImageShader.FindKernel("AddBlend");
             BlendMultiplyKernel = LayerImageShader.FindKernel("MultiplyBlend");
             BlendSubtractKernel = LayerImageShader.FindKernel("SubtractBlend");
+            InheritAlphaKernel = LayerImageShader.FindKernel("InheritAlpha");
             TopLayerPropertyID = Shader.PropertyToID("TopLayer");
             BottomLayerPropertyID = Shader.PropertyToID("BottomLayer");
+
+            OpacityPropertyID = Shader.PropertyToID("Opacity");
 
             LayerImageAreaShader = Resources.Load<ComputeShader>("LayerImageArea");
 
@@ -83,7 +87,7 @@ namespace HueHades.Utilities
             BlendAreaAddKernel = LayerImageAreaShader.FindKernel("AddBlend");
             BlendAreaMultiplyKernel = LayerImageAreaShader.FindKernel("MultiplyBlend");
             BlendAreaSubtractKernel = LayerImageAreaShader.FindKernel("SubtractBlend");
-
+            EraseAreaKernel = LayerImageAreaShader.FindKernel("EraseKernel");
 
             MaskChannelsShader = Resources.Load<ComputeShader>("MaskChannels");
             MaskChannelsKernel = MaskChannelsShader.FindKernel("CSMain");
@@ -273,6 +277,7 @@ namespace HueHades.Utilities
 
             CopyImageShader.SetInts(TileSrcXYDstXYPropertyID, sourceTileX, sourceTileY, destinationTileX, destinationTileY);
             CopyImageShader.Dispatch(CopyShaderKernel, Mathf.CeilToInt(sourceWidth / (float)warpSizeX), Mathf.CeilToInt(sourceHeight / (float)warpSizeY), 1);
+
         }
 
         public static void ClearTexture(ReusableTexture texture, Color clearColor)
@@ -281,6 +286,15 @@ namespace HueHades.Utilities
             ClearImageShader.SetVector(ClearColorPropertyID, clearColor);
             ClearImageShader.Dispatch(ClearColorKernel, Mathf.CeilToInt(texture.width / (float)warpSizeX), Mathf.CeilToInt(texture.height / (float)warpSizeY), 1);
         }
+
+        public static void InheritAlpha(ReusableTexture bottomAlphaLayer, ReusableTexture topLayer, ReusableTexture result)
+        {
+            LayerImageShader.SetTexture(InheritAlphaKernel, BottomLayerPropertyID, bottomAlphaLayer.texture);
+            LayerImageShader.SetTexture(InheritAlphaKernel, TopLayerPropertyID, topLayer.texture);
+            LayerImageShader.SetTexture(InheritAlphaKernel, ResultPropertyID, result.texture);
+            LayerImageShader.Dispatch(InheritAlphaKernel, Mathf.CeilToInt(result.width / (float)warpSizeX), Mathf.CeilToInt(result.height / (float)warpSizeY), 1);
+        }
+
 
         public static void LayerImage(ReusableTexture bottomLayer, ReusableTexture topLayer, ReusableTexture result, ColorBlendMode colorBlendMode)
         {
@@ -310,7 +324,7 @@ namespace HueHades.Utilities
             LayerImageShader.Dispatch(dispatchKernel, Mathf.CeilToInt(result.width / (float)warpSizeX), Mathf.CeilToInt(result.height / (float)warpSizeY), 1);
         }
 
-        public static void LayerImageArea(ReusableTexture bottomLayer, ReusableTexture target, int sourceX, int sourceY, int sourceWidth, int sourceHeight, ReusableTexture topLayer, ColorBlendMode colorBlendMode, int destinationX = 0, int destinationY = 0, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
+        public static void LayerImageArea(ReusableTexture bottomLayer, ReusableTexture target, int sourceX, int sourceY, int sourceWidth, int sourceHeight, ReusableTexture topLayer, ColorBlendMode colorBlendMode, int destinationX = 0, int destinationY = 0, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None, float opacity = 1)
         {
             int sourceTextureWidth = topLayer.width;
             int sourceTextureHeight = topLayer.height;
@@ -331,6 +345,9 @@ namespace HueHades.Utilities
                     break;
                 case ColorBlendMode.Subtract:
                     dispatchKernel = BlendAreaSubtractKernel;
+                    break;
+                case ColorBlendMode.Erase:
+                    dispatchKernel = EraseAreaKernel;
                     break;
                 default:
                     dispatchKernel = BlendAreaNormalKernel;
@@ -353,6 +370,8 @@ namespace HueHades.Utilities
             LayerImageAreaShader.SetInts(SrcDstDimPropertyID, sourceTextureWidth, sourceTextureHeight, destinationTextureWidth, destinationTextureHeight);
             LayerImageAreaShader.SetInts(DstXYPropertyID, destinationX, destinationY);
             LayerImageAreaShader.SetInts(SrcRectPropertyID, sourceX, sourceY, sourceWidth, sourceHeight);
+
+            LayerImageAreaShader.SetFloat(OpacityPropertyID, opacity);
 
             LayerImageAreaShader.SetInts(TileSrcXYDstXYPropertyID, sourceTileX, sourceTileY, destinationTileX, destinationTileY);
             LayerImageAreaShader.SetTexture(dispatchKernel, BottomLayerPropertyID, bottomLayer.texture);
@@ -488,14 +507,27 @@ namespace HueHades.Utilities
         public static class Effects
         {
             private static ComputeShader ColorAdjustmentsShader;
+            private static ComputeShader SwapChannelsShader;
             private static int AdjustmentParamsPropertyID;
+            private static int RedChannelMaskPropertyID;
+            private static int GreenChannelMaskPropertyID;
+            private static int BlueChannelMaskPropertyID;
+            private static int AlphaChannelMaskPropertyID;
             private static int ColorAdjustmentsKernel;
+            private static int SwapChannelsKernel;
+
 
             public static void Initialize()
             {
                 ColorAdjustmentsShader = Resources.Load<ComputeShader>("Effects/ColorAdjustments");
+                SwapChannelsShader = Resources.Load<ComputeShader>("Effects/SwapChannels");
+                RedChannelMaskPropertyID = Shader.PropertyToID("RedChannelMask");
+                GreenChannelMaskPropertyID = Shader.PropertyToID("GreenChannelMask");
+                BlueChannelMaskPropertyID = Shader.PropertyToID("BlueChannelMask");
+                AlphaChannelMaskPropertyID = Shader.PropertyToID("AlphaChannelMask");
                 AdjustmentParamsPropertyID = Shader.PropertyToID("AdjustmentParams");
                 ColorAdjustmentsKernel = ColorAdjustmentsShader.FindKernel("CSMain");
+                SwapChannelsKernel = SwapChannelsShader.FindKernel("CSMain");
             }
 
             public static void ColorAdjustments(ReusableTexture input, ReusableTexture result, float hue, float saturation, float brightness, float contrast)
@@ -504,6 +536,17 @@ namespace HueHades.Utilities
                 ColorAdjustmentsShader.SetTexture(ColorAdjustmentsKernel, InputPropertyID, input.texture);
                 ColorAdjustmentsShader.SetTexture(ColorAdjustmentsKernel, ResultPropertyID, result.texture);
                 ColorAdjustmentsShader.Dispatch(ColorAdjustmentsKernel, Mathf.CeilToInt(input.width / (float)warpSizeX), Mathf.CeilToInt(input.height / (float)warpSizeY), 1);
+            }
+
+            public static void SwapChannels(ReusableTexture input, ReusableTexture result, ColorChannel red, ColorChannel green, ColorChannel blue, ColorChannel alpha)
+            {
+                SwapChannelsShader.SetVector(RedChannelMaskPropertyID, new Vector4(red == ColorChannel.Red ? 1 : 0, green == ColorChannel.Red ? 1 : 0, blue == ColorChannel.Red ? 1 : 0, alpha == ColorChannel.Red ? 1 : 0));
+                SwapChannelsShader.SetVector(GreenChannelMaskPropertyID, new Vector4(red == ColorChannel.Green ? 1 : 0, green == ColorChannel.Green ? 1 : 0, blue == ColorChannel.Green ? 1 : 0, alpha == ColorChannel.Green ? 1 : 0));
+                SwapChannelsShader.SetVector(BlueChannelMaskPropertyID, new Vector4(red == ColorChannel.Blue ? 1 : 0, green == ColorChannel.Blue ? 1 : 0, blue == ColorChannel.Blue ? 1 : 0, alpha == ColorChannel.Blue ? 1 : 0));
+                SwapChannelsShader.SetVector(AlphaChannelMaskPropertyID, new Vector4(red == ColorChannel.Alpha ? 1 : 0, green == ColorChannel.Alpha ? 1 : 0, blue == ColorChannel.Alpha ? 1 : 0, alpha == ColorChannel.Alpha ? 1 : 0));
+                SwapChannelsShader.SetTexture(SwapChannelsKernel, InputPropertyID, input.texture);
+                SwapChannelsShader.SetTexture(SwapChannelsKernel, ResultPropertyID, result.texture);
+                SwapChannelsShader.Dispatch(SwapChannelsKernel, Mathf.CeilToInt(input.width / (float)warpSizeX), Mathf.CeilToInt(input.height / (float)warpSizeY), 1);
             }
         }
 

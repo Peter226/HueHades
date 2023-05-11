@@ -13,8 +13,22 @@ public class CanvasSelector : DropDownInput<CanvasEntry>
     {
         FetchCanvases();
         this.label = "Canvas";
-        ApplicationManager.OnCanvasCreated += OnCanvasCountChanged;
+        ApplicationManager.CanvasCreated += OnCanvasCountChanged;
+        ApplicationManager.CanvasClosed += OnCanvasCountChanged;
         window.ActiveOperatingWindowChanged += OnOperatingWindowChanged;
+        this.ValueChanged += OnDropdownValueChanged;
+    }
+
+    private void OnDropdownValueChanged(CanvasEntry entry)
+    {
+        if (value.isDefault)
+        {
+            CanvasSelected?.Invoke(window.ActiveOperatingWindow.Canvas);
+        }
+        else
+        {
+            CanvasSelected?.Invoke(entry.canvas);
+        }
     }
 
     private void OnOperatingWindowChanged(ImageOperatingWindow operatingWindow)

@@ -11,8 +11,8 @@ public class HueHadesWindow : VisualElement
     VisualElement _popupElement;
     VisualElement _freeDockElement;
     VisualElement _popupWindowelement;
-    private bool _initialized;
-    public Action OnInitialized;
+    private bool _isInitialized;
+    public Action Initialized;
     private ToolsWindow _toolsWindow;
     private ToolSettingsWindow _toolSettingsWindow;
     private ColorSelectorWindow _colorSelectorWindow;
@@ -30,6 +30,9 @@ public class HueHadesWindow : VisualElement
     private ImageOperatingWindow _activeOperatingWindow;
     public ImageOperatingWindow ActiveOperatingWindow { get { return _activeOperatingWindow; } set { _activeOperatingWindow = value; ActiveOperatingWindowChanged?.Invoke(_activeOperatingWindow); } }
 
+    /// <summary>
+    /// Element for placing freely placed docking windows
+    /// </summary>
     public VisualElement FreeDockElement
     {
         get
@@ -42,7 +45,9 @@ public class HueHadesWindow : VisualElement
         }
     }
 
-
+    /// <summary>
+    /// Element for placing popup windows in, like effect windows
+    /// </summary>
     public VisualElement PopupWindowParentElement
     {
         get
@@ -63,8 +68,6 @@ public class HueHadesWindow : VisualElement
 
     public new class UxmlFactory : UxmlFactory<HueHadesWindow, UxmlTraits> {}
 
-
-
     public HueHadesWindow()
     {
         var menuBar = new MenuBar(this);
@@ -75,28 +78,61 @@ public class HueHadesWindow : VisualElement
         _mainDock = new DockingWindow(this, true);
         dockParent.Add(_mainDock);
         hierarchy.Insert(1, dockParent);
-        if (Application.isPlaying) ApplicationManager.OnCanvasCreated += OnCanvasCreated;
+        if (Application.isPlaying) { 
+            ApplicationManager.CanvasCreated += OnCanvasCreated;
+            ApplicationManager.CanvasSelected += OnCanvasSelected;
+        }
         this.RegisterCallback<GeometryChangedEvent>(OnGeometryChange);
-        _initialized = false;
+        _isInitialized = false;
     }
 
+    /// <summary>
+    /// Put opertaing window in foreground when canvas is selected, or create a new operating window for it if none exists
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void OnCanvasSelected(object sender, ApplicationManager.CanvasChangeEventArgs e)
+    {
+        if (_operatingWindows.ContainsKey(e.Canvas))
+        {
+            _operatingWindows[e.Canvas].Select();
+        }
+        else
+        {
+            ImageOperatingWindow imageOperatingWindow = new ImageOperatingWindow(this, e.Canvas);
+            imageOperatingWindow.Dock(_mainDock.Handle);
+            _operatingWindows.Add(e.Canvas, imageOperatingWindow);
+            imageOperatingWindow.Closed += () => { if (_operatingWindows.ContainsKey(imageOperatingWindow.Canvas)) _operatingWindows.Remove(imageOperatingWindow.Canvas); };
+        }
+    }
+    /// <summary>
+    /// Initialize the dock when the geometry first changes. (Needed, because the geometry will only get proper bounds at this point)
+    /// </summary>
+    /// <param name="evt"></param>
     private void OnGeometryChange(GeometryChangedEvent evt)
     {
-        if (!_initialized)
+        if (!_isInitialized)
         {
             var dockingWindowBounds = _mainDock.worldBound;
             _mainDock.style.width = dockingWindowBounds.width;
             _mainDock.style.height = dockingWindowBounds.height;
-            _initialized = true;
-            OnInitialized?.Invoke();
+            _isInitialized = true;
+            Initialized?.Invoke();
         }
     }
 
     //if this throws an error, set script execution order to ApplicationManager run first
+    /// <summary>
+    /// When a canvas is created create an operating window for it, and also check if other tools are ready. If not, create those aswell.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="args"></param>
     private void OnCanvasCreated(object sender, ApplicationManager.CanvasChangeEventArgs args)
     {
         ImageOperatingWindow imageOperatingWindow = new ImageOperatingWindow(this, args.Canvas);
         imageOperatingWindow.Dock(_mainDock.Handle);
+        _operatingWindows.Add(args.Canvas, imageOperatingWindow);
+        imageOperatingWindow.Closed += () => { if (_operatingWindows.ContainsKey(imageOperatingWindow.Canvas)) _operatingWindows.Remove(imageOperatingWindow.Canvas); };
 
         if (_toolsWindow == null)
         {
@@ -125,7 +161,13 @@ public class HueHadesWindow : VisualElement
         }
 
     }
-
+    /// <summary>
+    /// Shows an element as an overlay on top of every other element in a separate display container.
+    /// </summary>
+    /// <param name="overlay">The element to show</param>
+    /// <param name="forElement">Optional element, the overlay will be placed next to this if supplied</param>
+    /// <param name="placement">Where the overlay should be placed of forElement is supplied</param>
+    /// <param name="isBackground">Background overlay elements are placed at the bottom of the hierarchy</param>
     public void ShowOverlay(VisualElement overlay, VisualElement forElement = null, OverlayPlacement placement = OverlayPlacement.Bottom, bool isBackground = false)
     {
         if (_popupElement == null)
@@ -159,9 +201,12 @@ public class HueHadesWindow : VisualElement
                     overlay.style.top = point.y;
                     break;
             }
-
         }
     }
+    /// <summary>
+    /// Remove the supplied overlay element from the overlay display (in short: hides the overlay)
+    /// </summary>
+    /// <param name="overlay">element to hide</param>
     public void HideOverlay(VisualElement overlay)
     {
         if (_popupElement == null)

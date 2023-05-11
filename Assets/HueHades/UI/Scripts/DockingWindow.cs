@@ -444,7 +444,7 @@ namespace HueHades.UI
         /// Select a window in header bar to show
         /// </summary>
         /// <param name="dockableWindow"></param>
-        private void SelectWindow(DockableWindow dockableWindow)
+        internal void SelectWindow(DockableWindow dockableWindow)
         {
             if (_selectedWindow != null)
             {
@@ -531,9 +531,15 @@ namespace HueHades.UI
                     target.RegisterCallback<PointerDownEvent>(OnPointerDown);
                     target.RegisterCallback<PointerUpEvent>(OnPointerUp);
                     target.RegisterCallback<PointerMoveEvent>(OnPointerMove);
+                    target.RegisterCallback<PointerCaptureOutEvent>(OnPointerCaptureOut);
                 }
 
-                
+                private void OnPointerCaptureOut(PointerCaptureOutEvent evt)
+                {
+                    _dragging = false;
+                }
+
+
                 /// <summary>
                 /// Unregister events when no longer needed
                 /// </summary>
@@ -542,6 +548,7 @@ namespace HueHades.UI
                     target.UnregisterCallback<PointerDownEvent>(OnPointerDown);
                     target.UnregisterCallback<PointerUpEvent>(OnPointerUp);
                     target.UnregisterCallback<PointerMoveEvent>(OnPointerMove);
+                    target.UnregisterCallback<PointerCaptureOutEvent>(OnPointerCaptureOut);
                 }
 
                 /// <summary>
@@ -574,6 +581,7 @@ namespace HueHades.UI
                 {
                     _dragging = true;
                     target.CapturePointer(pointerEvent.pointerId);
+                    pointerEvent.StopImmediatePropagation();
                 }
 
                 /// <summary>
@@ -641,7 +649,7 @@ namespace HueHades.UI
             /// <param name="clickEvent"></param>
             private void OnCloseClicked(ClickEvent clickEvent)
             {
-                _dockedWindow.UnDock();
+                _dockedWindow.Close();
             }
 
             /// <summary>
@@ -694,6 +702,13 @@ namespace HueHades.UI
                 target.RegisterCallback<MouseMoveEvent>(OnMouseMove);
                 target.RegisterCallback<MouseDownEvent>(OnMouseDown);
                 target.RegisterCallback<MouseUpEvent>(OnMouseUp);
+                target.RegisterCallback<MouseCaptureOutEvent>(OnMouseCaptureOut);
+            }
+
+            private void OnMouseCaptureOut(MouseCaptureOutEvent evt)
+            {
+                _dragging = false;
+                _draggingSide = false;
             }
 
             /// <summary>
@@ -718,6 +733,7 @@ namespace HueHades.UI
                     {
                         _dragging = true;
                         target.CaptureMouse();
+                        mouseDownEvent.StopImmediatePropagation();
                     }
                 }
 
@@ -733,6 +749,7 @@ namespace HueHades.UI
                     {
                         _draggingSide = true;
                         target.CaptureMouse();
+                        mouseDownEvent.StopImmediatePropagation();
                     }
                 }
 
@@ -760,6 +777,7 @@ namespace HueHades.UI
                 target.UnregisterCallback<MouseMoveEvent>(OnMouseMove);
                 target.UnregisterCallback<MouseDownEvent>(OnMouseDown);
                 target.UnregisterCallback<MouseUpEvent>(OnMouseUp);
+                target.UnregisterCallback<MouseCaptureOutEvent>(OnMouseCaptureOut);
             }
 
             /// <summary>
@@ -893,6 +911,7 @@ namespace HueHades.UI
                 enabled = true;
                 dragDockType = DockType.Free;
                 barTargetIndex = -1;
+                evt.StopImmediatePropagation();
             }
 
             /// <summary>

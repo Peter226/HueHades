@@ -3,6 +3,7 @@
 #pragma kernel MultiplyBlend
 #pragma kernel AddBlend
 #pragma kernel SubtractBlend;
+#pragma kernel EraseKernel;
 
 Texture2D<float4> BottomLayer;
 Texture2D<float4> TopLayer;
@@ -12,6 +13,7 @@ uint4 SrcDstDim; //Source and Destination texture dimensions
 uint2 DstXY; //Destination target offset
 uint4 SrcRect; //Source target offset and dimensions
 uint4 TileSrcXYDstXY; //Source and Destination tile modes
+float Opacity; //opacity of the top layer to apply
 
 bool SelectAndTile(uint3 id, out uint2 targetID, out uint2 sourceID){
     uint2 srcID = SrcRect.xy + id.xy;
@@ -32,6 +34,22 @@ bool SelectAndTile(uint3 id, out uint2 targetID, out uint2 sourceID){
     return false;
 }
 
+
+[numthreads(8,8,1)]
+void EraseKernel (uint3 id : SV_DispatchThreadID)
+{
+    uint2 targetID;
+    uint2 sourceID;
+    if(SelectAndTile(id, targetID, sourceID)){
+        float4 top = TopLayer[sourceID];
+        float4 bottom = BottomLayer[sourceID];
+
+        Result[targetID] = float4(bottom.rgb, saturate(bottom.a - lerp(0,top.a,Opacity)));
+    }
+}
+
+
+
 [numthreads(8,8,1)]
 void NormalBlend (uint3 id : SV_DispatchThreadID)
 {
@@ -40,6 +58,8 @@ void NormalBlend (uint3 id : SV_DispatchThreadID)
     if(SelectAndTile(id, targetID, sourceID)){
         float4 top = TopLayer[sourceID];
         float4 bottom = BottomLayer[sourceID];
+
+        top.a *= Opacity;
 
         float alphaRatioBottom = (min(1.0 - top.a, bottom.a / (bottom.a + top.a)));
         float alphaRatioTop = 1.0 - alphaRatioBottom;
@@ -56,6 +76,9 @@ void MultiplyBlend (uint3 id : SV_DispatchThreadID)
     if(SelectAndTile(id, targetID, sourceID)){
         float4 top = TopLayer[sourceID];
         float4 bottom = BottomLayer[sourceID];
+
+        top.a *= Opacity;
+
         float4 bottomProp = bottom * (1.0 - top.a);
         Result[targetID] = float4(bottom.rgb * lerp(1, top.rgb, top.a),min(1,bottomProp.a + top.a));
     }
@@ -69,6 +92,9 @@ void AddBlend (uint3 id : SV_DispatchThreadID)
     if(SelectAndTile(id, targetID, sourceID)){
         float4 top = TopLayer[sourceID];
         float4 bottom = BottomLayer[sourceID];
+
+        top.a *= Opacity;
+
         float4 bottomProp = bottom * (1.0 - top.a);
         float4 topProp = top * top.a;
         Result[targetID] = min(1.0,float4(bottom.rgb + top.rgb,bottomProp.a + top.a));
@@ -83,6 +109,9 @@ void SubtractBlend (uint3 id : SV_DispatchThreadID)
     if(SelectAndTile(id, targetID, sourceID)){
         float4 top = TopLayer[sourceID];
         float4 bottom = BottomLayer[sourceID];
+
+        top.a *= Opacity;
+
         float4 bottomProp = bottom * (1.0 - top.a);
         float4 topProp = top * top.a;
         Result[targetID] = max(0.0,float4(bottom.rgb - top.rgb,bottomProp.a + top.a));

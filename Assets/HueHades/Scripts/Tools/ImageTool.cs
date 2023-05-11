@@ -28,11 +28,11 @@ namespace HueHades.Tools {
         protected abstract void OnDeselected();
 
 
-        public void BeginUse(IToolContext toolContext, ImageCanvas canvas, int layer, Vector2 startPoint, float startPressure, float startTilt)
+        public void BeginUse(IToolContext toolContext, ImageCanvas canvas, int _globalLayerIndex, Vector2 startPoint, float startPressure, float startTilt)
         {
             if (_isUsing) return;
             _isUsing = true;
-            OnBeginUse(toolContext, canvas, layer, startPoint, startPressure, startTilt);
+            OnBeginUse(toolContext, canvas, _globalLayerIndex, startPoint, startPressure, startTilt);
         }
         public void UseUpdate(Vector2 currentPoint, float currentPressure, float currentTilt)
         {

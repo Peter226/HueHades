@@ -13,18 +13,15 @@ namespace HueHades.Tools
         ImageCanvas canvas;
         ImageLayer layer;
         Vector2 startPoint;
-        protected override void OnBeginUse(IToolContext toolContext, ImageCanvas canvas, int layer, Vector2 startPoint, float startPressure, float startTilt)
+        protected override void OnBeginUse(IToolContext toolContext, ImageCanvas canvas, int globalLayerIndex, Vector2 startPoint, float startPressure, float startTilt)
         {
             this.startPoint = startPoint;
             this.canvas = canvas;
-            this.layer = canvas.GetLayer(layer);
+            this.layer = canvas.GetLayerByGlobalID(globalLayerIndex) as ImageLayer;
             dummyBuffer = RenderTextureUtilities.GetTemporary(canvas.Dimensions.x, canvas.Dimensions.y, canvas.Format);
             dummyBuffer2 = RenderTextureUtilities.GetTemporary(Mathf.CeilToInt(canvas.Dimensions.y * 0.5f), Mathf.CeilToInt(canvas.Dimensions.x * 0.5f), canvas.Format);
 
             RenderTextureUtilities.CopyTexture(this.layer.Texture, dummyBuffer);
-
-
-
         }
 
         protected override void OnUseUpdate(Vector2 currentPoint, float currentPressure, float currentTilt)

@@ -8,11 +8,21 @@ using System;
 using static HueHades.Core.ImageLayer;
 
 namespace HueHades.Core {
-    public class ImageCanvas
+    public class ImageCanvas : ILayerContainer, IDisposable
     {
-        private List<ImageLayer> _imageLayers = new List<ImageLayer>();
+        private List<LayerBase> _layers = new List<LayerBase>();
+        public List<LayerBase> Layers => _layers;
+
+
+        private List<LayerBase> _globalLayerCollection = new List<LayerBase>();
+        internal List<LayerBase> GlobalLayerCollection { get => _globalLayerCollection; }
+        public Action HierarchyUpdated { get; set; }
+
+
         private int2 _dimensions;
         private RenderTextureFormat _format;
+        private bool _isDirty;
+        public bool IsDirty { get => _isDirty; set { _isDirty = value; } }
 
         private ReusableTexture _previewTexture;
         private CanvasHistory _canvasHistory;
@@ -32,9 +42,13 @@ namespace HueHades.Core {
         private FilterMode _previewFilterMode = FilterMode.Bilinear;
         public FilterMode PreviewFilterMode { get { return _previewFilterMode; } set { bool changed = _previewFilterMode != value; _previewFilterMode = value; if(changed) UpdateFilterMode(); } }
 
-        public Action PreviewChanged;
+        private Action _previewChanged;
+        public Action PreviewChanged { get { return _previewChanged; } set { _previewChanged = value; } }
 
-        public int SelectedLayer { get; set; }
+        private LayerBase _selectedLayer;
+        public LayerBase SelectedLayer { get => _selectedLayer; set { if (_selectedLayer == value) return; _selectedLayer = value; LayerSelected?.Invoke(value); } }
+
+        public Action<LayerBase> LayerSelected;
 
         private string _fileName = "Image.png";
         private string _filePath;
@@ -42,10 +56,13 @@ namespace HueHades.Core {
         public string FileName { get { return _fileName; } set { _fileName = value; FileNameChanged?.Invoke(_fileName); } }
         public Action<string> FileNameChanged;
 
+        public Action DestroyedCanvas;
+
+
         public void SetDimensions(int2 dimensions, Action<ResizeLayerEventArgs> onLayerResizedMethod = null)
         {
             _dimensions = dimensions;
-            foreach (var layer in _imageLayers)
+            foreach (var layer in Layers)
             {
                 layer.SetDimensions(dimensions, onLayerResizedMethod);
             }
@@ -55,7 +72,7 @@ namespace HueHades.Core {
             Selection?.Dispose();
             Selection = new CanvasSelection(dimensions, _format);
             CanvasDimensionsChanged?.Invoke(_dimensions);
-            RenderPreview();
+            this.RenderPreview();
         }
 
         void UpdateTileMode()
@@ -82,55 +99,41 @@ namespace HueHades.Core {
         {
             _previewTexture.texture.filterMode = _previewFilterMode;
             PreviewFilterModeChanged?.Invoke(_previewFilterMode);
-            RenderPreview();
+            this.RenderPreview();
         }
 
 
-        public ImageCanvas(int2 dimensions, RenderTextureFormat format)
+        public ImageCanvas(int2 dimensions, RenderTextureFormat format, Color initialColor)
         {
             _canvasHistory = new CanvasHistory(this);
             _dimensions = dimensions;
             _format = format;
-            AddLayer(0, Color.white);
-            History.AddRecord(new NewLayerHistoryRecord(0, Color.white));
+            SelectedLayer = this.AddLayer(0, 0, initialColor);
+            History.AddRecord(new NewLayerHistoryRecord(0, 0, SelectedLayer.GlobalIndex, initialColor));
             _previewTexture = new ReusableTexture(_dimensions.x, _dimensions.y,_format,0);
             Selection = new CanvasSelection(dimensions, format);
-            RenderPreview();
+            this.RenderPreview();
         }
 
-        public void AddLayer(int index, Color clearColor)
+
+        public void Dispose()
         {
-            var layer = new ImageLayer(_dimensions, _format, clearColor);
-            _imageLayers.Insert(index, layer);
-            layer.LayerChanged += RenderPreview;
+            DestroyedCanvas?.Invoke();
+            foreach (ImageLayer layer in Layers)
+            {
+                layer.Dispose();
+            }
+            Layers.Clear();
+            History.Dispose();
+            PreviewTexture.Dispose();
         }
 
-        public void RemoveLayer(int index)
-        {
-            if (_imageLayers.Count < index) return;
-            var layer = _imageLayers[index];
-            layer.LayerChanged -= RenderPreview;
-            layer.Dispose();
-            _imageLayers.RemoveAt(index);
-        }
-
-        public void RenderPreview()
-        {
-            RenderTextureUtilities.CopyTexture(_imageLayers[0].Texture, _previewTexture);
-            PreviewChanged?.Invoke();
-        }
-
-
-        public ReusableTexture PreviewTexture { get { return _previewTexture; } }
+        public ReusableTexture PreviewTexture { get { if (IsDirty) this.RenderPreview(); return _previewTexture; } }
         public int2 Dimensions { get { return _dimensions; } }
 
         public Action<int2> CanvasDimensionsChanged;
 
         public RenderTextureFormat Format { get { return _format; } }
-        public int LayerCount { get { return _imageLayers.Count; } }
-        public ImageLayer GetLayer(int index)
-        {
-            return _imageLayers[index];
-        }
+
     }
 }

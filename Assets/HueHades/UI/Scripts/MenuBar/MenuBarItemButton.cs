@@ -8,11 +8,23 @@ public class MenuBarItemButton : HueHadesButton, IMenuBarElement
 {
     private Type _menuBarFunction;
     private const string ussItemButton = "item-button";
+    private const string ussItemButtonImage = "item-button-image";
+    private const string ussItemButtonLabel = "item-button-label";
 
-    public MenuBarItemButton(HueHadesWindow window, string name, Type menuBarFunction) : base(window)
+    public MenuBarItemButton(HueHadesWindow window, string name, MenuBarItemAttribute attribute, Type menuBarFunction) : base(window)
     {
         _menuBarFunction = menuBarFunction;
-        text = name;
+        
+        Label label = new Label();
+        label.AddToClassList(ussItemButtonLabel);
+        label.text = name;
+        Image image = new Image();
+        image.AddToClassList(ussItemButtonImage);
+        if(attribute.iconPath.Length > 0) image.image = Icons.GetIcon(attribute.iconPath);
+
+        Add(image);
+        Add(label);
+
         AddToClassList(ussItemButton);
         clicked += () => {
             IMenuBarFunction instance = (IMenuBarFunction)Activator.CreateInstance(menuBarFunction);

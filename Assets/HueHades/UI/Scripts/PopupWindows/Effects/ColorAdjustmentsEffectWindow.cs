@@ -23,7 +23,7 @@ namespace HueHades.UI
             _hueGradient = new ColorPickerGradient(window);
             _hueGradient.Mode = ColorPickerGradient.GradientMode.Hue;
             _hueGradient.PickerPosition = 0.5f;
-            _hueGradient.OnValueChanged += (v) => {
+            _hueGradient.ValueChanged += (v) => {
                 _effect.Hue = v;
                 _saturationGradient.ColorB = Color.HSVToRGB(v, 1, 1);
                 dataDirty = true;
@@ -35,7 +35,7 @@ namespace HueHades.UI
             _saturationGradient.PickerPosition = 0.5f;
             _saturationGradient.ColorA = Color.white;
             _saturationGradient.ColorB = Color.HSVToRGB(_hueGradient.PickerPosition,1,1);
-            _saturationGradient.OnValueChanged += (v) => { _effect.Saturation = v; dataDirty = true; };
+            _saturationGradient.ValueChanged += (v) => { _effect.Saturation = v; dataDirty = true; };
             _saturationGradient.label = "Saturation";
             _saturationGradient.showInputField = true;
 
@@ -43,7 +43,7 @@ namespace HueHades.UI
             _brightnessGradient.ColorA = Color.black;
             _brightnessGradient.ColorB = Color.white;
             _brightnessGradient.PickerPosition = 0.5f;
-            _brightnessGradient.OnValueChanged += (v) => { _effect.Brightness = v; dataDirty = true; };
+            _brightnessGradient.ValueChanged += (v) => { _effect.Brightness = v; dataDirty = true; };
             _brightnessGradient.label = "Brightness";
             _brightnessGradient.showInputField = true;
 
@@ -85,6 +85,13 @@ namespace HueHades.UI
             _effect.Saturation = _saturationGradient.PickerPosition;
             _effect.Brightness = _brightnessGradient.PickerPosition;
             _effect.Contrast = _contrastSlider.value;
+
+            if (!_effect.CanExecute(canvas))
+            {
+                Close();
+                return;
+            }
+
             _effect.BeginEffect(canvas);
         }
 

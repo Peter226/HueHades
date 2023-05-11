@@ -6,6 +6,7 @@ using SFB;
 using System.IO;
 using HueHades.Utilities;
 using Unity.Mathematics;
+using System.Linq;
 
 namespace HueHades.IO
 {
@@ -34,10 +35,6 @@ namespace HueHades.IO
             textureBuffer.hideFlags = HideFlags.HideAndDontSave;
             textureBuffer.ReadPixels(new Rect(0, 0, outputTexture.width, outputTexture.height), 0, 0);
             RenderTexture.active = null;
-
-            Debug.Log((Mathf.Log10(new Color(0.5f,0.5f,0.5f,1).gamma.r) / Mathf.Log10(0.5f)).ToString("#.###########"));
-            Debug.Log((Mathf.Log10(new Color(0.25f, 0.25f, 0.25f, 1).gamma.r) / Mathf.Log10(0.25f)).ToString("#.###########"));
-            Debug.Log((Mathf.Log10(new Color(0.75f, 0.75f, 0.75f, 1).gamma.r) / Mathf.Log10(0.75f)).ToString("#.###########"));
 
             reusableTexture.Dispose();
 
@@ -105,7 +102,7 @@ namespace HueHades.IO
                 var canvas = ApplicationManager.Instance.CreateCanvas(new int2(textureBuffer.width,textureBuffer.height), Color.white, RenderTextureFormat.ARGBFloat);
                 canvas.FilePath = path;
                 canvas.FileName = Path.GetFileName(path);
-                RenderTextureUtilities.CopyTexture(readableTexture2D,canvas.GetLayer(0).Texture);
+                RenderTextureUtilities.CopyTexture(readableTexture2D,canvas.GetGlobalLayers().First().Texture);
                 canvas.RenderPreview();
 
                 readableTexture2D.Dispose();

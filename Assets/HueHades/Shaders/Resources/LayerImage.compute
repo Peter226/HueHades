@@ -3,17 +3,33 @@
 #pragma kernel MultiplyBlend
 #pragma kernel AddBlend
 #pragma kernel SubtractBlend;
+#pragma kernel InheritAlpha;
+
 
 Texture2D<float4> BottomLayer;
 Texture2D<float4> TopLayer;
 RWTexture2D<float4> Result;
+
+
+[numthreads(8,8,1)]
+void InheritAlpha (uint3 id : SV_DispatchThreadID)
+{
+    float4 top = TopLayer[id.xy];
+    float4 bottom = BottomLayer[id.xy];
+    Result[id.xy] = float4(top.rgb, bottom.a);
+}
+
 
 [numthreads(8,8,1)]
 void NormalBlend (uint3 id : SV_DispatchThreadID)
 {
     float4 top = TopLayer[id.xy];
     float4 bottom = BottomLayer[id.xy];
-    Result[id.xy] = bottom * (1.0 - top.a) + float4(top.rgb * top.a, top.a);
+
+        float alphaRatioBottom = (min(1.0 - top.a, bottom.a / (bottom.a + top.a)));
+        float alphaRatioTop = 1.0 - alphaRatioBottom;
+
+        Result[id.xy] = float4(bottom.rgb * alphaRatioBottom, bottom.a * (1.0 - top.a)) + float4(top.rgb * alphaRatioTop, top.a);
 }
 
 [numthreads(8,8,1)]

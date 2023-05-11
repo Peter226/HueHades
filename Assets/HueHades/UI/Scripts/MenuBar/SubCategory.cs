@@ -17,7 +17,7 @@ public class SubCategory : HueHadesElement, IMenuBarElement
     private CategoryButton _categoryButton;
     private Dictionary<IMenuBarElement, int> _elementsToAdd = new Dictionary<IMenuBarElement, int>();
 
-    public void AddFunction(string path, Type classType)
+    public void AddFunction(string path, Type classType, MenuBarItemAttribute attribute)
     {
         //get necessary string parts
         var splitPath = path.Split('/');
@@ -31,7 +31,7 @@ public class SubCategory : HueHadesElement, IMenuBarElement
                 functionName = orderSplit[0];
             }
 
-            var menuBarItem = new MenuBarItemButton(window, functionName, classType);
+            var menuBarItem = new MenuBarItemButton(window, functionName, attribute, classType);
             _elementsToAdd.Add(menuBarItem, order);
             menuBarItem.LoseMouse += OnLoseMouse;
             return;
@@ -61,7 +61,7 @@ public class SubCategory : HueHadesElement, IMenuBarElement
         {
             _elementsToAdd[subCategoryButton] = Mathf.Min(categoryOrder, _elementsToAdd[subCategoryButton]);
         }
-        subCategoryButton.AddFunction(leftoverPath, classType);
+        subCategoryButton.AddFunction(leftoverPath, classType, attribute);
     }
 
     public SubCategory(HueHadesWindow window, string name) : base(window)

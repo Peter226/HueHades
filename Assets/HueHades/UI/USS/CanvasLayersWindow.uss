@@ -2,4 +2,83 @@
     height: 28px;
     background-color: rgb(25, 25, 25);
     flex-direction: row;
+    align-self: stretch;
+    flex-shrink: 0;
+}
+
+.canvas-layers-window {
+    flex-direction: column;
+}
+
+.canvas-layers-display {
+    flex-grow: 1;
+    border-left-color: rgb(94, 94, 94);
+    border-right-color: rgb(94, 94, 94);
+    border-top-color: rgb(94, 94, 94);
+    border-bottom-color: rgb(94, 94, 94);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    margin-left: 4px;
+    margin-right: 4px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.layer-element {
+}
+
+.layer-element-image {
+    width: 30px;
+    height: 30px;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+.layer-element-label {
+    flex-grow: 1;
+    align-items: flex-start;
+    align-self: center;
+    -unity-text-align: upper-left;
+}
+
+.layer-element-visibility {
+}
+
+.layer-element-alpha-lock {
+}
+
+.group-layer-element {
+}
+
+.layer-element-display {
+    flex-direction: row;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.layer-element-display-selected {
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    background-color: rgba(38, 142, 255, 0.04);
+    border-left-color: rgba(38, 142, 255, 0.51);
+    border-right-color: rgba(38, 142, 255, 0.51);
+    border-top-color: rgba(38, 142, 255, 0.51);
+    border-bottom-color: rgba(38, 142, 255, 0.51);
+}
+
+.layer-element-group-display {
+    flex-direction: column-reverse;
+}
+
+.canvas-layers-display-scrollview {
+}
+
+.canvas-layers-display-scrollview-container {
+    flex-direction: column-reverse;
 }

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace HueHades.Core
 {
-    public class CanvasHistory
+    public class CanvasHistory : IDisposable
     {
         private List<HistoryRecord> _historyRecords = new List<HistoryRecord>();
         private ImageCanvas _canvas;
@@ -126,6 +126,14 @@ namespace HueHades.Core
 
         }
 
+        public void Dispose()
+        {
+            foreach (var record in HistoryRecords)
+            {
+                record.Dispose();
+            }
+            HistoryRecords.Clear();
+        }
     }
 
     public abstract class HistoryRecord : IDisposable
@@ -173,25 +181,66 @@ namespace HueHades.Core
 
         private Color _clearColor;
 
-        public NewLayerHistoryRecord(int layerIndex, Color clearColor)
+        public NewLayerHistoryRecord(int globalContainerIndex, int relativeLayerIndex, int newGlobalIndexOfLayer, Color clearColor)
         {
-            _layerIndex = layerIndex;
+            _globalContainerIndex = globalContainerIndex;
+            _newGlobalIndexOfLayer = newGlobalIndexOfLayer;
+            _relativeLayerIndex = relativeLayerIndex;
             _clearColor = clearColor;
         }
 
-        private int _layerIndex;
+        private int _globalContainerIndex;
+        private int _newGlobalIndexOfLayer;
+        private int _relativeLayerIndex;
+
         protected override void OnRedo(ImageCanvas canvas)
         {
-            canvas.AddLayer(_layerIndex, _clearColor);
+            canvas.AddLayer(_globalContainerIndex, _relativeLayerIndex, _clearColor);
         }
 
         protected override void OnUndo(ImageCanvas canvas)
         {
-            canvas.RemoveLayer(_layerIndex);
+            canvas.RemoveLayer(_newGlobalIndexOfLayer);
         }
 
         public override void Dispose() { }
     }
+
+
+    public class RemoveLayerHistoryRecord : HistoryRecord
+    {
+        public override string name { get { return "Remove Layer"; } }
+        public override int MemoryConsumption { get { return _layer.Dimensions.x * _layer.Dimensions.y * 4 * sizeof(float); } }
+
+
+        public RemoveLayerHistoryRecord(LayerBase layer, int globalContainerIndex, int relativeLayerIndex, int globalLayerIndex)
+        {
+            _globalContainerIndex = globalContainerIndex;
+            _globalLayerIndex = globalLayerIndex;
+            _relativeLayerIndex = relativeLayerIndex;
+            _layer = layer;
+        }
+
+        private int _globalContainerIndex;
+        private int _globalLayerIndex;
+        private int _relativeLayerIndex;
+        private LayerBase _layer;
+
+        protected override void OnRedo(ImageCanvas canvas)
+        {
+            canvas.RemoveLayer(_globalLayerIndex);
+        }
+
+        protected override void OnUndo(ImageCanvas canvas)
+        {
+            canvas.AddLayer(_layer, _globalContainerIndex, _relativeLayerIndex);
+        }
+
+        public override void Dispose() {
+            if(applied) _layer.Dispose();
+        }
+    }
+
 
     public class ModifyLayerHistoryRecord : HistoryRecord
     {
@@ -202,9 +251,9 @@ namespace HueHades.Core
 
         public override int MemoryConsumption { get { return _result.width * _result.height * 4 * 2 * sizeof(float); } }
 
-        public ModifyLayerHistoryRecord(int layerIndex, ReusableTexture beforeLayer, ReusableTexture afterLayer, string recordName)
+        public ModifyLayerHistoryRecord(int globalLayerIndex, ReusableTexture beforeLayer, ReusableTexture afterLayer, string recordName)
         {
-            _layerIndex = layerIndex;
+            _globalLayerIndex = globalLayerIndex;
             _name = recordName;
             _input = RenderTextureUtilities.GetTemporary(beforeLayer.width, beforeLayer.height, beforeLayer.format);
             _result = RenderTextureUtilities.GetTemporary(afterLayer.width, afterLayer.height, afterLayer.format);
@@ -213,17 +262,17 @@ namespace HueHades.Core
             RenderTextureUtilities.CopyTexture(afterLayer, _result);
         }
 
-        private int _layerIndex;
+        private int _globalLayerIndex;
         protected override void OnRedo(ImageCanvas canvas)
         {
-            var layer = canvas.GetLayer(_layerIndex);
+            var layer = canvas.GetLayerByGlobalID(_globalLayerIndex);
             RenderTextureUtilities.CopyTexture(_result, layer.Texture);
             canvas.RenderPreview();
         }
 
         protected override void OnUndo(ImageCanvas canvas)
         {
-            var layer = canvas.GetLayer(_layerIndex);
+            var layer = canvas.GetLayerByGlobalID(_globalLayerIndex);
             RenderTextureUtilities.CopyTexture(_input, layer.Texture);
             canvas.RenderPreview();
         }
@@ -234,5 +283,35 @@ namespace HueHades.Core
         }
     }
 
+
+    public class ModifyLayerSettingsHistoryRecord : HistoryRecord
+    {
+        public override string name { get { return "Changed Layer Settings"; } }
+        public override int MemoryConsumption { get { return 1; } }
+
+        private LayerSettings _oldSettings;
+        private LayerSettings _newSettings;
+
+        public ModifyLayerSettingsHistoryRecord(int globalIndexOfLayer, LayerSettings oldLayerSettings, LayerSettings newLayerSettings)
+        {
+            _globalIndexOfLayer = globalIndexOfLayer;
+            _oldSettings = oldLayerSettings;
+            _newSettings = newLayerSettings;
+        }
+
+        private int _globalIndexOfLayer;
+
+        protected override void OnRedo(ImageCanvas canvas)
+        {
+            canvas.GetLayerByGlobalID(_globalIndexOfLayer).SetLayerSettings(_newSettings, false);
+        }
+
+        protected override void OnUndo(ImageCanvas canvas)
+        {
+            canvas.GetLayerByGlobalID(_globalIndexOfLayer).SetLayerSettings(_oldSettings, false);
+        }
+
+        public override void Dispose() { }
+    }
 
 }

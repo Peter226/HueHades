@@ -23,7 +23,10 @@ namespace HueHades.Effects
             this.canvas = canvas;
             backupSnapshot = RenderTextureUtilities.GetTemporary(canvas.Dimensions.x,canvas.Dimensions.y, canvas.Format);
             targetBuffer = RenderTextureUtilities.GetTemporary(canvas.Dimensions.x,canvas.Dimensions.y, canvas.Format);
-            selectedLayer = canvas.GetLayer(canvas.SelectedLayer);
+
+            var selectedLayerBase = canvas.SelectedLayer;
+            
+            selectedLayer = selectedLayerBase as ImageLayer;
             copyHandle = selectedLayer.GetOperatingCopy(backupSnapshot);
         }
         public override void ApplyEffect()
@@ -31,9 +34,8 @@ namespace HueHades.Effects
             RenderTextureUtilities.Effects.ColorAdjustments(backupSnapshot, targetBuffer, Hue, Saturation, Brightness, Contrast);
             selectedLayer.PasteOperatingCopy(targetBuffer,copyHandle);
 
-            ModifyLayerHistoryRecord modifyLayerHistoryRecord = new ModifyLayerHistoryRecord(canvas.SelectedLayer, backupSnapshot, selectedLayer.Texture, "Color Adjustments");
+            ModifyLayerHistoryRecord modifyLayerHistoryRecord = new ModifyLayerHistoryRecord(selectedLayer.GlobalIndex, backupSnapshot, selectedLayer.Texture, "Color Adjustments");
             canvas.History.AddRecord(modifyLayerHistoryRecord);
-
 
             RenderTextureUtilities.ReleaseTemporary(backupSnapshot);
             RenderTextureUtilities.ReleaseTemporary(targetBuffer);
@@ -51,7 +53,6 @@ namespace HueHades.Effects
             selectedLayer.PasteOperatingCopy(backupSnapshot, copyHandle);
             RenderTextureUtilities.ReleaseTemporary(backupSnapshot);
             RenderTextureUtilities.ReleaseTemporary(targetBuffer);
-            Debug.Log("cancelled");
         }
     }
 }

@@ -39,12 +39,12 @@ public abstract class ToolController
     protected virtual void OnDeselected() { }
 
 
-    public void BeginUse(IToolContext toolContext, ImageCanvas canvas, int layer, Vector2 startPoint, float startPressure, float startTilt)
+    public void BeginUse(IToolContext toolContext, ImageCanvas canvas, int globalLayerIndex, Vector2 startPoint, float startPressure, float startTilt)
     {
-        if (_isUsing) return;
+        if (_isUsing || !(canvas.SelectedLayer is ImageLayer)) return;
         _isUsing = true;
-        OnBeginUse(toolContext, canvas, layer, startPoint, startPressure, startTilt);
-        tool.BeginUse(toolContext, canvas, layer, startPoint, startPressure, startTilt);
+        OnBeginUse(toolContext, canvas, globalLayerIndex, startPoint, startPressure, startTilt);
+        tool.BeginUse(toolContext, canvas, globalLayerIndex, startPoint, startPressure, startTilt);
     }
     public void UseUpdate(Vector2 currentPoint, float currentPressure, float currentTilt)
     {

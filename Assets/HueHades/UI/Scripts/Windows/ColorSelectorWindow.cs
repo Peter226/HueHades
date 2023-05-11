@@ -62,12 +62,12 @@ namespace HueHades.UI
 
             _colorPickerRectangle.style.height = 60;
 
-            _colorPickerHue.OnValueChangedByUser += OnHueChanged;
-            _colorPickerRed.OnValueChangedByUser += OnRedChanged;
-            _colorPickerGreen.OnValueChangedByUser += OnGreenChanged;
-            _colorPickerBlue.OnValueChangedByUser += OnBlueChanged;
+            _colorPickerHue.ValueChangedByUser += OnHueChanged;
+            _colorPickerRed.ValueChangedByUser += OnRedChanged;
+            _colorPickerGreen.ValueChangedByUser += OnGreenChanged;
+            _colorPickerBlue.ValueChangedByUser += OnBlueChanged;
             _colorPickerRectangle.OnValueChangedByUser += OnRectangleChanged;
-            _colorPickerAlpha.OnValueChangedByUser += OnAlphaChanged;
+            _colorPickerAlpha.ValueChangedByUser += OnAlphaChanged;
 
             WindowName = "Colors";
             UpdateColors(GetPrimaryColorDefault());
@@ -95,6 +95,13 @@ namespace HueHades.UI
             }
         }
 
+        /// <summary>
+        /// Used to update all color picker values
+        /// </summary>
+        /// <param name="color"></param>
+        /// <param name="updateHex"></param>
+        /// <param name="updateHue"></param>
+        /// <param name="updateRectangle"></param>
         private void UpdateColors(Color color, bool updateHex = true, bool updateHue = true, bool updateRectangle = true)
         {
 

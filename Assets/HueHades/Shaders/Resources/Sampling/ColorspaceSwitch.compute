@@ -16,7 +16,7 @@ void LinearToSRGB (uint3 id : SV_DispatchThreadID)
 {
     float4 pixels = Input[id.xy];
 
-    pixels.rgb = (pixels.rgb <= 0.0031308) ? pixels.rgb * 12.92 : 1.055 * pow(pixels.rgb, sRGB) - 0.055;
+    pixels.rgb = (pixels.rgb <= 0.0031308) ? pixels.rgb * 12.92 : 1.055 * pow(saturate(pixels.rgb), sRGB) - 0.055;
 
     Result[id.xy] = pixels;
 }
@@ -25,5 +25,5 @@ void LinearToSRGB (uint3 id : SV_DispatchThreadID)
 void LinearToGamma (uint3 id : SV_DispatchThreadID)
 {
     float4 pixels = Input[id.xy];
-    Result[id.xy] = pow(pixels,float4(invGamma,invGamma,invGamma,1));
+    Result[id.xy] = pow(saturate(pixels),float4(invGamma,invGamma,invGamma,1));
 }

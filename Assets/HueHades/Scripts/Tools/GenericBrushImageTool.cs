@@ -41,10 +41,10 @@ namespace HueHades.Tools
             public float pressure;
         }
 
-        protected override void OnBeginUse(IToolContext toolContext, ImageCanvas canvas, int layer, Vector2 startPoint, float startPressure, float startTilt)
+        protected override void OnBeginUse(IToolContext toolContext, ImageCanvas canvas, int globalLayerIndex, Vector2 startPoint, float startPressure, float startTilt)
         {
             _paintCanvas = canvas;
-            _paintLayer = _paintCanvas.GetLayer(layer);
+            _paintLayer = _paintCanvas.GetLayerByGlobalID(globalLayerIndex) as ImageLayer;
             _lastPoint = startPoint;
             _lastUniquePoint = startPoint;
             _lastPressure = startPressure;
@@ -52,7 +52,7 @@ namespace HueHades.Tools
             _lastDirection = Vector2.up;
             _leftOverLength = 0.0f;
             _toolContext = (BrushToolContext)toolContext;
-            _layer = layer;
+            _layer = globalLayerIndex;
 
             var canvasDimensions = _paintCanvas.Dimensions;
             _layerOperatingCopyBuffer = RenderTextureUtilities.GetTemporary(canvasDimensions.x, canvasDimensions.y, _paintCanvas.Format);

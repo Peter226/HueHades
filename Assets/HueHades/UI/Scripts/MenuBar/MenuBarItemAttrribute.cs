@@ -6,12 +6,14 @@ using UnityEngine;
 public class MenuBarItemAttribute : Attribute
 {
     public string categoryPath;
-    public int orderInCategory;
+    public string iconPath;
+    public bool quickAccess;
 
-    public MenuBarItemAttribute(string categoryPath, int orderInCategory = 0)
+    public MenuBarItemAttribute(string categoryPath, string iconPath = "", bool quickAccess = false)
     {
         this.categoryPath = categoryPath;
-        this.orderInCategory = orderInCategory;
+        this.iconPath = iconPath;
+        this.quickAccess = quickAccess;
     }
 
 }

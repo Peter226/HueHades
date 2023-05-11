@@ -23,9 +23,9 @@ namespace HueHades.UI
 
         float _pickerPosition;
 
-        public Action<float> OnValueChanged;
-        public Action<float> OnValueChangedByUser;
-        public float PickerPosition { get { return _pickerPosition; } set { _pickerPosition = value; UpdatePickerRelative(value); OnValueChanged?.Invoke(value); _textFieldElement.value = value.ToString("0.###", CultureInfo.InvariantCulture); } }
+        public Action<float> ValueChanged;
+        public Action<float> ValueChangedByUser;
+        public float PickerPosition { get { return _pickerPosition; } set { _pickerPosition = value; UpdatePickerRelative(value); ValueChanged?.Invoke(value); _textFieldElement.value = value.ToString("0.###", CultureInfo.InvariantCulture); } }
         private Image _pickerCenter;
 
         private static Texture2D PickerIcon;
@@ -48,8 +48,6 @@ namespace HueHades.UI
         private Label _labelElement;
         private TextField _textFieldElement;
         private VisualElement _gradientContainer;
-
-
 
         public bool showInputField { get { return _textFieldElement.style.display == DisplayStyle.None; } set { _textFieldElement.style.display = (value ? DisplayStyle.Flex : DisplayStyle.None); } }
 
@@ -117,14 +115,22 @@ namespace HueHades.UI
             _colorB = new Color(1,1,1,1);
         }
 
+        /// <summary>
+        /// If any key is pressed, invoke the event which only triggers when the picking position was changed by the user
+        /// </summary>
+        /// <param name="evt"></param>
         private void OnKeyPressed(KeyUpEvent evt)
         {
             if (!(_textFieldElement.value.EndsWith(".") || (_textFieldElement.value.EndsWith("0") && _textFieldElement.value.Contains("."))))
             {
-                OnValueChangedByUser?.Invoke(PickerPosition);
+                ValueChangedByUser?.Invoke(PickerPosition);
             }
         }
 
+        /// <summary>
+        /// Update field change if the string in the textfield is not "in progress of writing", because it would override certain numbers that are not fully typed yet. 
+        /// </summary>
+        /// <param name="evt"></param>
         private void OnFieldValueChange(ChangeEvent<string> evt)
         {
             if (!(_textFieldElement.value.EndsWith(".") || (_textFieldElement.value.EndsWith("0") && _textFieldElement.value.Contains("."))) && float.TryParse(_textFieldElement.value, NumberStyles.Float, CultureInfo.InvariantCulture, out float newPick))
@@ -133,12 +139,19 @@ namespace HueHades.UI
             }
         }
 
+        /// <summary>
+        /// Call field change when enter is pressed while textfield is selected or textfield is unselected
+        /// </summary>
+        /// <param name="evt"></param>
         private void OnFieldFocusOut(FocusOutEvent evt)
         {
             OnFieldChanged();
-            OnValueChangedByUser?.Invoke(PickerPosition);
+            ValueChangedByUser?.Invoke(PickerPosition);
         }
 
+        /// <summary>
+        /// When the textfield of the picker changes update the picking position if possible
+        /// </summary>
         private void OnFieldChanged()
         {
             if (float.TryParse(_textFieldElement.value, NumberStyles.Float, CultureInfo.InvariantCulture, out float newPick))
@@ -151,6 +164,10 @@ namespace HueHades.UI
             }
         }
 
+        /// <summary>
+        /// updates the picker using screen units
+        /// </summary>
+        /// <param name="position"></param>
         private void UpdatePicker(Vector2 position)
         {
             var localPosition = _displayImage.WorldToLocal(position);
@@ -158,6 +175,11 @@ namespace HueHades.UI
             var pickerPosition = localPosition.x / Mathf.Max(1, _displayImage.worldBound.width);
             PickerPosition = Mathf.Clamp01(pickerPosition);
         }
+
+        /// <summary>
+        /// Updates the picker using a relative coordinate to the picker's space (0-1)
+        /// </summary>
+        /// <param name="position"></param>
         private void UpdatePickerRelative(float position)
         {
             _pickerPosition = Mathf.Clamp01(position);
@@ -166,28 +188,42 @@ namespace HueHades.UI
             _pickerCenter.style.top = _displayImage.worldBound.height - _pickerCenter.style.height.value.value * 0.5f;
         }
 
-
+        /// <summary>
+        /// Pick value if picking
+        /// </summary>
+        /// <param name="evt"></param>
         private void OnPointerMove(PointerMoveEvent evt)
         {
             if (!_picking) return;
             UpdatePicker(evt.position);
-            OnValueChangedByUser?.Invoke(PickerPosition);
+            ValueChangedByUser?.Invoke(PickerPosition);
         }
 
+        /// <summary>
+        /// End picking
+        /// </summary>
+        /// <param name="evt"></param>
         private void OnPointerUp(PointerUpEvent evt)
         {
             _picking = false;
             _gradientContainer.ReleasePointer(evt.pointerId);
         }
 
+        /// <summary>
+        /// Start picking
+        /// </summary>
+        /// <param name="evt"></param>
         private void OnPointerDown(PointerDownEvent evt)
         {
             _picking = true;
             _gradientContainer.CapturePointer(evt.pointerId);
             UpdatePicker(evt.position);
-            OnValueChangedByUser?.Invoke(PickerPosition);
+            ValueChangedByUser?.Invoke(PickerPosition);
         }
 
+        /// <summary>
+        /// Draws the gradient onto the texture
+        /// </summary>
         private void RegenerateTexture()
         {
             if (_displayTexture == null) return;
@@ -202,6 +238,10 @@ namespace HueHades.UI
             }
         }
 
+        /// <summary>
+        /// Algorithm for resizing the texture
+        /// </summary>
+        /// <param name="size"></param>
         private void ResizeTexture(int2 size)
         {
             size.y = 1;
@@ -218,8 +258,10 @@ namespace HueHades.UI
             RegenerateTexture();
         }
 
-
-
+        /// <summary>
+        /// When the window size is change gradient resize the texture
+        /// </summary>
+        /// <param name="evt"></param>
         private void OnGeometryChanged(GeometryChangedEvent evt)
         {
             var size = evt.newRect.size;
@@ -230,12 +272,20 @@ namespace HueHades.UI
             _displayImage.style.backgroundSize = new BackgroundSize(bgSize, bgSize);
         }
 
+        /// <summary>
+        /// The color picker is no longer visible, texture is not needed anymore and is relased
+        /// </summary>
+        /// <param name="evt"></param>
         private void OnDetachFromPanel(AttachToPanelEvent evt)
         {
             if (_displayTexture != null) RenderTextureUtilities.ReleaseTemporaryGradient(_displayTexture);
             _displayTexture = null;
         }
 
+        /// <summary>
+        /// Resize the texture according to the current size in panel
+        /// </summary>
+        /// <param name="evt"></param>
         private void OnAttachToPanel(AttachToPanelEvent evt)
         {
             if (_displaySize.x > 0 && _displaySize.y > 0)
