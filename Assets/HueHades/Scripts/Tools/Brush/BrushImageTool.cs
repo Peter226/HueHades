@@ -28,9 +28,14 @@ namespace HueHades.Tools
         private ReusableTexture _layerOperatingCopyBuffer;
         private ReusableTexture _layerCopyBuffer;
         private ReusableTexture _paintBuffer;
+        private ReusableTexture _maskedPaintBuffer;
         private ImageLayer.CopyHandle _layerOperatingCopy;
 
         private static float SqrtTwoReciprocal = 1.0f / Mathf.Sqrt(2);
+
+
+        bool _haveSelection;
+
         private struct PaintPoint
         {
             public Vector2 position;
@@ -59,6 +64,8 @@ namespace HueHades.Tools
             _layerOperatingCopyBuffer = RenderTextureUtilities.GetTemporary(canvasDimensions.x, canvasDimensions.y, _paintCanvas.Format);
             _layerCopyBuffer = RenderTextureUtilities.GetTemporary(canvasDimensions.x, canvasDimensions.y, _paintCanvas.Format);
             _paintBuffer = RenderTextureUtilities.GetTemporary(canvasDimensions.x, canvasDimensions.y, _paintCanvas.Format);
+            _haveSelection = _paintCanvas.Selection.SelectedArea > 0;
+            if(_haveSelection)_maskedPaintBuffer = RenderTextureUtilities.GetTemporary(canvasDimensions.x, canvasDimensions.y, _paintCanvas.Format);
             RenderTextureUtilities.ClearTexture(_paintBuffer, Color.clear);
             _layerOperatingCopy = _paintLayer.GetOperatingCopy(_layerOperatingCopyBuffer);
             RenderTextureUtilities.CopyTexture(_layerOperatingCopyBuffer, _layerCopyBuffer);
@@ -154,9 +161,13 @@ namespace HueHades.Tools
                     RenderTextureUtilities.ReleaseTemporary(paintCopyBuffer);
                 }
 
-                RenderTextureUtilities.LayerImageArea(_layerCopyBuffer, _layerOperatingCopyBuffer, bufferStartX, bufferStartY, bufferWidth, bufferHeight, _paintBuffer, Common.ColorBlendMode.Default, bufferStartX, bufferStartY, _paintCanvas.TileMode, _paintCanvas.TileMode, _toolContext.BrushPreset.color.a);
+                
+
+                if(_haveSelection) RenderTextureUtilities.Selection.ApplyMaskArea(_paintBuffer, _maskedPaintBuffer, bufferStartX, bufferStartY, bufferWidth, bufferHeight, _paintCanvas.Selection.SelectionTexture, bufferStartX, bufferStartY, _paintCanvas.TileMode, _paintCanvas.TileMode);
+
+                RenderTextureUtilities.LayerImageArea(_layerCopyBuffer, _layerOperatingCopyBuffer, bufferStartX, bufferStartY, bufferWidth, bufferHeight, _haveSelection ? _maskedPaintBuffer : _paintBuffer, Common.ColorBlendMode.Default, bufferStartX, bufferStartY, _paintCanvas.TileMode, _paintCanvas.TileMode, _toolContext.BrushPreset.color.a);
                 TextureDebugger.DebugRenderTexture(_layerOperatingCopyBuffer, "painting done, layering onto original copy");
-                _paintLayer.ApplyBufferArea(_layerOperatingCopyBuffer, bufferStartX, bufferStartY, bufferStartX, bufferStartY, bufferWidth, bufferHeight, _paintCanvas.TileMode);
+                _paintLayer.PasteOperatingArea(_layerOperatingCopyBuffer, bufferStartX, bufferStartY, bufferStartX, bufferStartY, bufferWidth, bufferHeight, _paintCanvas.TileMode);
             }
             paintPoints.Clear();
 
@@ -176,7 +187,7 @@ namespace HueHades.Tools
         {
             ModifyLayerHistoryRecord modifyLayerHistoryRecord = new ModifyLayerHistoryRecord(_globalLayerIndex, _layerCopyBuffer, _paintLayer.Texture, "Brush Stroke");
             _paintCanvas.History.AddRecord(modifyLayerHistoryRecord);
-
+            if(_haveSelection) RenderTextureUtilities.ReleaseTemporary(_maskedPaintBuffer);
             RenderTextureUtilities.ReleaseTemporary(_layerOperatingCopyBuffer);
             RenderTextureUtilities.ReleaseTemporary(_paintBuffer);
             RenderTextureUtilities.ReleaseTemporary(_layerCopyBuffer);

@@ -7,10 +7,12 @@ namespace HueHades.Tools
     public class SelectionBrushToolContext : IToolContext
     {
         public BrushPreset BrushPreset { get; private set; }
+        public SelectMode SelectMode { get; private set; }
 
-        public SelectionBrushToolContext(BrushPreset brushPreset)
+        public SelectionBrushToolContext(BrushPreset brushPreset, SelectMode selectMode)
         {
             BrushPreset = brushPreset;
+            SelectMode = selectMode;
         }
     }
 }

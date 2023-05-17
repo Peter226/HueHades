@@ -18,6 +18,7 @@ namespace HueHades.UI
         private static int LineWidthPropertyID = Shader.PropertyToID("_LineWidth");
         private static int TilePropertyID = Shader.PropertyToID("_BaseMap_ST");
         private Image _windowDisplay;
+        public Image WindowDisplay { get => _windowDisplay; }
         private const string ussOperatingWindow = "operating-window";
         private const string ussOperatingWindowImage = "operating-window-image";
         private ImageCanvas _imageCanvas;
@@ -327,6 +328,33 @@ namespace HueHades.UI
             return pos;
         }
 
+        /// <summary>
+        /// Converts a canvas-space position to screen position
+        /// </summary>
+        /// <param name="canvasPosition"></param>
+        /// <returns></returns>
+        public Vector2 GetScreenPosition(Vector2 canvasPosition)
+        {
+            var pos = new Vector3(canvasPosition.x, canvasPosition.y);
+            pos.x += 0.5f;
+            pos.y += 0.5f;
+            pos.x /= _imageCanvas.Dimensions.x;
+            pos.y /= _imageCanvas.Dimensions.y;
+            pos -= new Vector3(0.5f, 0.5f, 0.0f);
+
+            var matrix = Matrix4x4.TRS(Vector3.zero, _canvasObject.transform.rotation, new Vector3(_canvasWorldScale.x, _canvasWorldScale.y, 1));
+
+            pos = matrix * pos;
+            pos += _canvasObject.transform.position;
+
+            pos.y *= -1.0f;
+
+            pos = _camera.WorldToScreenPoint(pos);
+            
+            //pos = _windowDisplay.contentContainer.LocalToWorld(pos);
+
+            return new Vector2(pos.x, pos.y);
+        }
 
         private void OnPointerDown(PointerDownEvent pointerDownEvent)
         {
@@ -339,7 +367,7 @@ namespace HueHades.UI
             var pressure = pointerDownEvent.pointerType == UnityEngine.UIElements.PointerType.pen ? pointerDownEvent.pressure : 1.0f;
             //TODO: insert layer when layer window is done
             //TODO: check pressure and tilt values to be correct
-            tools.OnToolBeginUse(_imageCanvas, _imageCanvas.SelectedLayer.GlobalIndex, GetPixelPosition(pointerDownEvent.position), pressure, pointerDownEvent.altitudeAngle);
+            tools.OnToolBeginUse(_imageCanvas, _imageCanvas.SelectedLayer.GlobalIndex, GetPixelPosition(pointerDownEvent.position), pressure, pointerDownEvent.altitudeAngle, pointerDownEvent);
             RedrawCamera();
             _lastUsePosition = pointerDownEvent.position;
             _lastUsePressure = pressure;

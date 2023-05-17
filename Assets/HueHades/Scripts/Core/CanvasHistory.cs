@@ -207,6 +207,92 @@ namespace HueHades.Core
     }
 
 
+
+
+    public class DuplicateLayerHistoryRecord : HistoryRecord
+    {
+        public override string name { get { return "Duplicate Layer"; } }
+        public override int MemoryConsumption { get { return _snapshot.width * _snapshot.height * sizeof(float) * 4; } }
+
+        private ReusableTexture _snapshot;
+
+        public DuplicateLayerHistoryRecord(ImageLayer duplicatedLayer, int globalContainerIndex, int relativeLayerIndex, int newGlobalIndexOfLayer)
+        {
+            _globalContainerIndex = globalContainerIndex;
+            _newGlobalIndexOfLayer = newGlobalIndexOfLayer;
+            _relativeLayerIndex = relativeLayerIndex;
+            _snapshot = RenderTextureUtilities.GetTemporary(duplicatedLayer.Dimensions.x, duplicatedLayer.Dimensions.y, duplicatedLayer.Format);
+            RenderTextureUtilities.CopyTexture(duplicatedLayer.Texture, _snapshot);
+        }
+
+        private int _globalContainerIndex;
+        private int _newGlobalIndexOfLayer;
+        private int _relativeLayerIndex;
+
+        protected override void OnRedo(ImageCanvas canvas)
+        {
+            var layer = canvas.AddLayer(_globalContainerIndex, _relativeLayerIndex, Color.clear);
+            RenderTextureUtilities.CopyTexture(_snapshot, layer.Texture);
+        }
+
+        protected override void OnUndo(ImageCanvas canvas)
+        {
+            canvas.RemoveLayer(_newGlobalIndexOfLayer);
+        }
+
+        public override void Dispose() {
+            _snapshot.Dispose();
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+    public class MoveLayerHistoryRecord : HistoryRecord
+    {
+        public override string name { get { return "Move Layer"; } }
+        public override int MemoryConsumption { get { return 1; } }
+
+        public MoveLayerHistoryRecord(int globalContainerIndex, int relativeLayerIndex, int globalLayerIndex, int newGlobalContainerIndex, int newRelativeLayerIndex, int newGlobalLayerIndex)
+        {
+            _globalContainerIndex = globalContainerIndex;
+            _relativeLayerIndex = relativeLayerIndex;
+            _globalLayerIndex = globalLayerIndex;
+            _newGlobalContainerIndex = newGlobalContainerIndex;
+            _newRelativeLayerIndex = newRelativeLayerIndex;
+            _newGlobalLayerIndex = newGlobalLayerIndex;
+        }
+
+        private int _globalContainerIndex;
+        private int _relativeLayerIndex;
+        private int _globalLayerIndex;
+        private int _newGlobalContainerIndex;
+        private int _newRelativeLayerIndex;
+        private int _newGlobalLayerIndex;
+
+        protected override void OnRedo(ImageCanvas canvas)
+        {
+            canvas.MoveLayer(_globalLayerIndex, _newGlobalContainerIndex, _newRelativeLayerIndex);
+        }
+
+        protected override void OnUndo(ImageCanvas canvas)
+        {
+            canvas.MoveLayer(_newGlobalLayerIndex, _globalContainerIndex, _relativeLayerIndex);
+        }
+
+        public override void Dispose() { }
+    }
+
+
+
+
+
     public class RemoveLayerHistoryRecord : HistoryRecord
     {
         public override string name { get { return "Remove Layer"; } }

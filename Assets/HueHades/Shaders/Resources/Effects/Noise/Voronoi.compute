@@ -1,0 +1,110 @@
+// The MIT License
+// Copyright (C) 2013 Inigo Quilez
+// https://www.youtube.com/c/InigoQuilez
+// https://iquilezles.org/
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// I've not seen anybody out there computing correct cell interior distances for Voronoi
+// patterns yet. That's why they cannot shade the cell interior correctly, and why you've
+// never seen cell boundaries rendered correctly. 
+//
+// However, here's how you do mathematically correct distances (note the equidistant and non
+// degenerated grey isolines inside the cells) and hence edges (in yellow):
+//
+// https://iquilezles.org/articles/voronoilines
+//
+// More Voronoi shaders:
+//
+// Exact edges:  https://www.shadertoy.com/view/ldl3W8
+// Hierarchical: https://www.shadertoy.com/view/Xll3zX
+// Smooth:       https://www.shadertoy.com/view/ldB3zc
+// Voronoise:    https://www.shadertoy.com/view/Xd23Dh
+
+
+float2 mod2(float2 x, float2 y)
+{
+  return x - y * floor(x/y);
+}
+
+float2 hash2( float2 p, float seed )
+{
+	// texture based white noise
+	//return textureLod( iChannel0, (p+0.5)/256.0, 0.0 ).xy;
+    // procedural white noise	
+	return frac(sin(float2(dot(p + seed,float2(127.1,311.7)),dot(p + seed,float2(269.5,183.3))))*43758.5453);
+}
+
+float3 voronoi( in float2 x, in int2 tile, in int2 tileInterval, in float seed)
+{
+    float2 n = floor(x);
+    float2 f = frac(x);
+
+    //----------------------------------
+    // first pass: regular voronoi
+    //----------------------------------
+	float2 mg, mr;
+
+    float md = 8.0;
+    int j;
+    int i;
+    for( j=-1; j<=1; j++ )
+    for( i=-1; i<=1; i++ )
+    {
+        float2 g = float2(float(i),float(j));
+        float2 coord = n + g;
+        coord = (1 - tile) * coord + tile * mod2(coord, (float2)tileInterval); 
+		float2 o = hash2( coord, seed );
+		/*#ifdef ANIMATE
+        o = 0.5 + 0.5*sin( iTime + 6.2831*o );
+        #endif	*/
+        float2 r = g + o - f;
+        float d = dot(r,r);
+
+        if( d<md )
+        {
+            md = d;
+            mr = r;
+            mg = g;
+        }
+    }
+    return md;
+
+
+    //----------------------------------
+    // second pass: distance to borders
+    //----------------------------------
+    md = 8.0;
+    for( j=-2; j<=2; j++ )
+    for( i=-2; i<=2; i++ )
+    {
+        float2 g = mg + float2(float(i),float(j));
+        float2 coord = n + g;
+        coord = (1 - tile) * coord + tile * mod2(coord, (float2)tileInterval); 
+		float2 o = hash2( coord, seed );
+		/*#ifdef ANIMATE
+        o = 0.5 + 0.5*sin( iTime + 6.2831*o );
+        #endif	*/
+        float2 r = g + o - f;
+
+        if( dot(mr-r,mr-r)>0.00001 )
+        md = min( md, dot( 0.5*(mr+r), normalize(r-mr) ) );
+    }
+
+    return float3( md, mr );
+}
+
+
+
+
+#pragma kernel CSMain
+
+RWTexture2D<float4> Result;
+int2 NoiseTile;
+int4 SrcRect;
+int3 VoronoiParameters;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    Result[id.xy] = float4(voronoi(id.xy * (float2)VoronoiParameters.yz / (float2)SrcRect.zw, NoiseTile, VoronoiParameters.yz, VoronoiParameters.x),1);
+}

@@ -53,6 +53,7 @@ namespace HueHades.UI
             _contrastSlider.value = 0.5f;
             _contrastSlider.label = "Contrast";
             _contrastSlider.showInputField = true;
+            _contrastSlider.RegisterCallback<FocusOutEvent>((f) => { OnContrastChanged(null); });
             _contrastSlider.RegisterValueChangedCallback(OnContrastChanged);
 
             container.Add(_hueGradient);
@@ -63,7 +64,7 @@ namespace HueHades.UI
 
         private void OnContrastChanged(ChangeEvent<float> evt)
         {
-            _effect.Contrast = evt.newValue;
+            _effect.Contrast = _contrastSlider.value;
             dataDirty = true;
         }
 

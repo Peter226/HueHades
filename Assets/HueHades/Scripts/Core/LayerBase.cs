@@ -9,7 +9,7 @@ namespace HueHades.Core
 {
     public abstract class LayerBase : IDisposable
     {
-        protected ReusableTexture _renderTexture;
+        protected ReusableTexture renderTexture;
         public abstract ReusableTexture Texture { get; }
 
         public Action LayerChanged;
@@ -67,14 +67,14 @@ namespace HueHades.Core
         {
             _dimensions = dimensions;
             _format = format;
-            _renderTexture = new ReusableTexture(_dimensions.x, _dimensions.y, _format, 0);
+            renderTexture = new ReusableTexture(_dimensions.x, _dimensions.y, _format, 0);
         }
 
         protected virtual void OnDispose() { }
 
         public void Dispose()
         {
-            _renderTexture.Dispose();
+            renderTexture.Dispose();
             OnDispose();
         }
 

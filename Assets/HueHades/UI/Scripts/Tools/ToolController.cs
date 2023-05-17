@@ -4,10 +4,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public abstract class ToolController
 {
-    public abstract IToolContext CollectContext(HueHadesWindow window);
+    public abstract IToolContext CollectContext(HueHadesWindow window, PointerDownEvent pointerDownEvent);
 
     public abstract Texture GetIcon();
 
@@ -20,11 +21,11 @@ public abstract class ToolController
     private bool _isSelected;
     private bool _isUsing;
 
-    public void Select()
+    public void Select(HueHadesWindow window)
     {
         if (_isSelected) return;
         _isSelected = true;
-        OnSelected();
+        OnSelected(window);
     }
 
     public void Deselect()
@@ -34,7 +35,7 @@ public abstract class ToolController
         OnDeselected();
     }
 
-    protected virtual void OnSelected() { }
+    protected virtual void OnSelected(HueHadesWindow window) { }
 
     protected virtual void OnDeselected() { }
 

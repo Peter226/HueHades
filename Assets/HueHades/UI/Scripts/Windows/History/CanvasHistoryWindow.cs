@@ -46,12 +46,18 @@ namespace HueHades.UI
             OnCanvasChanged(_canvasSelector.SelectedCanvas);
         }
 
+        /// <summary>
+        /// Called when undo button is pressed
+        /// </summary>
         public void OnUndo()
         {
             if (_selectedCanvas == null) return;
             _selectedCanvas.History.Undo();
         }
 
+        /// <summary>
+        /// Called when redo button is pressed
+        /// </summary>
         public void OnRedo()
         {
             if (_selectedCanvas == null) return;
@@ -59,7 +65,10 @@ namespace HueHades.UI
         }
 
         
-
+        /// <summary>
+        /// Select canvas and render associated history when the canvas changes
+        /// </summary>
+        /// <param name="canvas"></param>
         private void OnCanvasChanged(ImageCanvas canvas)
         {
             _scrollView.Clear();
@@ -70,6 +79,9 @@ namespace HueHades.UI
             RenderHistory();
         }
 
+        /// <summary>
+        /// Clear current hierarchy, and draw the history elements in scrollview
+        /// </summary>
         void RenderHistory()
         {
             foreach (var historyEntryElement in historyEntryElements)
@@ -88,6 +100,10 @@ namespace HueHades.UI
             }
         }
 
+        /// <summary>
+        /// Scroll to specific element
+        /// </summary>
+        /// <param name="historyEntryElement"></param>
         void ScrollToElement(HistoryEntryElement historyEntryElement)
         {
             activeEntry = historyEntryElement;
@@ -95,6 +111,10 @@ namespace HueHades.UI
             _scrollView.contentContainer.RegisterCallback<GeometryChangedEvent>(OnScrollGeometryUpdated);
         }
 
+        /// <summary>
+        /// Finish scrolling when the geometry is recalculated
+        /// </summary>
+        /// <param name="evt"></param>
         private void OnScrollGeometryUpdated(GeometryChangedEvent evt)
         {
             if (activeEntry != null)

@@ -29,6 +29,28 @@ public static class MenuBarFunctions
     }
 
 
+    [MenuBarItem("Effects_4/Noise_3/Simplex_1")]
+    public class SimplexMenuBarFunction : IMenuBarFunction
+    {
+        public void Execute(HueHadesWindow window)
+        {
+            SimplexEffectWindow effectWindow = new SimplexEffectWindow(window);
+            effectWindow.Open();
+        }
+    }
+
+
+    [MenuBarItem("Effects_4/Noise_3/Voronoi_2")]
+    public class VoronoiMenuBarFunction : IMenuBarFunction
+    {
+        public void Execute(HueHadesWindow window)
+        {
+            VoronoiEffectWindow effectWindow = new VoronoiEffectWindow(window);
+            effectWindow.Open();
+        }
+    }
+
+
     [MenuBarItem("Window_5/Tools_1")]
     public class ToolsMenuBarFunction : IMenuBarFunction
     {

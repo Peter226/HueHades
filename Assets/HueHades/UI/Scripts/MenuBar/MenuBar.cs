@@ -46,7 +46,7 @@ public class MenuBar : HueHadesElement
             select new { Type = t, Attribute = attributes.Cast<MenuBarItemAttribute>().Single() };
 
         Dictionary<string, MainCategory> mainCategories = new Dictionary<string, MainCategory>();
-        List<(Type, MenuBarItemAttribute)> quickAccessTypes = new List<(Type, MenuBarItemAttribute)>();
+        List<(Type, MenuBarItemAttribute, int)> quickAccessTypes = new List<(Type, MenuBarItemAttribute, int)>();
 
         foreach (var t in types)
         {
@@ -56,7 +56,20 @@ public class MenuBar : HueHadesElement
 
             if (t.Attribute.quickAccess)
             {
-                quickAccessTypes.Add((t.Type,t.Attribute));
+                var split = t.Attribute.categoryPath.Split('/');
+                int order = 0;
+                for (int i = 0; i < split.Length; i++)
+                {
+                    var ordersplit = split[i].Split('_');
+                    int multi = 1;
+                    if (ordersplit.Length > 1)
+                    {
+                        int.TryParse(ordersplit[1], out multi);
+                    }
+
+                    order += multi * Mathf.CeilToInt(Mathf.Pow(10.0f, Mathf.Max(1, 8 - i * 2)));
+                }
+                quickAccessTypes.Add((t.Type,t.Attribute, order));
             }
 
             //get necessary string parts
@@ -111,9 +124,9 @@ public class MenuBar : HueHadesElement
         }
         _elementsToAdd.Clear();
 
-        var quicks = quickAccessTypes.OrderBy((q) => q.Item2.categoryPath);
+        var quicks = quickAccessTypes.OrderBy((q) => q.Item3);
 
-        foreach (var (type, attribute) in quicks)
+        foreach (var (type, attribute, order) in quicks)
         {
             _quickAccessContainer.Add(new QuickAccessButton(window, attribute, type));
         }

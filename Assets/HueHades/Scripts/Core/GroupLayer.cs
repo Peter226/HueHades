@@ -17,14 +17,14 @@ namespace HueHades.Core
         {
         }
 
-        public override ReusableTexture Texture => _renderTexture;
+        public override ReusableTexture Texture => renderTexture;
 
 
         private bool _isDirty;
         public bool IsDirty { get => _isDirty; set { _isDirty = value; if (value) LayerChanged?.Invoke(); } }
 
         public List<LayerBase> Layers => _layers;
-        public ReusableTexture PreviewTexture { get { if (IsDirty) this.RenderPreview(); return _renderTexture; } }
+        public ReusableTexture PreviewTexture { get { if (IsDirty) this.RenderPreview(); return renderTexture; } }
         public Action PreviewChanged { get => _previewChanged; set { _previewChanged = value; } }
 
         private Action _previewChanged;
@@ -34,8 +34,8 @@ namespace HueHades.Core
         internal override void SetDimensions(int2 dimensions, Action<ResizeLayerEventArgs> onResizeMethod)
         {
             _dimensions = dimensions;
-            var oldTexture = _renderTexture;
-            _renderTexture = new ReusableTexture(_dimensions.x, _dimensions.y, oldTexture.format, 0);
+            var oldTexture = renderTexture;
+            renderTexture = new ReusableTexture(_dimensions.x, _dimensions.y, oldTexture.format, 0);
             
 
             //set dimensions on sublayers

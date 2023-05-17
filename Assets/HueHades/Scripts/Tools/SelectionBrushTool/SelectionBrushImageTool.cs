@@ -29,6 +29,8 @@ namespace HueHades.Tools
         private ReusableTexture _paintBuffer;
 
         private static float SqrtTwoReciprocal = 1.0f / Mathf.Sqrt(2);
+
+
         private struct PaintPoint
         {
             public Vector2 position;
@@ -57,8 +59,22 @@ namespace HueHades.Tools
             _layerCopyBuffer = RenderTextureUtilities.GetTemporary(canvasDimensions.x, canvasDimensions.y, _paintCanvas.Format);
             _paintBuffer = RenderTextureUtilities.GetTemporary(canvasDimensions.x, canvasDimensions.y, _paintCanvas.Format);
             RenderTextureUtilities.ClearTexture(_paintBuffer, Color.clear);
-            RenderTextureUtilities.CopyTexture(_paintCanvas.Selection.SelectionTexture, _layerOperatingCopyBuffer);
-            RenderTextureUtilities.CopyTexture(_layerOperatingCopyBuffer, _layerCopyBuffer);
+
+            if (_toolContext.SelectMode == SelectMode.Fresh)
+            {
+                //RenderTextureUtilities.CopyTexture(_paintCanvas.Selection.SelectionTexture, _layerCopyBuffer);
+                RenderTextureUtilities.ClearTexture(_layerCopyBuffer, Color.clear);
+                RenderTextureUtilities.ClearTexture(_layerOperatingCopyBuffer, Color.clear);
+                RenderTextureUtilities.ClearTexture(_paintCanvas.Selection.SelectionTexture, Color.clear);
+                _paintCanvas.SetDirty();
+            }
+            else
+            {
+                RenderTextureUtilities.CopyTexture(_paintCanvas.Selection.SelectionTexture, _layerOperatingCopyBuffer);
+                RenderTextureUtilities.CopyTexture(_layerOperatingCopyBuffer, _layerCopyBuffer);
+            }
+
+            
             _firstMovement = true;
             _lastRadius = 0;
         }
@@ -141,7 +157,7 @@ namespace HueHades.Tools
                     TextureDebugger.DebugRenderTexture(paintCopyBuffer, "paint copy buffer fresh");
                     RenderTextureUtilities.CopyTexture(_paintBuffer, pointStartX, pointStartY, pointWidth, pointHeight, paintCopyBuffer, 0, 0, CanvasTileMode.None, _paintCanvas.TileMode);
                     TextureDebugger.DebugRenderTexture(paintCopyBuffer, "paint copy buffer copied");
-                    var color = Color.white;
+                    var color = Color.blue;
                     color.a = _toolContext.BrushPreset.opacity;
                     RenderTextureUtilities.Brushes.DrawBrush(pointBuffer, new Vector2(point.position.x - pointStartX, point.position.y - pointStartY), new Vector2(point.radius, point.radius * _toolContext.BrushPreset.sizeHeightRatio), point.rotation, _toolContext.BrushPreset.shape, color, tempGradient, _toolContext.BrushPreset.softness);
                     TextureDebugger.DebugRenderTexture(pointBuffer, "point buffer drawn brush");
@@ -151,7 +167,8 @@ namespace HueHades.Tools
                     RenderTextureUtilities.ReleaseTemporary(paintCopyBuffer);
                 }
 
-                RenderTextureUtilities.LayerImageArea(_layerCopyBuffer, _layerOperatingCopyBuffer, bufferStartX, bufferStartY, bufferWidth, bufferHeight, _paintBuffer, Common.ColorBlendMode.Default, bufferStartX, bufferStartY, _paintCanvas.TileMode, _paintCanvas.TileMode, _toolContext.BrushPreset.color.a);
+                RenderTextureUtilities.Selection.LayerSelectionArea(new Vector2(bufferStartX, bufferStartY), _layerCopyBuffer, _layerOperatingCopyBuffer, bufferStartX, bufferStartY, bufferWidth, bufferHeight, _paintBuffer, _toolContext.SelectMode, bufferStartX, bufferStartY, _paintCanvas.TileMode, _paintCanvas.TileMode, _toolContext.BrushPreset.color.a);
+                _paintCanvas.Selection.SetDirty();
                 TextureDebugger.DebugRenderTexture(_layerOperatingCopyBuffer, "painting done, layering onto original copy");
                 RenderTextureUtilities.CopyTexture(_layerOperatingCopyBuffer, bufferStartX, bufferStartY, bufferWidth, bufferHeight, _paintCanvas.Selection.SelectionTexture, bufferStartX, bufferStartY, _paintCanvas.TileMode, _paintCanvas.TileMode);
                 _paintCanvas.PreviewChanged?.Invoke();
@@ -178,6 +195,7 @@ namespace HueHades.Tools
             RenderTextureUtilities.ReleaseTemporary(_layerOperatingCopyBuffer);
             RenderTextureUtilities.ReleaseTemporary(_paintBuffer);
             RenderTextureUtilities.ReleaseTemporary(_layerCopyBuffer);
+            _paintCanvas.Selection.SetDirty();
         }
 
         protected override void OnSelected()

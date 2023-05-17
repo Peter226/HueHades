@@ -40,7 +40,7 @@ public class ToolButton : HueHadesElement
         _selected = true;
         AddToClassList(ussToolButtonSelected);
         Selected?.Invoke(this);
-        _toolController.Select();
+        _toolController.Select(window);
     }
 
 

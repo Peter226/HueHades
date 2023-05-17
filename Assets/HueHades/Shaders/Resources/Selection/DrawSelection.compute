@@ -1,0 +1,39 @@
+
+#pragma kernel SelectionRectangle
+#pragma kernel SelectionEllipse
+
+RWTexture2D<float4> Result;
+
+float4 PositionSize;
+
+float distanceRectangle(float2 pos){
+    float2 absPos = abs(pos);
+    return max(absPos.x,absPos.y);
+}
+
+float distanceCircle(float2 pos){
+    return length(pos);
+}
+
+float2 transformPoint (uint2 pos)
+{
+    float2 pivot = PositionSize.xy;
+    return ((float2)pos - pivot) / PositionSize.zw;
+}
+
+[numthreads(8,8,1)]
+void SelectionRectangle (uint3 id : SV_DispatchThreadID)
+{
+    float2 pos = transformPoint(id.xy);
+    float dist = distanceRectangle(pos);
+    Result[id.xy] = float4(0,0,1,saturate((1 - dist) * max(PositionSize.z, PositionSize.w)));
+}
+
+[numthreads(8,8,1)]
+void SelectionEllipse (uint3 id : SV_DispatchThreadID)
+{
+    float2 pos = transformPoint(id.xy);
+    float dist = distanceCircle(pos);
+    Result[id.xy] = float4(0,0,1,saturate((1 - dist) * max(PositionSize.z, PositionSize.w)));
+}
+

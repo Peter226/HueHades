@@ -31,11 +31,10 @@ namespace HueHades.UI
                 new SelectionRectangleToolController(),
                 new SelectionEllipseToolController(),
                 new SelectionBrushToolController(),
-                new MoveSelectedToolController(),
-                new ColorPickerToolController(),
-                new MoveSelectionToolController(),
-                new StampToolController(),
-                
+                //new MoveSelectedToolController(),
+                // new ColorPickerToolController(),
+                // new MoveSelectionToolController(),
+                // new StampToolController(),
             };
 
             foreach (var toolController in toolControllers)
@@ -58,10 +57,10 @@ namespace HueHades.UI
             }
         }
 
-        public void OnToolBeginUse(ImageCanvas canvas, int globalLayerIndex, Vector2 startPoint, float startPressure, float startTilt)
+        public void OnToolBeginUse(ImageCanvas canvas, int globalLayerIndex, Vector2 startPoint, float startPressure, float startTilt, PointerDownEvent pointerDownEvent)
         {
             if (_selectedTool == null) return;
-            _selectedTool.BeginUse(_selectedTool.CollectContext(window), canvas, globalLayerIndex, startPoint, startPressure, startTilt);
+            _selectedTool.BeginUse(_selectedTool.CollectContext(window, pointerDownEvent), canvas, globalLayerIndex, startPoint, startPressure, startTilt);
         }
         public void OnToolEndUse(Vector2 endPoint, float endPressure, float endTilt)
         {

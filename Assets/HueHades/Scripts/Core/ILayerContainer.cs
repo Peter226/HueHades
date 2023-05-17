@@ -17,6 +17,11 @@ public interface ILayerContainer
 
 public static class ILayerContainerExtensions
 {
+    public static int GetGlobalIndex(this ILayerContainer layerContainer)
+    {
+        if (layerContainer is GroupLayer) return (layerContainer as GroupLayer).GlobalIndex;
+        return 0;
+    }
 
     public static IEnumerable<LayerBase> GetGlobalLayers(this ImageCanvas imageCanvas)
     {
@@ -134,6 +139,7 @@ public static class ILayerContainerExtensions
 
     public static void MoveLayer(this ImageCanvas imageCanvas, int globalLayerIndex, int newContainerGlobalIndex, int newRelativeIndex)
     {
+        if (newRelativeIndex < 0) return;
         if (globalLayerIndex == newContainerGlobalIndex) return;
         var layer = imageCanvas.GetLayerByGlobalID(globalLayerIndex);
 
@@ -148,21 +154,22 @@ public static class ILayerContainerExtensions
             if (presumedGroupLayer is not GroupLayer) throw new Exception("Expected GroupLayer while adding layer to canvas");
             newLayerContainer = (presumedGroupLayer as GroupLayer);
         }
-        
 
         var layerContainer = layer.ContainerIn;
-        if (layerContainer == newLayerContainer && layer.RelativeIndex < newRelativeIndex)
+
+        if (newRelativeIndex < newLayerContainer.Layers.Count || (newRelativeIndex <= newLayerContainer.Layers.Count && newLayerContainer == layerContainer))
         {
-            newRelativeIndex--;
+            layer.LayerChanged -= layerContainer.SetDirty;
+            layer.ContainerIn = newLayerContainer;
+            layer.LayerChanged += newLayerContainer.SetDirty;
+
+            layerContainer.Layers.RemoveAt(layer.RelativeIndex);
+            newLayerContainer.Layers.Insert(newRelativeIndex, layer);
+
+            layerContainer.ProcessHierarchyChange();
+            layerContainer.SetDirty();
+            newLayerContainer.SetDirty();
         }
-        layer.LayerChanged -= layerContainer.SetDirty;
-        layer.ContainerIn = newLayerContainer;
-        layer.LayerChanged += newLayerContainer.SetDirty;
-        layerContainer.Layers.RemoveAt(layer.RelativeIndex);
-        newLayerContainer.Layers.Insert(newRelativeIndex, layer);
-        layerContainer.ProcessHierarchyChange();
-        layerContainer.SetDirty();
-        newLayerContainer.SetDirty();
     }
 
     public static void RemoveLayer(this ImageCanvas imageCanvas, int globalLayerIndex)

@@ -1,0 +1,18 @@
+#pragma kernel CSMain
+
+Texture2D<float4> Input;
+RWStructuredBuffer<int> SelectionStats;
+uint4 SrcRect;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    float4 input = Input[id.xy];
+    if(input.a > 0 && all(id.xy < SrcRect.zw)){
+        InterlockedAdd(SelectionStats[0],1);
+        InterlockedMin(SelectionStats[1],(int)input.r);
+        InterlockedMin(SelectionStats[2],(int)input.g);
+        InterlockedMax(SelectionStats[3],(int)input.r);
+        InterlockedMax(SelectionStats[4],(int)input.g);
+    }
+}

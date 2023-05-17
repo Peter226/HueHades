@@ -2,10 +2,11 @@ using HueHades.Tools;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class ColorPickerToolController : ToolController
 {
-    public override IToolContext CollectContext(HueHadesWindow window)
+    public override IToolContext CollectContext(HueHadesWindow window, PointerDownEvent pointerDownEvent)
     {
         throw new System.NotImplementedException();
     }

@@ -8,6 +8,7 @@
     <Style src="project://database/Assets/HueHades/UI/USS/Layout.uss?fileID=7433441132597879392&amp;guid=777573471895a4b4692dedfbe933ee2e&amp;type=3#Layout" />
     <Style src="project://database/Assets/HueHades/UI/USS/CanvasHistoryWindow.uss?fileID=7433441132597879392&amp;guid=f379672acd3d4eb46ac4b8ee5a9147a9&amp;type=3#CanvasHistoryWindow" />
     <Style src="project://database/Assets/HueHades/UI/USS/CanvasLayersWindow.uss?fileID=7433441132597879392&amp;guid=0513b089fe60f5b45822ef5b17093eb4&amp;type=3#CanvasLayersWindow" />
+    <Style src="project://database/Assets/HueHades/UI/USS/TransformHandle.uss?fileID=7433441132597879392&amp;guid=673db38b316d3b34384ef38a340286d3&amp;type=3#TransformHandle" />
     <HueHadesWindow class="main-window" style="flex-grow: 1;">
         <ui:VisualElement name="FreeDock" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); position: absolute;" />
         <ui:VisualElement name="PopupWindows" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); position: absolute;" />

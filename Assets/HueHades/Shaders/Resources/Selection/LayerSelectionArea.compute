@@ -1,0 +1,68 @@
+
+#pragma kernel AddSelectionKernel;
+#pragma kernel SubtractSelectionKernel
+
+Texture2D<float4> BottomLayer;
+Texture2D<float4> TopLayer;
+RWTexture2D<float4> Result;
+
+uint4 SrcDstDim; //Source and Destination texture dimensions
+uint2 DstXY; //Destination target offset
+uint4 SrcRect; //Source target offset and dimensions
+uint4 TileSrcXYDstXY; //Source and Destination tile modes
+float Opacity; //opacity of the top layer to apply
+int2 SelectionOffset; //Canvas-space pixel position offset of the applied area starting from 0 0 corner
+
+bool SelectAndTile(uint3 id, out uint2 targetID, out uint2 sourceID){
+    uint2 srcID = SrcRect.xy + id.xy;
+    uint2 dstID = DstXY + id.xy;
+    
+    if(all(
+            ((srcID < SrcDstDim.xy) || TileSrcXYDstXY.xy) &&
+            ((dstID < SrcDstDim.zw) || TileSrcXYDstXY.zw) &&
+            id.xy < SrcRect.zw
+       ))
+       {
+            targetID = dstID % SrcDstDim.zw;
+            sourceID = srcID % SrcDstDim.xy;
+            return true;
+       }
+       targetID = 0;
+       sourceID = 0;
+    return false;
+}
+
+[numthreads(8,8,1)]
+void AddSelectionKernel (uint3 id : SV_DispatchThreadID)
+{
+    uint2 targetID;
+    uint2 sourceID;
+    if(SelectAndTile(id, targetID, sourceID)){
+        float4 top = TopLayer[sourceID];
+        float4 bottom = BottomLayer[sourceID];
+
+        top.a *= Opacity;
+
+        float alphaRatioBottom = (min(1.0 - top.a, bottom.a / (bottom.a + top.a)));
+        float alphaRatioTop = 1.0 - alphaRatioBottom;
+
+        float4 sOffset = bottom.a <= top.a ? float4((int2)SelectionOffset.xy + (int2)id.xy,0,0) : float4(bottom.rg,0,0);
+
+        Result[targetID] = sOffset + float4(0,0,bottom.b * alphaRatioBottom, bottom.a * (1.0 - top.a)) + float4(0,0,top.b * alphaRatioTop, top.a);
+    }
+}
+
+[numthreads(8,8,1)]
+void SubtractSelectionKernel (uint3 id : SV_DispatchThreadID)
+{
+    uint2 targetID;
+    uint2 sourceID;
+    if(SelectAndTile(id, targetID, sourceID)){
+        float4 top = TopLayer[sourceID];
+        float4 bottom = BottomLayer[sourceID];
+
+        float4 sOffset = bottom.a <= top.a ? float4((int2)SelectionOffset.xy + (int2)id.xy,0,0) : float4(bottom.rg,0,0);
+
+        Result[targetID] = sOffset + float4(0,0,bottom.b, saturate(bottom.a - lerp(0,top.a,Opacity)));
+    }
+}

@@ -1,4 +1,5 @@
 using HueHades.Core;
+using HueHades.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -110,17 +111,63 @@ namespace HueHades.UI
 
         internal void OnDuplicateLayer()
         {
-            throw new NotImplementedException();
+
+            if (_selectedCanvas != null && _selectedCanvas.SelectedLayer != null)
+            {
+                var layer = _selectedCanvas.SelectedLayer;
+
+
+                if (_selectedCanvas == null) return;
+                int globalContainerIndex = 0;
+                int relativeLayerIndex = _selectedCanvas.Layers.Count;
+                
+                var container = _selectedCanvas.SelectedLayer.ContainerIn;
+
+                if (container is GroupLayer)
+                {
+                    globalContainerIndex = (container as GroupLayer).GlobalIndex;
+                }
+                relativeLayerIndex = _selectedCanvas.SelectedLayer.RelativeIndex + 1;
+
+                var newLayer = _selectedCanvas.AddLayer(globalContainerIndex, relativeLayerIndex, Color.clear);
+                RenderTextureUtilities.CopyTexture(layer.Texture, newLayer.Texture);
+                
+                _selectedCanvas.History.AddRecord(new DuplicateLayerHistoryRecord(layer as ImageLayer, globalContainerIndex, relativeLayerIndex, newLayer.GlobalIndex));
+                
+                _selectedCanvas.SelectedLayer = newLayer;
+            }
         }
 
         internal void OnMoveLayerUp()
         {
-            throw new NotImplementedException();
+            if (_selectedCanvas != null && _selectedCanvas.SelectedLayer != null)
+            {
+                var layer = _selectedCanvas.SelectedLayer;
+                int relativeIndex = layer.RelativeIndex;
+                int globalIndex = layer.GlobalIndex;
+                int containerGlobalIndex = layer.ContainerIn.GetGlobalIndex();
+                _selectedCanvas.MoveLayer(layer.GlobalIndex, layer.ContainerIn.GetGlobalIndex(), layer.RelativeIndex + 1);
+                int newRelativeIndex = layer.RelativeIndex;
+                int newGlobalIndex = layer.GlobalIndex;
+                int newContainerGlobalIndex = layer.ContainerIn.GetGlobalIndex();
+                _selectedCanvas.History.AddRecord(new MoveLayerHistoryRecord(containerGlobalIndex, relativeIndex, globalIndex, newContainerGlobalIndex, newRelativeIndex, newGlobalIndex));
+            }
         }
 
         internal void OnMoveLayerDown()
         {
-            throw new NotImplementedException();
+            if (_selectedCanvas != null && _selectedCanvas.SelectedLayer != null)
+            {
+                var layer = _selectedCanvas.SelectedLayer;
+                int relativeIndex = layer.RelativeIndex;
+                int globalIndex = layer.GlobalIndex;
+                int containerGlobalIndex = layer.ContainerIn.GetGlobalIndex();
+                _selectedCanvas.MoveLayer(layer.GlobalIndex, layer.ContainerIn.GetGlobalIndex(), layer.RelativeIndex - 1);
+                int newRelativeIndex = layer.RelativeIndex;
+                int newGlobalIndex = layer.GlobalIndex;
+                int newContainerGlobalIndex = layer.ContainerIn.GetGlobalIndex();
+                _selectedCanvas.History.AddRecord(new MoveLayerHistoryRecord(containerGlobalIndex, relativeIndex, globalIndex, newContainerGlobalIndex, newRelativeIndex, newGlobalIndex));
+            }
         }
 
         internal void OnSettings()

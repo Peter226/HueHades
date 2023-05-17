@@ -1,15 +1,8 @@
-﻿using HueHades.Core;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
-using HueHades.UI;
 using HueHades.Tools;
-using HueHades.Core.Utilities;
 using HueHades.IO;
 
 [RequireComponent(typeof(UIDocument))]
@@ -18,6 +11,38 @@ public class MainUI : MonoBehaviour
     private UIDocument _uIDocument;
     private HueHadesWindow _window;
     public int2 initialCanvasDimensions = new int2(3508, 2480);
+
+
+    /// <summary>
+    /// Set up shortcuts
+    /// </summary>
+    private void Start()
+    {
+        ShortcutSystem.Undo += () => {
+            var opWindow = _window.ActiveOperatingWindow;
+            if (opWindow == null) return;
+            opWindow.Canvas.History.Undo();
+        };
+        ShortcutSystem.Redo += () => {
+            var opWindow = _window.ActiveOperatingWindow;
+            if (opWindow == null) return;
+            opWindow.Canvas.History.Redo();
+        };
+        ShortcutSystem.Open += () => {
+            CanvasIO.Open();
+        };
+        ShortcutSystem.Save += () => {
+            var opWindow = _window.ActiveOperatingWindow;
+            if (opWindow == null) return;
+            CanvasIO.Save(opWindow.Canvas);
+        };
+        ShortcutSystem.New += () => {
+            var opWindow = _window.ActiveOperatingWindow;
+            if (opWindow == null) return;
+            ApplicationManager.Instance.CreateCanvas(new int2(1000,750), Color.white, RenderTextureFormat.ARGBFloat);
+        };
+    }
+
 
     private void Awake()
     {
@@ -74,8 +99,6 @@ public class MainUI : MonoBehaviour
                 preset.Save();
             }
         }
-
-        
     }
 
     private void OnDestroy()

@@ -14,6 +14,50 @@ namespace HueHades.Core
         private bool _hasSelection;
         private int2 _dimensions;
         private RenderTextureFormat _format;
+        private int _selectedArea = 0;
+        private int4 _selectedAreaBounds;
+
+        public int SelectedArea
+        {
+            get
+            {
+                if (IsDirty)
+                {
+                    ProcessDirty();
+                }
+                return _selectedArea;
+            }
+        }
+
+        public int4 SelectedAreaBounds
+        {
+            get
+            {
+                if (IsDirty)
+                {
+                    ProcessDirty();
+                }
+                return _selectedAreaBounds;
+            }
+        }
+    
+
+
+        public bool IsDirty { get; private set; }
+
+        public void SetDirty()
+        {
+            IsDirty = true;
+        }
+
+        private void ProcessDirty()
+        {
+            RenderTextureUtilities.Selection.GetSelectionStats(SelectionTexture, out int area, out int minX, out int minY, out int maxX, out int maxY);
+            _selectedArea = area;
+            _selectedAreaBounds = new int4(minX, minY, maxX, maxY);
+            IsDirty = false;
+        }
+
         public ReusableTexture SelectionTexture { get { return _selectionTexture; } }
 
         public CanvasSelection(int2 dimensions, RenderTextureFormat format)
@@ -27,12 +71,6 @@ namespace HueHades.Core
             rt.Create();
             _selectionTexture = new ReusableTexture(rt, _dimensions.x, _dimensions.y);
             RenderTextureUtilities.ClearTexture(_selectionTexture, new Color(1, 1, 1, 0));
-        }
-
-        public void ApplySelection(ReusableTexture target)
-        {
-            if (!_hasSelection) return;
-            RenderTextureUtilities.ApplyChannelMask(target, _selectionTexture);
         }
 
         public void Dispose()
