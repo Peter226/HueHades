@@ -157,7 +157,7 @@ namespace HueHades.Core
             if (applied) return;
             applied = true;
             OnRedo(canvas);
-            AppliedStateChanged.Invoke(applied);
+            AppliedStateChanged?.Invoke(applied);
         }
 
         internal void Undo(ImageCanvas canvas)

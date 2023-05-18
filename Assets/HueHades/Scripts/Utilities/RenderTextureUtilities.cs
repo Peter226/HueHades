@@ -7,7 +7,6 @@ namespace HueHades.Utilities
 {
     public static class RenderTextureUtilities
     {
-
         private static Dictionary<(int, RenderTextureFormat), List<ReusableTexture>> _renderTexturePool;
         private static Dictionary<(int, RenderTextureFormat), List<ReusableTexture>> _gradientRenderTexturePool;
 
@@ -53,9 +52,14 @@ namespace HueHades.Utilities
         private static int PositionSizePropertyID;
         private static int RotationMatrixPropertyID;
 
+        public static void Dispose()
+        {
+            Selection.Dispose();
+        }
+
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void Initialize()
+        public static void Initialize()
         {
             CopyImageShader = Resources.Load<ComputeShader>("CopyImage");
             CopyShaderKernel = CopyImageShader.FindKernel("CSMain");
@@ -718,6 +722,11 @@ namespace HueHades.Utilities
             private static int SelectionStatsPropertyID;
             private static ComputeBuffer SelectionStatsBuffer;
             private static int StatsBufferLength = 5;
+
+            public static void Dispose()
+            {
+                SelectionStatsBuffer.Release();
+            }
 
             public static void Initialize()
             {
