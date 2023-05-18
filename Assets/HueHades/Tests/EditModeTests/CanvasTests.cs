@@ -11,6 +11,7 @@ public class CanvasTests
     public void InitStatic()
     { 
         RenderTextureUtilities.Initialize();
+        RenderTextureUtilities.InitializePool();
     }
 
     [OneTimeTearDown]
@@ -49,6 +50,7 @@ public class CanvasTests
         public void InitStatic()
         {
             RenderTextureUtilities.Initialize();
+            RenderTextureUtilities.InitializePool();
         }
 
         [OneTimeTearDown]
@@ -105,6 +107,7 @@ public class CanvasTests
         public void InitStatic()
         {
             RenderTextureUtilities.Initialize();
+            RenderTextureUtilities.InitializePool();
         }
 
         [OneTimeTearDown]
@@ -181,6 +184,7 @@ public class CanvasTests
         public void InitStatic()
         {
             RenderTextureUtilities.Initialize();
+            RenderTextureUtilities.InitializePool();
         }
 
         [OneTimeTearDown]
