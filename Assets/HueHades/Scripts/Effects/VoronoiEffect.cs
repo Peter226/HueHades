@@ -32,7 +32,7 @@ namespace HueHades.Effects
         public override void ApplyEffect()
         {
             RenderTextureUtilities.Effects.Voronoi(targetBuffer, Seed, CellsX, CellsY, canvas.TileMode);
-            selectedLayer.PasteOperatingCopy(targetBuffer, copyHandle);
+            selectedLayer.PasteOperatingCopy(backupSnapshot, targetBuffer, copyHandle);
 
             ModifyLayerHistoryRecord modifyLayerHistoryRecord = new ModifyLayerHistoryRecord(selectedLayer.GlobalIndex, backupSnapshot, selectedLayer.Texture, "Voronoi");
             canvas.History.AddRecord(modifyLayerHistoryRecord);
@@ -45,12 +45,12 @@ namespace HueHades.Effects
         public override void RenderEffect()
         {
             RenderTextureUtilities.Effects.Voronoi(targetBuffer, Seed, CellsX, CellsY, canvas.TileMode);
-            selectedLayer.PasteOperatingCopy(targetBuffer, copyHandle);
+            selectedLayer.PasteOperatingCopy(backupSnapshot, targetBuffer, copyHandle);
         }
 
         public override void CancelEffect()
         {
-            selectedLayer.PasteOperatingCopy(backupSnapshot, copyHandle);
+            selectedLayer.PasteOperatingCopy(backupSnapshot, backupSnapshot, copyHandle);
             RenderTextureUtilities.ReleaseTemporary(backupSnapshot);
             RenderTextureUtilities.ReleaseTemporary(targetBuffer);
         }

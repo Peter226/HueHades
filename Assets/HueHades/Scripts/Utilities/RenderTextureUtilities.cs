@@ -298,7 +298,7 @@ namespace HueHades.Utilities
         }
 
 
-        public static void LayerImage(ReusableTexture bottomLayer, ReusableTexture topLayer, ReusableTexture result, ColorBlendMode colorBlendMode)
+        public static void LayerImage(ReusableTexture bottomLayer, ReusableTexture topLayer, ReusableTexture result, ColorBlendMode colorBlendMode, float opacity = 1)
         {
             int dispatchKernel;
             switch (colorBlendMode)
@@ -320,6 +320,7 @@ namespace HueHades.Utilities
                     break;
             }
 
+            LayerImageShader.SetFloat(OpacityPropertyID,opacity);
             LayerImageShader.SetTexture(dispatchKernel,BottomLayerPropertyID,bottomLayer.texture);
             LayerImageShader.SetTexture(dispatchKernel,TopLayerPropertyID,topLayer.texture);
             LayerImageShader.SetTexture(dispatchKernel,ResultPropertyID,result.texture);
@@ -627,6 +628,8 @@ namespace HueHades.Utilities
                 float sinRotation = Mathf.Sin(rotation / 180.0f * Mathf.PI);
 
                 ResampleShader.SetMatrix(RotationMatrixPropertyID, new Matrix4x4(new Vector4(cosRotation, sinRotation, 0, 0), new Vector4(-sinRotation, cosRotation, 0, 0), Vector4.zero, Vector4.zero));
+                ResampleShader.SetInts(SrcDstDimPropertyID, source.width, source.height, target.width, target.height);
+
 
                 switch (samplerMode)
                 {
@@ -636,7 +639,9 @@ namespace HueHades.Utilities
                         ResampleShader.Dispatch(PointKernel, Mathf.CeilToInt(target.width / (float)warpSizeX), Mathf.CeilToInt(target.height / (float)warpSizeY), 1);
                         break;
                     case SamplerMode.Linear:
-
+                        ResampleShader.SetTexture(LinearKernel, InputPropertyID, source.texture);
+                        ResampleShader.SetTexture(LinearKernel, TargetPropertyID, target.texture);
+                        ResampleShader.Dispatch(LinearKernel, Mathf.CeilToInt(target.width / (float)warpSizeX), Mathf.CeilToInt(target.height / (float)warpSizeY), 1);
                         break;
                     case SamplerMode.Cubic:
 
@@ -714,10 +719,13 @@ namespace HueHades.Utilities
 
 
             private static ComputeShader ApplyMaskAreaShader;
+            private static ComputeShader UpdateMaskAreaShader;
             private static int SelectionRectangleKernel;
             private static int SelectionEllipseKernel;
             private static int ApplyMaskAreaKernel;
+            private static int UpdateMaskAreaKernel;
             private static int SelectionOffsetPropertyID;
+            private static int UpdatedPropertyID;
 
             private static int SelectionStatsPropertyID;
             private static ComputeBuffer SelectionStatsBuffer;
@@ -738,14 +746,18 @@ namespace HueHades.Utilities
                 SubtractSelectionKernel = LayerSelectionAreaShader.FindKernel("SubtractSelectionKernel");
 
                 ApplyMaskAreaShader = Resources.Load<ComputeShader>("Selection/ApplyMaskArea");
+                UpdateMaskAreaShader = Resources.Load<ComputeShader>("Selection/UpdateMaskArea");
                 SelectionRectangleKernel = DrawSelectionShader.FindKernel("SelectionRectangle");
                 SelectionEllipseKernel = DrawSelectionShader.FindKernel("SelectionEllipse");
                 ApplyMaskAreaKernel = ApplyMaskAreaShader.FindKernel("CSMain");
+                UpdateMaskAreaKernel = UpdateMaskAreaShader.FindKernel("CSMain");
                 SelectionOffsetPropertyID = Shader.PropertyToID("SelectionOffset");
 
                 SelectionStatsPropertyID = Shader.PropertyToID("SelectionStats");
 
                 SelectionStatsBuffer = new ComputeBuffer(StatsBufferLength, sizeof(int));
+
+                UpdatedPropertyID = Shader.PropertyToID("Updated");
             }
 
             public static void DrawRectangle(ReusableTexture result, Vector2 center, Vector2 size)
@@ -822,7 +834,39 @@ namespace HueHades.Utilities
                 ApplyMaskAreaShader.Dispatch(dispatchKernel, Mathf.CeilToInt(sourceTextureWidth / (float)warpSizeX), Mathf.CeilToInt(sourceTextureHeight / (float)warpSizeY), 1);
             }
 
+            public static void UpdateMaskArea(ReusableTexture input, ReusableTexture updated, ReusableTexture result, int sourceX, int sourceY, int sourceWidth, int sourceHeight, ReusableTexture mask, int destinationX = 0, int destinationY = 0, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
+            {
+                int sourceTextureWidth = mask.width;
+                int sourceTextureHeight = mask.height;
+                int destinationTextureWidth = result.width;
+                int destinationTextureHeight = result.height;
 
+                int dispatchKernel = UpdateMaskAreaKernel;
+
+                int sourceTileX = (sourceTileMode == CanvasTileMode.TileX || sourceTileMode == CanvasTileMode.TileXY) ? 1 : 0;
+                int sourceTileY = (sourceTileMode == CanvasTileMode.TileY || sourceTileMode == CanvasTileMode.TileXY) ? 1 : 0;
+                int destinationTileX = (destinationTileMode == CanvasTileMode.TileX || destinationTileMode == CanvasTileMode.TileXY) ? 1 : 0;
+                int destinationTileY = (destinationTileMode == CanvasTileMode.TileY || destinationTileMode == CanvasTileMode.TileXY) ? 1 : 0;
+
+                ClampSourceToTile(ref sourceX, sourceTextureWidth, ref sourceWidth, sourceTileX, ref destinationX);
+                ClampSourceToTile(ref sourceY, sourceTextureHeight, ref sourceHeight, sourceTileY, ref destinationY);
+
+                ClampDestinationToTile(ref destinationX, destinationTextureWidth, ref sourceWidth, destinationTileX, ref sourceX);
+                ClampDestinationToTile(ref destinationY, destinationTextureHeight, ref sourceHeight, destinationTileY, ref sourceY);
+
+                if (sourceWidth <= 0 || sourceHeight <= 0) return;
+
+                UpdateMaskAreaShader.SetInts(SrcDstDimPropertyID, sourceTextureWidth, sourceTextureHeight, destinationTextureWidth, destinationTextureHeight);
+                UpdateMaskAreaShader.SetInts(DstXYPropertyID, destinationX, destinationY);
+                UpdateMaskAreaShader.SetInts(SrcRectPropertyID, sourceX, sourceY, sourceWidth, sourceHeight);
+
+                UpdateMaskAreaShader.SetInts(TileSrcXYDstXYPropertyID, sourceTileX, sourceTileY, destinationTileX, destinationTileY);
+                UpdateMaskAreaShader.SetTexture(dispatchKernel, InputPropertyID, input.texture);
+                UpdateMaskAreaShader.SetTexture(dispatchKernel, UpdatedPropertyID, updated.texture);
+                UpdateMaskAreaShader.SetTexture(dispatchKernel, MaskPropertyID, mask.texture);
+                UpdateMaskAreaShader.SetTexture(dispatchKernel, ResultPropertyID, result.texture);
+                UpdateMaskAreaShader.Dispatch(dispatchKernel, Mathf.CeilToInt(sourceTextureWidth / (float)warpSizeX), Mathf.CeilToInt(sourceTextureHeight / (float)warpSizeY), 1);
+            }
 
             public static void LayerSelectionArea(Vector2 selectionOffset, ReusableTexture bottomLayer, ReusableTexture target, int sourceX, int sourceY, int sourceWidth, int sourceHeight, ReusableTexture topLayer, SelectMode selectMode, int destinationX = 0, int destinationY = 0, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None, float opacity = 1)
             {

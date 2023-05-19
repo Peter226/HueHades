@@ -21,17 +21,17 @@ namespace HueHades.UI
             _pixelatedToggleVertical = new ToggleButton(icon: "Icons/PixelatedCanvasIcon");
             hierarchy.Add(_pixelatedToggleVertical);
             _pixelatedToggleVertical.tooltip = "Pixelated Canvas";
-            _pixelatedToggleVertical.OnToggle += OnPixelateChange;
+            _pixelatedToggleVertical.ValueChanged += OnPixelateChange;
 
             _seamlessToggleHorizontal = new ToggleButton(icon: "Icons/TileHorizontalCanvasIcon");
             hierarchy.Add(_seamlessToggleHorizontal);
             _seamlessToggleHorizontal.tooltip = "Tile Horizontally";
-            _seamlessToggleHorizontal.OnToggle += OnTileChange;
+            _seamlessToggleHorizontal.ValueChanged += OnTileChange;
 
             _seamlessToggleVertical = new ToggleButton(icon: "Icons/TileVerticalCanvasIcon");
             hierarchy.Add(_seamlessToggleVertical);
             _seamlessToggleVertical.tooltip = "Tile Vertically";
-            _seamlessToggleVertical.OnToggle += OnTileChange;
+            _seamlessToggleVertical.ValueChanged += OnTileChange;
 
             operatingWindow = imageOperatingWindow;
         }

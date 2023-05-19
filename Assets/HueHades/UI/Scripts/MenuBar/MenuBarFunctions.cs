@@ -205,18 +205,15 @@ public static class MenuBarFunctions
     {
         public void Execute(HueHadesWindow window)
         {
-            Debug.Log("Resizing image");
+            var opWindow = window.ActiveOperatingWindow;
+            if (opWindow != null)
+            {
+                ResizeImageWindow resizeImageWindow = new ResizeImageWindow(window, opWindow.Canvas);
+                resizeImageWindow.Open();
+            }
         }
     }
 
-    [MenuBarItem("Image_3/Resize canvas..._2")]
-    public class ResizeCanvasMenuBarFunction : IMenuBarFunction
-    {
-        public void Execute(HueHadesWindow window)
-        {
-            Debug.Log("Resizing canvas");
-        }
-    }
 
 
     [MenuBarItem("Edit_2/Undo_1", "Icons/UndoIcon", true)]

@@ -214,16 +214,14 @@ public static class ILayerContainerExtensions
             var layer = layerContainer.Layers[i];
 
             if (!layer.LayerSettings.invisible) {
-                
-
                 if (layer.LayerSettings.inheritAlpha)
                 {
-                    RenderTextureUtilities.LayerImage(swapBufferA, layer.Texture, swapBufferC, layer.LayerBlendMode);
+                    RenderTextureUtilities.LayerImage(swapBufferA, layer.Texture, swapBufferC, layer.LayerSettings.blendMode, layer.LayerSettings.opacity);
                     RenderTextureUtilities.InheritAlpha(swapBufferA, swapBufferC, swapBufferB);
                 }
                 else
                 {
-                    RenderTextureUtilities.LayerImage(swapBufferA, layer.Texture, swapBufferB, layer.LayerBlendMode);
+                    RenderTextureUtilities.LayerImage(swapBufferA, layer.Texture, swapBufferB, layer.LayerSettings.blendMode, layer.LayerSettings.opacity);
                 }
                 var temp = swapBufferA;
                 swapBufferA = swapBufferB;

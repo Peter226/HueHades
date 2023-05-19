@@ -7,6 +7,7 @@
 float4 PositionSize;
 float2 TargetPivot;
 float2x2 RotationMatrix;
+int4 SrcDstDim;
 
 Texture2D<float4> Input;
 RWTexture2D<float4> Target;
@@ -40,7 +41,9 @@ void LinearKernel (uint3 id : SV_DispatchThreadID)
    float4 color;
    
    float2 floorCoord = floor(newID);
+   floorCoord = max(floorCoord, 0);
    float2 ceilCoord = ceil(newID);
+   ceilCoord = min(ceilCoord, SrcDstDim.xy - 1);
 
    float4 sample00 = sampleAt(floorCoord);
    float4 sample10 = sampleAt(float2(ceilCoord.x,floorCoord.y));

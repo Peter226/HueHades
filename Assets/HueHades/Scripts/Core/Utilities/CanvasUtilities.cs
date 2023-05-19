@@ -59,6 +59,26 @@ namespace HueHades.Core.Utilities
             }
         }
 
+
+        public static void ResizeCanvas(ImageCanvas canvas, int2 newDimensions, bool addHistoryRecord = true)
+        {
+
+            int2 canvasDimensions = canvas.Dimensions;
+            float2 size = newDimensions / (float2)canvasDimensions;
+            float2 pivot = (float2)(canvasDimensions - 1) * 0.5f;
+            float2 newpivot = (float2)(newDimensions - 1) * 0.5f;
+
+            if (addHistoryRecord)
+            {
+                canvas.History.AddRecord(new ResizeCanvasHistoryRecord(canvas, newDimensions));
+            }
+
+            canvas.SetDimensions(newDimensions, (resizeEventArgs) => {
+                RenderTextureUtilities.Sampling.Resample(resizeEventArgs.oldTexture, resizeEventArgs.newTexture, size, 0, pivot, newpivot, SamplerMode.Linear);
+            });
+        }
+
+
         private class MirrorCanvasHistoryRecord : HistoryRecord
         {
             public override int MemoryConsumption => 1;
@@ -133,6 +153,57 @@ namespace HueHades.Core.Utilities
             }
         }
 
+
+        private class ResizeCanvasHistoryRecord : HistoryRecord
+        {
+            public override int MemoryConsumption => recordElements.Count * _oldDimensions.x * _oldDimensions.y * sizeof(float) * 4;
+            public override string name => "Resize Image";
+
+            private List<ReusableTexture> recordElements = new List<ReusableTexture>();
+
+            int2 _oldDimensions;
+            int2 _newDimensions;
+
+            public ResizeCanvasHistoryRecord(ImageCanvas canvas, int2 newDimensions)
+            {
+                _oldDimensions = canvas.Dimensions;
+                _newDimensions = newDimensions;
+
+
+                foreach (var layer in canvas.GetGlobalLayers())
+                {
+                    var copy = RenderTextureUtilities.GetTemporary(_oldDimensions.x, _oldDimensions.y, canvas.Format);
+                    RenderTextureUtilities.CopyTexture(layer.Texture, copy);
+                    recordElements.Add(copy);
+                }
+            }
+
+            public override void Dispose()
+            {
+                foreach (var element in recordElements)
+                {
+                    element.Dispose();
+                }
+            }
+
+            protected override void OnRedo(ImageCanvas canvas)
+            {
+                ResizeCanvas(canvas, _newDimensions, false);
+            }
+
+            protected override void OnUndo(ImageCanvas canvas)
+            {
+                int counter = 1;
+                ResizeCanvas(canvas, _oldDimensions, false);
+                foreach (var copy in recordElements)
+                {
+                    var layer = canvas.GetLayerByGlobalID(counter);
+                    RenderTextureUtilities.CopyTexture(copy, layer.Texture);
+                    layer.LayerChanged?.Invoke();
+                    counter++;
+                }
+            }
+        }
 
     }
 }

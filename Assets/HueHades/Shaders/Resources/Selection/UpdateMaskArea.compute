@@ -1,0 +1,45 @@
+#pragma kernel CSMain
+
+Texture2D<float4> Mask;
+Texture2D<float4> Input;
+Texture2D<float4> Updated;
+RWTexture2D<float4> Result;
+
+uint4 SrcDstDim; //Source and Destination texture dimensions
+uint2 DstXY; //Destination target offset
+uint4 SrcRect; //Source target offset and dimensions
+uint4 TileSrcXYDstXY; //Source and Destination tile modes
+float Opacity; //opacity of the top layer to apply
+
+bool SelectAndTile(uint3 id, out uint2 targetID, out uint2 sourceID){
+    uint2 srcID = SrcRect.xy + id.xy;
+    uint2 dstID = DstXY + id.xy;
+    
+    if(all(
+            ((srcID < SrcDstDim.xy) || TileSrcXYDstXY.xy) &&
+            ((dstID < SrcDstDim.zw) || TileSrcXYDstXY.zw) &&
+            id.xy < SrcRect.zw
+       ))
+       {
+            targetID = dstID % SrcDstDim.zw;
+            sourceID = srcID % SrcDstDim.xy;
+            return true;
+       }
+       targetID = 0;
+       sourceID = 0;
+    return false;
+}
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    uint2 resultID;
+    uint2 inputID;
+    if(SelectAndTile(id, resultID, inputID)){
+        float4 mask = Mask[inputID];
+        float4 input = Input[inputID];
+        float4 updated = Updated[inputID];
+
+        Result[resultID] = lerp(input, updated, mask.a);
+    }
+}

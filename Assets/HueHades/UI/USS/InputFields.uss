@@ -199,3 +199,15 @@
     margin-top: 0;
     margin-bottom: 0;
 }
+
+.unity-integer-field__label {
+}
+
+.unity-integer-field__input {
+    font-size: 12px;
+    background-color: rgb(25, 25, 25);
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}

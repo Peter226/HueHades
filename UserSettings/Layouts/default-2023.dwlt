@@ -20,11 +20,62 @@ MonoBehaviour:
     height: 780.8
   m_ShowMode: 4
   m_Title: Game
-  m_RootView: {fileID: 2}
+  m_RootView: {fileID: 4}
   m_MinSize: {x: 875, y: 321}
   m_MaxSize: {x: 10000, y: 10000}
   m_Maximized: 1
 --- !u!114 &2
+MonoBehaviour:
+  m_ObjectHideFlags: 52
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: TestRunnerWindow
+  m_EditorClassIdentifier: 
+  m_Children: []
+  m_Position:
+    serializedVersion: 2
+    x: 0
+    y: 278.4
+    width: 335.19995
+    height: 452.4
+  m_MinSize: {x: 101, y: 121}
+  m_MaxSize: {x: 4001, y: 4021}
+  m_ActualView: {fileID: 11}
+  m_Panes:
+  - {fileID: 11}
+  m_Selected: 0
+  m_LastSelected: 0
+--- !u!114 &3
+MonoBehaviour:
+  m_ObjectHideFlags: 52
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 12010, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Children:
+  - {fileID: 10}
+  - {fileID: 2}
+  m_Position:
+    serializedVersion: 2
+    x: 1200.8
+    y: 0
+    width: 335.19995
+    height: 730.8
+  m_MinSize: {x: 100, y: 100}
+  m_MaxSize: {x: 8096, y: 16192}
+  vertical: 1
+  controlID: 481
+--- !u!114 &4
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -37,9 +88,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Children:
-  - {fileID: 3}
   - {fileID: 5}
-  - {fileID: 4}
+  - {fileID: 7}
+  - {fileID: 6}
   m_Position:
     serializedVersion: 2
     x: 0
@@ -52,7 +103,7 @@ MonoBehaviour:
   m_TopViewHeight: 30
   m_UseBottomView: 1
   m_BottomViewHeight: 20
---- !u!114 &3
+--- !u!114 &5
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -74,7 +125,7 @@ MonoBehaviour:
   m_MinSize: {x: 0, y: 0}
   m_MaxSize: {x: 0, y: 0}
   m_LastLoadedLayoutName: 
---- !u!114 &4
+--- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -95,7 +146,7 @@ MonoBehaviour:
     height: 20
   m_MinSize: {x: 0, y: 0}
   m_MaxSize: {x: 0, y: 0}
---- !u!114 &5
+--- !u!114 &7
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -108,20 +159,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Children:
-  - {fileID: 6}
-  - {fileID: 7}
   - {fileID: 8}
+  - {fileID: 9}
+  - {fileID: 3}
   m_Position:
     serializedVersion: 2
     x: 0
     y: 30
     width: 1536
     height: 730.8
-  m_MinSize: {x: 300, y: 50}
-  m_MaxSize: {x: 24288, y: 8096}
+  m_MinSize: {x: 300, y: 100}
+  m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 70
---- !u!114 &6
+  controlID: 480
+--- !u!114 &8
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -138,16 +189,16 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 205.6
+    width: 189.6
     height: 730.8
   m_MinSize: {x: 201, y: 221}
   m_MaxSize: {x: 4001, y: 4021}
-  m_ActualView: {fileID: 11}
+  m_ActualView: {fileID: 14}
   m_Panes:
-  - {fileID: 11}
+  - {fileID: 14}
   m_Selected: 0
   m_LastSelected: 0
---- !u!114 &7
+--- !u!114 &9
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -162,22 +213,22 @@ MonoBehaviour:
   m_Children: []
   m_Position:
     serializedVersion: 2
-    x: 205.6
+    x: 189.6
     y: 0
-    width: 900
+    width: 1011.2001
     height: 730.8
   m_MinSize: {x: 102, y: 121}
   m_MaxSize: {x: 4002, y: 4021}
-  m_ActualView: {fileID: 14}
+  m_ActualView: {fileID: 17}
   m_Panes:
-  - {fileID: 12}
-  - {fileID: 13}
   - {fileID: 15}
-  - {fileID: 14}
-  - {fileID: 9}
+  - {fileID: 16}
+  - {fileID: 18}
+  - {fileID: 17}
+  - {fileID: 12}
   m_Selected: 3
   m_LastSelected: 0
---- !u!114 &8
+--- !u!114 &10
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -187,24 +238,595 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 1
   m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: ProjectBrowser
+  m_Name: InspectorWindow
   m_EditorClassIdentifier: 
   m_Children: []
   m_Position:
     serializedVersion: 2
-    x: 1105.6
+    x: 0
     y: 0
-    width: 430.40002
-    height: 730.8
-  m_MinSize: {x: 231, y: 271}
-  m_MaxSize: {x: 10001, y: 10021}
-  m_ActualView: {fileID: 16}
+    width: 335.19995
+    height: 278.4
+  m_MinSize: {x: 276, y: 71}
+  m_MaxSize: {x: 4001, y: 4021}
+  m_ActualView: {fileID: 13}
   m_Panes:
-  - {fileID: 16}
-  - {fileID: 10}
-  m_Selected: 0
-  m_LastSelected: 1
---- !u!114 &9
+  - {fileID: 19}
+  - {fileID: 13}
+  m_Selected: 1
+  m_LastSelected: 0
+--- !u!114 &11
+MonoBehaviour:
+  m_ObjectHideFlags: 52
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 13401, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MinSize: {x: 100, y: 100}
+  m_MaxSize: {x: 4000, y: 4000}
+  m_TitleContent:
+    m_Text: Test Runner
+    m_Image: {fileID: 0}
+    m_Tooltip: 
+    m_TextWithWhitespace: "Test Runner\u200B"
+  m_Pos:
+    serializedVersion: 2
+    x: 1
+    y: 297.4
+    width: 334.19995
+    height: 431.4
+  m_SerializedDataModeController:
+    m_DataMode: 0
+    m_PreferredDataMode: 0
+    m_SupportedDataModes: 
+    isAutomatic: 1
+  m_ViewDataDictionary: {fileID: 0}
+  m_OverlayCanvas:
+    m_LastAppliedPresetName: Default
+    m_SaveData: []
+    m_ContainerData: []
+    m_OverlaysVisible: 1
+  m_Spl:
+    ID: 497
+    splitterInitialOffset: 347.8
+    currentActiveSplitter: -1
+    realSizes:
+    - 277.39996
+    - 83.40001
+    relativeSizes:
+    - 0.7688469
+    - 0.23115307
+    minSizes:
+    - 32
+    - 32
+    maxSizes:
+    - 0
+    - 0
+    lastTotalSize: 360.8
+    splitSize: 6
+    xOffset: 0
+    m_Version: 1
+    oldRealSizes: 
+    oldMinSizes: 
+    oldMaxSizes: 
+    oldSplitSize: 0
+  m_TestTypeToolbarIndex: 1
+  m_PlayModeTestListGUI:
+    m_Window: {fileID: 11}
+    m_NewResultList:
+    - id: 1046
+      uniqueId: '[HueHades][suite]'
+      name: HueHades
+      fullName: HueHades
+      resultStatus: 0
+      duration: 0
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 1
+      categories: []
+      parentId: 
+      parentUniqueId: 
+    m_ResultText: 
+    m_ResultStacktrace: 
+    m_TestListState:
+      scrollPos: {x: 0, y: 0}
+      m_SelectedIDs: 
+      m_LastClickedID: 0
+      m_ExpandedIDs: f9199212ffffff7f
+      m_RenameOverlay:
+        m_UserAcceptedRename: 0
+        m_Name: 
+        m_OriginalName: 
+        m_EditFieldRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+        m_UserData: 0
+        m_IsWaitingForDelay: 0
+        m_IsRenaming: 0
+        m_OriginalEventType: 11
+        m_IsRenamingFilename: 0
+        m_TrimLeadingAndTrailingWhitespace: 0
+        m_ClientGUIView: {fileID: 0}
+      m_SearchString: 
+    m_TestRunnerUIFilter:
+      PassedHidden: 0
+      FailedHidden: 0
+      NotRunHidden: 0
+      m_SearchString: 
+      selectedCategoryMask: 0
+      availableCategories:
+      - Uncategorized
+    m_SelectedOption: 0
+  m_EditModeTestListGUI:
+    m_Window: {fileID: 11}
+    m_NewResultList:
+    - id: 1000
+      uniqueId: '[HueHades][suite]'
+      name: HueHades
+      fullName: HueHades
+      resultStatus: 1
+      duration: 0.2216863
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 1
+      categories: []
+      parentId: 
+      parentUniqueId: 
+    - id: 1004
+      uniqueId: '[EditModeTests][C:/Accelerated/Unity Projects/HueHades/Library/ScriptAssemblies/EditModeTests.dll][suite]'
+      name: EditModeTests.dll
+      fullName: C:/Accelerated/Unity Projects/HueHades/Library/ScriptAssemblies/EditModeTests.dll
+      resultStatus: 1
+      duration: 0.2176922
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 1
+      categories: []
+      parentId: 1000
+      parentUniqueId: '[HueHades][suite]'
+    - id: 1001
+      uniqueId: 'EditModeTests.dll/[EditModeTests][CanvasTests][suite]'
+      name: CanvasTests
+      fullName: CanvasTests
+      resultStatus: 1
+      duration: 0.0060744
+      messages: 
+      output: 'OneTimeSetUpDuration: 1ms;
+
+        OneTimeTearDownDuration: 0ms;
+
+'
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 1
+      categories: []
+      parentId: 1004
+      parentUniqueId: '[EditModeTests][C:/Accelerated/Unity Projects/HueHades/Library/ScriptAssemblies/EditModeTests.dll][suite]'
+    - id: 1002
+      uniqueId: 'EditModeTests.dll/CanvasTests/[EditModeTests][CanvasTests.Canvas_Create]'
+      name: Canvas_Create
+      fullName: CanvasTests.Canvas_Create
+      resultStatus: 1
+      duration: 0.0010533
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 0
+      categories:
+      - Uncategorized
+      parentId: 1001
+      parentUniqueId: 'EditModeTests.dll/[EditModeTests][CanvasTests][suite]'
+    - id: 1003
+      uniqueId: 'EditModeTests.dll/CanvasTests/[EditModeTests][CanvasTests.Canvas_Release]'
+      name: Canvas_Release
+      fullName: CanvasTests.Canvas_Release
+      resultStatus: 1
+      duration: 0.0001611
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 0
+      categories:
+      - Uncategorized
+      parentId: 1001
+      parentUniqueId: 'EditModeTests.dll/[EditModeTests][CanvasTests][suite]'
+    - id: 1004
+      uniqueId: 'EditModeTests.dll/[EditModeTests][CanvasTests+HistoryTests][suite]'
+      name: CanvasTests+HistoryTests
+      fullName: CanvasTests+HistoryTests
+      resultStatus: 1
+      duration: 0.0043727
+      messages: 
+      output: 'OneTimeSetUpDuration: 0ms;
+
+        OneTimeTearDownDuration: 0ms;
+
+'
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 1
+      categories: []
+      parentId: 1018
+      parentUniqueId: '[EditModeTests][C:/Accelerated/Unity Projects/HueHades/Library/ScriptAssemblies/EditModeTests.dll][suite]'
+    - id: 1006
+      uniqueId: 'EditModeTests.dll/CanvasTests+HistoryTests/[EditModeTests][CanvasTests+HistoryTests.AddLayer_Redo]'
+      name: AddLayer_Redo
+      fullName: CanvasTests+HistoryTests.AddLayer_Redo
+      resultStatus: 1
+      duration: 0.000391
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 0
+      categories:
+      - Uncategorized
+      parentId: 1004
+      parentUniqueId: 'EditModeTests.dll/[EditModeTests][CanvasTests+HistoryTests][suite]'
+    - id: 1005
+      uniqueId: 'EditModeTests.dll/CanvasTests+HistoryTests/[EditModeTests][CanvasTests+HistoryTests.AddLayer_Undo]'
+      name: AddLayer_Undo
+      fullName: CanvasTests+HistoryTests.AddLayer_Undo
+      resultStatus: 1
+      duration: 0.0001858
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 0
+      categories:
+      - Uncategorized
+      parentId: 1004
+      parentUniqueId: 'EditModeTests.dll/[EditModeTests][CanvasTests+HistoryTests][suite]'
+    - id: 1004
+      uniqueId: 'EditModeTests.dll/[EditModeTests][CanvasTests+LayerTests][suite]'
+      name: CanvasTests+LayerTests
+      fullName: CanvasTests+LayerTests
+      resultStatus: 1
+      duration: 0.0075406
+      messages: 
+      output: 'OneTimeSetUpDuration: 0ms;
+
+        OneTimeTearDownDuration: 0ms;
+
+'
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 1
+      categories: []
+      parentId: 1006
+      parentUniqueId: '[EditModeTests][C:/Accelerated/Unity Projects/HueHades/Library/ScriptAssemblies/EditModeTests.dll][suite]'
+    - id: 1005
+      uniqueId: 'EditModeTests.dll/CanvasTests+LayerTests/[EditModeTests][CanvasTests+LayerTests.Canvas_Layer_Create]'
+      name: Canvas_Layer_Create
+      fullName: CanvasTests+LayerTests.Canvas_Layer_Create
+      resultStatus: 1
+      duration: 0.000601
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 0
+      categories:
+      - Uncategorized
+      parentId: 1004
+      parentUniqueId: 'EditModeTests.dll/[EditModeTests][CanvasTests+LayerTests][suite]'
+    - id: 1006
+      uniqueId: 'EditModeTests.dll/CanvasTests+LayerTests/[EditModeTests][CanvasTests+LayerTests.Canvas_Layer_Release]'
+      name: Canvas_Layer_Release
+      fullName: CanvasTests+LayerTests.Canvas_Layer_Release
+      resultStatus: 1
+      duration: 0.0007823
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 0
+      categories:
+      - Uncategorized
+      parentId: 1004
+      parentUniqueId: 'EditModeTests.dll/[EditModeTests][CanvasTests+LayerTests][suite]'
+    - id: 1007
+      uniqueId: 'EditModeTests.dll/CanvasTests+LayerTests/[EditModeTests][CanvasTests+LayerTests.Layer_Add]'
+      name: Layer_Add
+      fullName: CanvasTests+LayerTests.Layer_Add
+      resultStatus: 1
+      duration: 0.000536
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 0
+      categories:
+      - Uncategorized
+      parentId: 1004
+      parentUniqueId: 'EditModeTests.dll/[EditModeTests][CanvasTests+LayerTests][suite]'
+    - id: 1008
+      uniqueId: 'EditModeTests.dll/CanvasTests+LayerTests/[EditModeTests][CanvasTests+LayerTests.Layer_Manual_Add]'
+      name: Layer_Manual_Add
+      fullName: CanvasTests+LayerTests.Layer_Manual_Add
+      resultStatus: 1
+      duration: 0.0003301
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 0
+      categories:
+      - Uncategorized
+      parentId: 1004
+      parentUniqueId: 'EditModeTests.dll/[EditModeTests][CanvasTests+LayerTests][suite]'
+    - id: 1009
+      uniqueId: 'EditModeTests.dll/CanvasTests+LayerTests/[EditModeTests][CanvasTests+LayerTests.Layer_Move]'
+      name: Layer_Move
+      fullName: CanvasTests+LayerTests.Layer_Move
+      resultStatus: 1
+      duration: 0.0002799
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 0
+      categories:
+      - Uncategorized
+      parentId: 1004
+      parentUniqueId: 'EditModeTests.dll/[EditModeTests][CanvasTests+LayerTests][suite]'
+    - id: 1010
+      uniqueId: 'EditModeTests.dll/CanvasTests+LayerTests/[EditModeTests][CanvasTests+LayerTests.Layer_Remove]'
+      name: Layer_Remove
+      fullName: CanvasTests+LayerTests.Layer_Remove
+      resultStatus: 1
+      duration: 0.0002558
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 0
+      categories:
+      - Uncategorized
+      parentId: 1004
+      parentUniqueId: 'EditModeTests.dll/[EditModeTests][CanvasTests+LayerTests][suite]'
+    - id: 1004
+      uniqueId: 'EditModeTests.dll/[EditModeTests][CanvasTests+SelectionTests][suite]'
+      name: CanvasTests+SelectionTests
+      fullName: CanvasTests+SelectionTests
+      resultStatus: 1
+      duration: 0.1844103
+      messages: 
+      output: 'OneTimeSetUpDuration: 0ms;
+
+        OneTimeTearDownDuration: 0ms;
+
+'
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 1
+      categories: []
+      parentId: 1015
+      parentUniqueId: '[EditModeTests][C:/Accelerated/Unity Projects/HueHades/Library/ScriptAssemblies/EditModeTests.dll][suite]'
+    - id: 1005
+      uniqueId: 'EditModeTests.dll/CanvasTests+SelectionTests/[EditModeTests][CanvasTests+SelectionTests.Canvas_Selection_Create]'
+      name: Canvas_Selection_Create
+      fullName: CanvasTests+SelectionTests.Canvas_Selection_Create
+      resultStatus: 1
+      duration: 0.0002352
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 0
+      categories:
+      - Uncategorized
+      parentId: 1004
+      parentUniqueId: 'EditModeTests.dll/[EditModeTests][CanvasTests+SelectionTests][suite]'
+    - id: 1006
+      uniqueId: 'EditModeTests.dll/CanvasTests+SelectionTests/[EditModeTests][CanvasTests+SelectionTests.Selection_Area_Empty]'
+      name: Selection_Area_Empty
+      fullName: CanvasTests+SelectionTests.Selection_Area_Empty
+      resultStatus: 1
+      duration: 0.0002067
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 0
+      categories:
+      - Uncategorized
+      parentId: 1004
+      parentUniqueId: 'EditModeTests.dll/[EditModeTests][CanvasTests+SelectionTests][suite]'
+    - id: 1007
+      uniqueId: 'EditModeTests.dll/CanvasTests+SelectionTests/[EditModeTests][CanvasTests+SelectionTests.Selection_Area_Rectangle]'
+      name: Selection_Area_Rectangle
+      fullName: CanvasTests+SelectionTests.Selection_Area_Rectangle
+      resultStatus: 1
+      duration: 0.1803235
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 0
+      categories:
+      - Uncategorized
+      parentId: 1004
+      parentUniqueId: 'EditModeTests.dll/[EditModeTests][CanvasTests+SelectionTests][suite]'
+    - id: 1004
+      uniqueId: 'EditModeTests.dll/[EditModeTests][RenderTextureUtilitiesTests][suite]'
+      name: RenderTextureUtilitiesTests
+      fullName: RenderTextureUtilitiesTests
+      resultStatus: 1
+      duration: 0.0132886
+      messages: 
+      output: 'OneTimeSetUpDuration: 1ms;
+
+        OneTimeTearDownDuration: 0ms;
+
+'
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 1
+      categories: []
+      parentId: 1023
+      parentUniqueId: '[EditModeTests][C:/Accelerated/Unity Projects/HueHades/Library/ScriptAssemblies/EditModeTests.dll][suite]'
+    - id: 1005
+      uniqueId: 'EditModeTests.dll/RenderTextureUtilitiesTests/[EditModeTests][RenderTextureUtilitiesTests.Get_Temporary]'
+      name: Get_Temporary
+      fullName: RenderTextureUtilitiesTests.Get_Temporary
+      resultStatus: 1
+      duration: 0.000436
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 0
+      categories:
+      - Uncategorized
+      parentId: 1004
+      parentUniqueId: 'EditModeTests.dll/[EditModeTests][RenderTextureUtilitiesTests][suite]'
+    - id: 1007
+      uniqueId: 'EditModeTests.dll/RenderTextureUtilitiesTests/[EditModeTests][RenderTextureUtilitiesTests.Get_Temporary_Gradient]'
+      name: Get_Temporary_Gradient
+      fullName: RenderTextureUtilitiesTests.Get_Temporary_Gradient
+      resultStatus: 1
+      duration: 0.0002188
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 0
+      categories:
+      - Uncategorized
+      parentId: 1004
+      parentUniqueId: 'EditModeTests.dll/[EditModeTests][RenderTextureUtilitiesTests][suite]'
+    - id: 1008
+      uniqueId: 'EditModeTests.dll/RenderTextureUtilitiesTests/[EditModeTests][RenderTextureUtilitiesTests.Get_Temporary_Gradient_Reuse]'
+      name: Get_Temporary_Gradient_Reuse
+      fullName: RenderTextureUtilitiesTests.Get_Temporary_Gradient_Reuse
+      resultStatus: 1
+      duration: 0.0001581
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 0
+      categories:
+      - Uncategorized
+      parentId: 1004
+      parentUniqueId: 'EditModeTests.dll/[EditModeTests][RenderTextureUtilitiesTests][suite]'
+    - id: 1006
+      uniqueId: 'EditModeTests.dll/RenderTextureUtilitiesTests/[EditModeTests][RenderTextureUtilitiesTests.Get_Temporary_Reuse]'
+      name: Get_Temporary_Reuse
+      fullName: RenderTextureUtilitiesTests.Get_Temporary_Reuse
+      resultStatus: 1
+      duration: 0.0000587
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 0
+      categories:
+      - Uncategorized
+      parentId: 1004
+      parentUniqueId: 'EditModeTests.dll/[EditModeTests][RenderTextureUtilitiesTests][suite]'
+    m_ResultText: HueHades (0,222s)
+    m_ResultStacktrace: 
+    m_TestListState:
+      scrollPos: {x: 0, y: 0}
+      m_SelectedIDs: f9199212
+      m_LastClickedID: 311564793
+      m_ExpandedIDs: 5c1e8cb25ac0f7b9a7bc28f1843964f9f91992125dd0ae336e6acb72ffffff7f
+      m_RenameOverlay:
+        m_UserAcceptedRename: 0
+        m_Name: 
+        m_OriginalName: 
+        m_EditFieldRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+        m_UserData: 0
+        m_IsWaitingForDelay: 0
+        m_IsRenaming: 0
+        m_OriginalEventType: 11
+        m_IsRenamingFilename: 0
+        m_TrimLeadingAndTrailingWhitespace: 0
+        m_ClientGUIView: {fileID: 0}
+      m_SearchString: 
+    m_TestRunnerUIFilter:
+      PassedHidden: 0
+      FailedHidden: 0
+      NotRunHidden: 0
+      m_SearchString: 
+      selectedCategoryMask: 0
+      availableCategories:
+      - Uncategorized
+--- !u!114 &12
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -777,7 +1399,7 @@ MonoBehaviour:
   m_SceneVisActive: 1
   m_LastLockedObject: {fileID: 0}
   m_ViewIsLockedToObject: 0
---- !u!114 &10
+--- !u!114 &13
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -798,10 +1420,10 @@ MonoBehaviour:
     m_TextWithWhitespace: "Inspector\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 1124
-    y: 73.6
-    width: 411
-    height: 709.8
+    x: 1
+    y: 19
+    width: 334.19995
+    height: 257.4
   m_SerializedDataModeController:
     m_DataMode: 0
     m_PreferredDataMode: 0
@@ -819,14 +1441,14 @@ MonoBehaviour:
     m_CachedPref: 216
     m_ControlHash: -371814159
     m_PrefName: Preview_InspectorPreview
-  m_LastInspectedObjectInstanceID: 19402
+  m_LastInspectedObjectInstanceID: -1
   m_LastVerticalScrollValue: 0
   m_GlobalObjectId: 
   m_InspectorMode: 0
   m_LockTracker:
     m_IsLocked: 0
   m_PreviewWindow: {fileID: 0}
---- !u!114 &11
+--- !u!114 &14
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -849,7 +1471,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 19
-    width: 204.6
+    width: 188.6
     height: 709.8
   m_SerializedDataModeController:
     m_DataMode: 0
@@ -867,7 +1489,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: e0faffff
+      m_ExpandedIDs: 8c95ffff5696ffff2097ffffec99ffffaa9affff089cffff889cffff629effffc69fffff7aa3ffffe2a4ffff46a6ffff54aaffffb8abffffc4adffff28afffff94b0ffff3cb1ffff4cb3ffffc4b6ffff96b9ffff7abbffff8cbcffffa4bdffff44bfffff4ac2fffff2faffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -884,7 +1506,7 @@ MonoBehaviour:
         m_OriginalEventType: 11
         m_IsRenamingFilename: 0
         m_TrimLeadingAndTrailingWhitespace: 0
-        m_ClientGUIView: {fileID: 6}
+        m_ClientGUIView: {fileID: 8}
       m_SearchString: 
     m_ExpandedScenes: []
     m_CurrenRootInstanceID: 0
@@ -892,7 +1514,7 @@ MonoBehaviour:
       m_IsLocked: 0
     m_CurrentSortingName: TransformSorting
   m_WindowGUID: 4c969a2b90040154d917609493e03593
---- !u!114 &12
+--- !u!114 &15
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -913,9 +1535,9 @@ MonoBehaviour:
     m_TextWithWhitespace: "Game\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 205.6
+    x: 189.6
     y: 73.6
-    width: 898
+    width: 1009.2001
     height: 709.8
   m_SerializedDataModeController:
     m_DataMode: 0
@@ -934,7 +1556,7 @@ MonoBehaviour:
   m_ShowGizmos: 0
   m_TargetDisplay: 0
   m_ClearColor: {r: 0, g: 0, b: 0, a: 0}
-  m_TargetSize: {x: 1122.5, y: 861}
+  m_TargetSize: {x: 1261.5001, y: 861}
   m_TextureFilterMode: 0
   m_TextureHideFlags: 61
   m_RenderIMGUI: 1
@@ -949,8 +1571,8 @@ MonoBehaviour:
     m_VRangeLocked: 0
     hZoomLockedByDefault: 0
     vZoomLockedByDefault: 0
-    m_HBaseRangeMin: -449
-    m_HBaseRangeMax: 449
+    m_HBaseRangeMin: -504.60007
+    m_HBaseRangeMax: 504.60007
     m_VBaseRangeMin: -344.4
     m_VBaseRangeMax: 344.4
     m_HAllowExceedBaseRangeMin: 1
@@ -970,29 +1592,29 @@ MonoBehaviour:
       serializedVersion: 2
       x: 0
       y: 21
-      width: 898
+      width: 1009.2001
       height: 688.8
-    m_Scale: {x: 1, y: 1}
-    m_Translation: {x: 449, y: 344.4}
+    m_Scale: {x: 0.99999994, y: 0.99999994}
+    m_Translation: {x: 504.60004, y: 344.4}
     m_MarginLeft: 0
     m_MarginRight: 0
     m_MarginTop: 0
     m_MarginBottom: 0
     m_LastShownAreaInsideMargins:
       serializedVersion: 2
-      x: -449
-      y: -344.4
-      width: 898
-      height: 688.8
+      x: -504.60007
+      y: -344.40002
+      width: 1009.20013
+      height: 688.80005
     m_MinimalGUI: 1
-  m_defaultScale: 1
-  m_LastWindowPixelSize: {x: 1122.5, y: 887.25}
+  m_defaultScale: 0.99999994
+  m_LastWindowPixelSize: {x: 1261.5001, y: 887.25}
   m_ClearInEditMode: 1
   m_NoCameraWarning: 1
   m_LowResolutionForAspectRatios: 00000000000000000000
   m_XRRenderMode: 0
   m_RenderTexture: {fileID: 0}
---- !u!114 &13
+--- !u!114 &16
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1717,7 +2339,7 @@ MonoBehaviour:
     \"y\": 0.0,\n        \"z\": 0.0,\n        \"w\": 0.0\n    }\n}\n\n"
   m_AssetMaybeChangedOnDisk: 0
   m_AssetMaybeDeleted: 0
---- !u!114 &14
+--- !u!114 &17
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1738,9 +2360,9 @@ MonoBehaviour:
     m_TextWithWhitespace: "Console\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 206.6
+    x: 190.6
     y: 19
-    width: 898
+    width: 1009.2001
     height: 709.8
   m_SerializedDataModeController:
     m_DataMode: 0
@@ -1753,7 +2375,7 @@ MonoBehaviour:
     m_SaveData: []
     m_ContainerData: []
     m_OverlaysVisible: 1
---- !u!114 &15
+--- !u!114 &18
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5840,7 +6462,7 @@ MonoBehaviour:
     0\n}\n\n"
   m_AssetMaybeChangedOnDisk: 0
   m_AssetMaybeDeleted: 0
---- !u!114 &16
+--- !u!114 &19
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5861,10 +6483,10 @@ MonoBehaviour:
     m_TextWithWhitespace: "Project\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 1106.6
-    y: 19
-    width: 429.40002
-    height: 709.8
+    x: 922.4
+    y: 73.6
+    width: 612.6
+    height: 187.8
   m_SerializedDataModeController:
     m_DataMode: 0
     m_PreferredDataMode: 0
@@ -5877,7 +6499,7 @@ MonoBehaviour:
     m_ContainerData: []
     m_OverlaysVisible: 1
   m_SearchFilter:
-    m_NameFilter: canvaslay
+    m_NameFilter: 
     m_ClassNames: []
     m_AssetLabels: []
     m_AssetBundleNames: []
@@ -5889,26 +6511,26 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/HueHades/UI/Scripts/Windows/Layers
+    - Assets/HueHades/Tests/EditModeTests
     m_Globs: []
     m_ProductIds: 
     m_AnyWithAssetOrigin: 0
-    m_OriginalText: canvaslay
+    m_OriginalText: 
     m_ImportLogFlags: 0
     m_FilterByTypeIntersection: 0
   m_ViewMode: 1
   m_StartGridSize: 16
   m_LastFolders:
-  - Assets/HueHades/UI/Scripts/Windows/Layers
+  - Assets/HueHades/Tests/EditModeTests
   m_LastFoldersGridSize: 16
   m_LastProjectPath: C:\Accelerated\Unity Projects\HueHades
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 62.200012}
-    m_SelectedIDs: 06790000
-    m_LastClickedID: 30982
-    m_ExpandedIDs: 0000000060780000627800006478000066780000687800006a7800006c7800006e78000070780000727800007478000076780000787800007a7800007c7800007e7800008078000082780000
+    scrollPos: {x: 0, y: 420}
+    m_SelectedIDs: e6790000
+    m_LastClickedID: 31206
+    m_ExpandedIDs: 000000006a7800006c7800006e78000070780000727800007478000076780000787800007a7800007c7800007e78000080780000827800008478000086780000887800008a7800008c780000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -5925,7 +6547,7 @@ MonoBehaviour:
       m_OriginalEventType: 11
       m_IsRenamingFilename: 1
       m_TrimLeadingAndTrailingWhitespace: 0
-      m_ClientGUIView: {fileID: 8}
+      m_ClientGUIView: {fileID: 10}
     m_SearchString: 
     m_CreateAssetUtility:
       m_EndAction: {fileID: 0}
@@ -5937,7 +6559,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 0000000060780000627800006478000066780000687800006a7800006c7800006e78000070780000727800007478000076780000787800007a7800007c7800007e7800008078000082780000
+    m_ExpandedIDs: 000000006a7800006c7800006e78000070780000727800007478000076780000787800007a7800007c7800007e78000080780000827800008478000086780000887800008a7800008c780000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -5963,9 +6585,9 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_ListAreaState:
-    m_SelectedInstanceIDs: 
-    m_LastClickedInstanceID: 0
-    m_HadKeyboardFocusLastEvent: 0
+    m_SelectedInstanceIDs: ea790000
+    m_LastClickedInstanceID: 31210
+    m_HadKeyboardFocusLastEvent: 1
     m_ExpandedInstanceIDs: c6230000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -5983,7 +6605,7 @@ MonoBehaviour:
       m_OriginalEventType: 11
       m_IsRenamingFilename: 1
       m_TrimLeadingAndTrailingWhitespace: 0
-      m_ClientGUIView: {fileID: 8}
+      m_ClientGUIView: {fileID: 10}
     m_CreateAssetUtility:
       m_EndAction: {fileID: 0}
       m_InstanceID: 0
@@ -5994,4 +6616,4 @@ MonoBehaviour:
     m_ScrollPosition: {x: 0, y: 0}
     m_GridSize: 16
   m_SkipHiddenPackages: 0
-  m_DirectoriesAreaWidth: 149
+  m_DirectoriesAreaWidth: 214

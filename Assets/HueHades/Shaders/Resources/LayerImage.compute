@@ -9,6 +9,7 @@
 Texture2D<float4> BottomLayer;
 Texture2D<float4> TopLayer;
 RWTexture2D<float4> Result;
+float Opacity;
 
 
 [numthreads(8,8,1)]
@@ -24,39 +25,69 @@ void InheritAlpha (uint3 id : SV_DispatchThreadID)
 void NormalBlend (uint3 id : SV_DispatchThreadID)
 {
     float4 top = TopLayer[id.xy];
+    top.a *= Opacity;
     float4 bottom = BottomLayer[id.xy];
 
-        float alphaRatioBottom = (min(1.0 - top.a, bottom.a / (bottom.a + top.a)));
-        float alphaRatioTop = 1.0 - alphaRatioBottom;
+    float alphaRatioBottom = (min(1.0 - top.a, bottom.a / (bottom.a + top.a)));
+    float alphaRatioTop = 1.0 - alphaRatioBottom;
 
-        Result[id.xy] = float4(bottom.rgb * alphaRatioBottom, bottom.a * (1.0 - top.a)) + float4(top.rgb * alphaRatioTop, top.a);
+    Result[id.xy] = float4(bottom.rgb * alphaRatioBottom, bottom.a * (1.0 - top.a)) + float4(top.rgb * alphaRatioTop, top.a);
 }
 
 [numthreads(8,8,1)]
 void MultiplyBlend (uint3 id : SV_DispatchThreadID)
 {
     float4 top = TopLayer[id.xy];
+    top.a *= Opacity;
     float4 bottom = BottomLayer[id.xy];
-    float4 bottomProp = bottom * (1.0 - top.a);
-    Result[id.xy] = float4(bottom.rgb * lerp(1, top.rgb, top.a),min(1,bottomProp.a + top.a));
+
+    float alphaRatioBottom = (min(1.0 - top.a, bottom.a / (bottom.a + top.a)));
+    float alphaRatioTop = 1.0 - alphaRatioBottom;
+
+    float commonAlpha = min(top.a, bottom.a);
+    float commonTopRatio = 1 - commonAlpha / max(0.00001,top.a);
+
+    float bottomAlpha = bottom.a * (1.0 - top.a);
+    float topAlpha = top.a;
+
+    float finalAlpha = bottomAlpha + topAlpha;
+    float colorCorrect = 1 / max(0.00001,(finalAlpha));
+    float3 finalColor = bottom.rgb * lerp(1,top.rgb,top.a);
+
+    Result[id.xy] = float4(finalColor, finalAlpha);
 }
 
 [numthreads(8,8,1)]
 void AddBlend (uint3 id : SV_DispatchThreadID)
 {
     float4 top = TopLayer[id.xy];
+    top.a *= Opacity;
     float4 bottom = BottomLayer[id.xy];
-    float4 bottomProp = bottom * (1.0 - top.a);
-    float4 topProp = top * top.a;
-    Result[id.xy] = min(1.0,float4(bottom.rgb + top.rgb,bottomProp.a + top.a));
+
+    float bottomAlpha = bottom.a * (1.0 - top.a);
+    float topAlpha = top.a;
+
+    float finalAlpha = bottomAlpha + topAlpha;
+    float colorCorrect = 1 / max(0.00001,(finalAlpha));
+    float3 finalColor = (bottom.rgb * bottom.a + top.rgb * top.a) * colorCorrect;
+
+    Result[id.xy] = saturate(float4(finalColor, finalAlpha));
 }
 
-    [numthreads(8,8,1)]
+
+[numthreads(8,8,1)]
 void SubtractBlend (uint3 id : SV_DispatchThreadID)
 {
     float4 top = TopLayer[id.xy];
+    top.a *= Opacity;
     float4 bottom = BottomLayer[id.xy];
-    float4 bottomProp = bottom * (1.0 - top.a);
-    float4 topProp = top * top.a;
-    Result[id.xy] = max(0.0,float4(bottom.rgb - top.rgb,bottomProp.a + top.a));
+
+    float bottomAlpha = bottom.a * (1.0 - top.a);
+    float topAlpha = top.a;
+
+    float finalAlpha = bottomAlpha + topAlpha;
+    float colorCorrect = 1 / max(0.00001,(finalAlpha));
+    float3 finalColor = (bottom.rgb * bottom.a - top.rgb * top.a) * colorCorrect;
+
+    Result[id.xy] = saturate(float4(finalColor, finalAlpha));
 }

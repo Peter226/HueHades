@@ -172,7 +172,11 @@ namespace HueHades.UI
 
         internal void OnSettings()
         {
-            throw new NotImplementedException();
+            if (_selectedCanvas != null && _selectedCanvas.SelectedLayer != null)
+            {
+                LayerSettingsWindow layerSettings = new LayerSettingsWindow(window, _selectedCanvas.SelectedLayer);
+                layerSettings.Open();
+            }
         }
 
         public override Vector2 DefaultSize
@@ -309,12 +313,12 @@ namespace HueHades.UI
                     _image.image = layer.Texture.texture;
                 };
 
-                _visibilityToggle.OnToggle += (t) => { 
+                _visibilityToggle.ValueChanged += (t) => { 
                     var layerSettings = layer.LayerSettings;
                     layerSettings.invisible = t;
                     layer.SetLayerSettings(layerSettings);
                 };
-                _alphaInheritToggle.OnToggle += (t) => {
+                _alphaInheritToggle.ValueChanged += (t) => {
                     var layerSettings = layer.LayerSettings;
                     layerSettings.inheritAlpha = t;
                     layer.SetLayerSettings(layerSettings);

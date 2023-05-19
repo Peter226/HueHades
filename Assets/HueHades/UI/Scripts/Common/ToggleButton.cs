@@ -46,7 +46,7 @@ public class ToggleButton : Button
             _toggled = value;
             if (needsToggle)
             {
-                OnToggle?.Invoke(value);
+                ValueChanged?.Invoke(value);
             }
         }
     }
@@ -81,7 +81,7 @@ public class ToggleButton : Button
 
 
 
-    public Action<bool> OnToggle;
+    public Action<bool> ValueChanged;
 
     public ToggleButton(string textContent = "", string icon = "", string toggledIcon = "") {
         AddToClassList(ussToggleButton);
@@ -89,6 +89,13 @@ public class ToggleButton : Button
         _icon = icon;
         _toggledIcon = toggledIcon;
 
+        if (textContent.Length > 0)
+        {
+            Label label = new Label();
+            label.AddToClassList(ussToggleButtonLabel);
+            label.text = textContent;
+            hierarchy.Add(label);
+        }
         if (icon.Length > 0)
         {
             Image image = new Image();
@@ -99,12 +106,7 @@ public class ToggleButton : Button
             image.scaleMode = ScaleMode.ScaleToFit;
             hierarchy.Add(image);
         }
-        if (textContent.Length > 0){
-            Label label = new Label();
-            label.AddToClassList(ussToggleButtonLabel);
-            label.text = textContent;
-            hierarchy.Add(label);
-        }
+        
         clicked += OnClick;
     }
 

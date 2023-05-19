@@ -76,9 +76,17 @@ namespace HueHades.Core
             LayerChanged?.Invoke();
         }
 
-        public void PasteOperatingCopy(ReusableTexture copyBuffer, CopyHandle copyHandle)
+        public void PasteOperatingCopy(ReusableTexture baseBuffer, ReusableTexture copyBuffer, CopyHandle copyHandle)
         {
-            RenderTextureUtilities.CopyTexture(copyBuffer, 0, 0, copyHandle.SizeX, copyHandle.SizeY, renderTexture, copyHandle.OffsetX, copyHandle.OffsetY);
+            if (CanvasIn.Selection.SelectedArea <= 0)
+            {
+                RenderTextureUtilities.CopyTexture(copyBuffer, 0, 0, copyHandle.SizeX, copyHandle.SizeY, renderTexture, copyHandle.OffsetX, copyHandle.OffsetY);
+            }
+            else
+            {
+                RenderTextureUtilities.Selection.UpdateMaskArea(baseBuffer, copyBuffer, renderTexture, 0, 0, copyHandle.SizeX, copyHandle.SizeY, CanvasIn.Selection.SelectionTexture, copyHandle.OffsetX, copyHandle.OffsetY);
+            }
+            
             LayerChanged?.Invoke();
         }
 
