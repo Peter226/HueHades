@@ -8,14 +8,29 @@ namespace HueHades.Core
 {
     public class CanvasHistory : IDisposable
     {
-        private List<HistoryRecord> _historyRecords = new List<HistoryRecord>();
-        private ImageCanvas _canvas;
-        public List<HistoryRecord> HistoryRecords { get { return _historyRecords; } }
 
+        private ImageCanvas _canvas;
+
+        /// <summary>
+        /// Currently known history records
+        /// </summary>
+        public List<HistoryRecord> HistoryRecords { get { return _historyRecords; } }
+        private List<HistoryRecord> _historyRecords = new List<HistoryRecord>();
+
+        /// <summary>
+        /// Called when the amount or state of history records have changed
+        /// Mostly used for UI updates
+        /// </summary>
         public Action OnHistoryChange;
+
+        /// <summary>
+        /// The record at the current state of the canvas
+        /// </summary>
         private HistoryRecord _activeRecord;
 
-
+        /// <summary>
+        /// Maximum RAM usage for history in bytes - large canvases use a lot of memory
+        /// </summary>
         private const long MaxHistoryMemory = 2000000000;
         private long _currentMemoryConsumption = 0;
 
@@ -24,6 +39,10 @@ namespace HueHades.Core
             _canvas = canvas;
         }
 
+        /// <summary>
+        /// Add a record to history
+        /// </summary>
+        /// <param name="historyRecord"></param>
         public void AddRecord(HistoryRecord historyRecord)
         {
             _currentMemoryConsumption += historyRecord.MemoryConsumption;

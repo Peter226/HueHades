@@ -59,7 +59,6 @@ namespace HueHades.UI
                 new List<BrushShape>() {
                     BrushShape.Rectangle,
                     BrushShape.Ellipse,
-                    BrushShape.Texture
                 },
                 (shape) => { return Enum.GetName(typeof(BrushShape), shape); }
             );
