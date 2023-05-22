@@ -1,1 +1,1 @@
-{"name":"Fan","iconPath":"Icons/BrushIcon","baseOpacity":0.20000000298023225,"rotation":90.0,"autoRotation":true,"baseSize":100.0,"sizeHeightRatio":0.10000000149011612,"softness":1.0,"spacing":0.009999999776482582,"autoSpacing":true,"shape":"Rectangle"}
+{"name":"Fan","iconPath":"Icons/BrushIcon","baseOpacity":0.20000000298023225,"rotation":90.0,"autoRotation":true,"baseSize":100.0,"sizeHeightRatio":0.10000000149011612,"softness":1.0,"spacing":0.009999999776482582,"autoSpacing":true,"shape":"Rectangle","blendMode":"Default"}

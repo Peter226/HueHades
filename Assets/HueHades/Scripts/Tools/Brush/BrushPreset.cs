@@ -1,3 +1,4 @@
+using HueHades.Common;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace HueHades.Tools
         public static Action PresetsChanged;
 
         public BrushShape shape { get; set; }
+        public ColorBlendMode blendMode { get; set; }
         public string name { get; set; }
         public Texture icon { get { if (_icon == null) _icon = Resources.Load<Texture2D>(iconPath);  return _icon; } }
         private Texture _icon;
@@ -84,6 +86,7 @@ namespace HueHades.Tools
             sizeHeightRatio = data.sizeHeightRatio;
             softness = data.softness;
             shape = Enum.Parse<BrushShape>(data.shape);
+            blendMode = data.blendMode == null ? ColorBlendMode.Default : Enum.Parse<ColorBlendMode>(data.blendMode);
             spacing = data.spacing;
             autoSpacing = data.autoSpacing;
             _softnessCurve = new AnimationCurve(data.softnessCurve);
@@ -128,6 +131,7 @@ namespace HueHades.Tools
                 sizeHeightRatio = sizeHeightRatio,
                 softness = softness,
                 shape = Enum.GetName(typeof(BrushShape), shape),
+                blendMode = Enum.GetName(typeof(ColorBlendMode), blendMode),
                 spacing = spacing,
                 autoSpacing = autoSpacing,
                 softnessCurve = _softnessCurve.keys
@@ -217,6 +221,7 @@ namespace HueHades.Tools
             public float spacing;
             public bool autoSpacing;
             public string shape;
+            public string blendMode;
         }
     }
     

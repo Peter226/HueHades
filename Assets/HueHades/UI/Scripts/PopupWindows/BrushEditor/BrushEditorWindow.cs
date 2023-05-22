@@ -1,3 +1,4 @@
+using HueHades.Common;
 using HueHades.Tools;
 using System;
 using System.Collections;
@@ -22,6 +23,7 @@ namespace HueHades.UI
 
         private TextField _nameField;
         private DropDownInput<BrushShape> _brushShapeDropDown;
+        private DropDownInput<ColorBlendMode> _blendModeDropDown;
         private Slider _softnessSlider;
         private Slider _baseOpacitySlider;
         private Slider _rotationSlider;
@@ -64,7 +66,22 @@ namespace HueHades.UI
             );
             _brushShapeDropDown.label = "Shape";
             _rightContent.Add(_brushShapeDropDown);
-            
+
+
+
+            _blendModeDropDown = new DropDownInput<ColorBlendMode>(window);
+            _blendModeDropDown.SetDataSource(
+                new List<ColorBlendMode>() {
+                    ColorBlendMode.Default,
+                    ColorBlendMode.Multiply,
+                    ColorBlendMode.Add,
+                    ColorBlendMode.Subtract,
+                },
+                (blend) => { return Enum.GetName(typeof(ColorBlendMode), blend); }
+            );
+            _blendModeDropDown.label = "Blend mode";
+            _rightContent.Add(_blendModeDropDown);
+
 
             _baseSizeSlider = new Slider();
             _baseSizeSlider.label = "Base size";
@@ -160,6 +177,7 @@ namespace HueHades.UI
             preset.iconPath = "Icons/BrushIcon";
             preset.name = _nameField.value;
             preset.shape = _brushShapeDropDown.value;
+            preset.blendMode = _blendModeDropDown.value;
             preset.spacing = _spacingSlider.value;
             preset.autoSpacing = _autoSpacingToggle.value;
             preset.baseSize = _baseSizeSlider.value;
@@ -177,6 +195,7 @@ namespace HueHades.UI
             BrushPreset preset = selectedPreset;
             preset.name = _nameField.value;
             preset.shape = _brushShapeDropDown.value;
+            preset.blendMode = _blendModeDropDown.value;
             preset.spacing = _spacingSlider.value;
             preset.autoSpacing = _autoSpacingToggle.value;
             preset.baseSize = _baseSizeSlider.value;
@@ -195,6 +214,7 @@ namespace HueHades.UI
             selectedPreset = preset;
             _nameField.value = preset.name;
             _brushShapeDropDown.value = preset.shape;
+            _blendModeDropDown.value = preset.blendMode;
             _autoSpacingToggle.value = preset.autoSpacing;
             _spacingSlider.value = preset.spacing;
             _baseSizeSlider.value = preset.baseSize;

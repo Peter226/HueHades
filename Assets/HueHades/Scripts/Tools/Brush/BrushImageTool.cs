@@ -165,7 +165,7 @@ namespace HueHades.Tools
 
                 if(_haveSelection) RenderTextureUtilities.Selection.ApplyMaskArea(_paintBuffer, _maskedPaintBuffer, bufferStartX, bufferStartY, bufferWidth, bufferHeight, _paintCanvas.Selection.SelectionTexture, bufferStartX, bufferStartY, _paintCanvas.TileMode, _paintCanvas.TileMode);
 
-                RenderTextureUtilities.LayerImageArea(_layerCopyBuffer, _layerOperatingCopyBuffer, bufferStartX, bufferStartY, bufferWidth, bufferHeight, _haveSelection ? _maskedPaintBuffer : _paintBuffer, Common.ColorBlendMode.Default, bufferStartX, bufferStartY, _paintCanvas.TileMode, _paintCanvas.TileMode, _toolContext.BrushPreset.color.a);
+                RenderTextureUtilities.LayerImageArea(_layerCopyBuffer, _layerOperatingCopyBuffer, bufferStartX, bufferStartY, bufferWidth, bufferHeight, _haveSelection ? _maskedPaintBuffer : _paintBuffer, _toolContext.BrushPreset.blendMode, bufferStartX, bufferStartY, _paintCanvas.TileMode, _paintCanvas.TileMode, _toolContext.BrushPreset.color.a);
                 TextureDebugger.DebugRenderTexture(_layerOperatingCopyBuffer, "painting done, layering onto original copy");
                 _paintLayer.PasteOperatingArea(_layerOperatingCopyBuffer, bufferStartX, bufferStartY, bufferStartX, bufferStartY, bufferWidth, bufferHeight, _paintCanvas.TileMode);
             }
