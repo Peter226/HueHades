@@ -12,5 +12,9 @@ float4 AlphaChannelMask;
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
     float4 input = Input[id.xy];
-    Result[id.xy] = input.r * RedChannelMask + input.g * GreenChannelMask + input.b * BlueChannelMask + input.a * AlphaChannelMask;
+    Result[id.xy] = 
+    input.r * RedChannelMask + 
+    input.g * GreenChannelMask +
+    input.b * BlueChannelMask +
+    input.a * AlphaChannelMask;
 }
