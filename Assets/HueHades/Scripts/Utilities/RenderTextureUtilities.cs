@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using HueHades.Common;
 using UnityEngine.Windows;
+using System;
 
 namespace HueHades.Utilities
 {
@@ -51,6 +52,13 @@ namespace HueHades.Utilities
 
         private static int PositionSizePropertyID;
         private static int RotationMatrixPropertyID;
+
+
+        public static void SimpleDispatch(this ComputeShader computeShader, int kernel, int targetWidth, int targetHeight)
+        {
+            computeShader.Dispatch(kernel, Mathf.CeilToInt(targetWidth / (float)warpSizeX), Mathf.CeilToInt(targetHeight / (float)warpSizeY), 1);
+        }
+
 
         public static void Dispose()
         {
@@ -105,6 +113,7 @@ namespace HueHades.Utilities
             Effects.Initialize();
             Sampling.Initialize();
             Selection.Initialize();
+            Statistics.Initialize();
         }
 
         public static void InitializePool()
@@ -278,7 +287,7 @@ namespace HueHades.Utilities
             CopyImageShader.SetInts(SrcRectPropertyID, sourceX, sourceY, sourceWidth, sourceHeight);
 
             CopyImageShader.SetInts(TileSrcXYDstXYPropertyID, sourceTileX, sourceTileY, destinationTileX, destinationTileY);
-            CopyImageShader.Dispatch(CopyShaderKernel, Mathf.CeilToInt(sourceWidth / (float)warpSizeX), Mathf.CeilToInt(sourceHeight / (float)warpSizeY), 1);
+            CopyImageShader.SimpleDispatch(CopyShaderKernel, sourceWidth, sourceHeight);
 
         }
 
@@ -286,7 +295,7 @@ namespace HueHades.Utilities
         {
             ClearImageShader.SetTexture(ClearColorKernel, ResultPropertyID, texture.texture);
             ClearImageShader.SetVector(ClearColorPropertyID, clearColor);
-            ClearImageShader.Dispatch(ClearColorKernel, Mathf.CeilToInt(texture.width / (float)warpSizeX), Mathf.CeilToInt(texture.height / (float)warpSizeY), 1);
+            ClearImageShader.SimpleDispatch(ClearColorKernel, texture.width, texture.height);
         }
 
         public static void InheritAlpha(ReusableTexture bottomAlphaLayer, ReusableTexture topLayer, ReusableTexture result)
@@ -294,7 +303,7 @@ namespace HueHades.Utilities
             LayerImageShader.SetTexture(InheritAlphaKernel, BottomLayerPropertyID, bottomAlphaLayer.texture);
             LayerImageShader.SetTexture(InheritAlphaKernel, TopLayerPropertyID, topLayer.texture);
             LayerImageShader.SetTexture(InheritAlphaKernel, ResultPropertyID, result.texture);
-            LayerImageShader.Dispatch(InheritAlphaKernel, Mathf.CeilToInt(result.width / (float)warpSizeX), Mathf.CeilToInt(result.height / (float)warpSizeY), 1);
+            LayerImageShader.SimpleDispatch(InheritAlphaKernel, result.width, result.height);
         }
 
 
@@ -324,7 +333,7 @@ namespace HueHades.Utilities
             LayerImageShader.SetTexture(dispatchKernel,BottomLayerPropertyID,bottomLayer.texture);
             LayerImageShader.SetTexture(dispatchKernel,TopLayerPropertyID,topLayer.texture);
             LayerImageShader.SetTexture(dispatchKernel,ResultPropertyID,result.texture);
-            LayerImageShader.Dispatch(dispatchKernel, Mathf.CeilToInt(result.width / (float)warpSizeX), Mathf.CeilToInt(result.height / (float)warpSizeY), 1);
+            LayerImageShader.SimpleDispatch(dispatchKernel, result.width, result.height);
         }
 
         public static void LayerImageArea(ReusableTexture bottomLayer, ReusableTexture target, int sourceX, int sourceY, int sourceWidth, int sourceHeight, ReusableTexture topLayer, ColorBlendMode colorBlendMode, int destinationX = 0, int destinationY = 0, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None, float opacity = 1)
@@ -380,7 +389,7 @@ namespace HueHades.Utilities
             LayerImageAreaShader.SetTexture(dispatchKernel, BottomLayerPropertyID, bottomLayer.texture);
             LayerImageAreaShader.SetTexture(dispatchKernel, TopLayerPropertyID, topLayer.texture);
             LayerImageAreaShader.SetTexture(dispatchKernel, ResultPropertyID, target.texture);
-            LayerImageAreaShader.Dispatch(dispatchKernel, Mathf.CeilToInt(sourceTextureWidth / (float)warpSizeX), Mathf.CeilToInt(sourceTextureHeight / (float)warpSizeY), 1);
+            LayerImageAreaShader.SimpleDispatch(dispatchKernel, sourceTextureWidth, sourceTextureHeight);
         }
 
 
@@ -425,7 +434,7 @@ namespace HueHades.Utilities
                 DrawColorGradientRectangleShader.SetVector(ColorCPropertyID, colorC);
                 DrawColorGradientRectangleShader.SetVector(ColorDPropertyID, colorD);
                 DrawColorGradientRectangleShader.SetTexture(GradientRectangleKernel, ResultPropertyID, target.texture);
-                DrawColorGradientRectangleShader.Dispatch(GradientRectangleKernel, Mathf.CeilToInt(Mathf.Min(target.width, rectangleSizeX) / (float)warpSizeX), Mathf.CeilToInt(Mathf.Min(target.height, rectangleSizeY) / (float)warpSizeY), 1);
+                DrawColorGradientRectangleShader.SimpleDispatch(GradientRectangleKernel, Mathf.Min(target.width, rectangleSizeX), Mathf.Min(target.height, rectangleSizeY));
             }
             public static void DrawColorGradient(ReusableTexture target, int size, Color colorA, Color colorB)
             {
@@ -496,7 +505,7 @@ namespace HueHades.Utilities
                 DrawBrushShader.SetMatrix(RotationMatrixPropertyID, new Matrix4x4(new Vector4(cosRotation, sinRotation,0,0), new Vector4(-sinRotation, cosRotation,0,0), Vector4.zero, Vector4.zero));
                 DrawBrushShader.SetTexture(chosenKernel, OpacityGradientPropertyID, opacityGradient.texture);
                 DrawBrushShader.SetTexture(chosenKernel, TargetPropertyID, target.texture);
-                DrawBrushShader.Dispatch(chosenKernel, Mathf.CeilToInt(target.width / (float)warpSizeX), Mathf.CeilToInt(target.height / (float)warpSizeY), 1);
+                DrawBrushShader.SimpleDispatch(chosenKernel, target.width, target.height);
             }
         }
 
@@ -554,7 +563,7 @@ namespace HueHades.Utilities
                 VoronoiShader.SetInts(NoiseTilePropertyID, tileX, tileY);
                 VoronoiShader.SetInts(SrcRectPropertyID, 0, 0, result.width, result.height);
                 VoronoiShader.SetTexture(VoronoiKernel, ResultPropertyID, result.texture);
-                VoronoiShader.Dispatch(VoronoiKernel, Mathf.CeilToInt(result.width / (float)warpSizeX), Mathf.CeilToInt(result.height / (float)warpSizeY), 1);
+                VoronoiShader.SimpleDispatch(VoronoiKernel, result.width, result.height);
             }
 
             public static void Simplex(ReusableTexture result, int seed, int cellsX, int cellsY, CanvasTileMode tileMode)
@@ -565,7 +574,7 @@ namespace HueHades.Utilities
                 SimplexShader.SetInts(NoiseTilePropertyID, tileX, tileY);
                 SimplexShader.SetInts(SrcRectPropertyID, 0, 0, result.width, result.height);
                 SimplexShader.SetTexture(SimplexKernel, ResultPropertyID, result.texture);
-                SimplexShader.Dispatch(SimplexKernel, Mathf.CeilToInt(result.width / (float)warpSizeX), Mathf.CeilToInt(result.height / (float)warpSizeY), 1);
+                SimplexShader.SimpleDispatch(SimplexKernel, result.width, result.height);
             }
 
             public static void ColorAdjustments(ReusableTexture input, ReusableTexture result, float hue, float saturation, float brightness, float contrast)
@@ -573,7 +582,7 @@ namespace HueHades.Utilities
                 ColorAdjustmentsShader.SetVector(AdjustmentParamsPropertyID, new Vector4(hue, saturation, brightness, contrast));
                 ColorAdjustmentsShader.SetTexture(ColorAdjustmentsKernel, InputPropertyID, input.texture);
                 ColorAdjustmentsShader.SetTexture(ColorAdjustmentsKernel, ResultPropertyID, result.texture);
-                ColorAdjustmentsShader.Dispatch(ColorAdjustmentsKernel, Mathf.CeilToInt(input.width / (float)warpSizeX), Mathf.CeilToInt(input.height / (float)warpSizeY), 1);
+                ColorAdjustmentsShader.SimpleDispatch(ColorAdjustmentsKernel, input.width, input.height);
             }
 
             public static void SwapChannels(ReusableTexture input, ReusableTexture result, ColorChannel red, ColorChannel green, ColorChannel blue, ColorChannel alpha)
@@ -584,7 +593,7 @@ namespace HueHades.Utilities
                 SwapChannelsShader.SetVector(AlphaChannelMaskPropertyID, new Vector4(red == ColorChannel.Alpha ? 1 : 0, green == ColorChannel.Alpha ? 1 : 0, blue == ColorChannel.Alpha ? 1 : 0, alpha == ColorChannel.Alpha ? 1 : 0));
                 SwapChannelsShader.SetTexture(SwapChannelsKernel, InputPropertyID, input.texture);
                 SwapChannelsShader.SetTexture(SwapChannelsKernel, ResultPropertyID, result.texture);
-                SwapChannelsShader.Dispatch(SwapChannelsKernel, Mathf.CeilToInt(input.width / (float)warpSizeX), Mathf.CeilToInt(input.height / (float)warpSizeY), 1);
+                SwapChannelsShader.SimpleDispatch(SwapChannelsKernel,input.width, input.height);
             }
         }
 
@@ -636,12 +645,12 @@ namespace HueHades.Utilities
                     case SamplerMode.Point:
                         ResampleShader.SetTexture(PointKernel, InputPropertyID, source.texture);
                         ResampleShader.SetTexture(PointKernel, TargetPropertyID, target.texture);
-                        ResampleShader.Dispatch(PointKernel, Mathf.CeilToInt(target.width / (float)warpSizeX), Mathf.CeilToInt(target.height / (float)warpSizeY), 1);
+                        ResampleShader.SimpleDispatch(PointKernel, target.width, target.height);
                         break;
                     case SamplerMode.Linear:
                         ResampleShader.SetTexture(LinearKernel, InputPropertyID, source.texture);
                         ResampleShader.SetTexture(LinearKernel, TargetPropertyID, target.texture);
-                        ResampleShader.Dispatch(LinearKernel, Mathf.CeilToInt(target.width / (float)warpSizeX), Mathf.CeilToInt(target.height / (float)warpSizeY), 1);
+                        ResampleShader.SimpleDispatch(LinearKernel, target.width, target.height);
                         break;
                     case SamplerMode.Cubic:
 
@@ -696,13 +705,13 @@ namespace HueHades.Utilities
             {
                 ColorspaceSwitchShader.SetTexture(LinearToGammaKernel, InputPropertyID, input.texture);
                 ColorspaceSwitchShader.SetTexture(LinearToGammaKernel, ResultPropertyID, result.texture);
-                ColorspaceSwitchShader.Dispatch(LinearToGammaKernel, Mathf.CeilToInt(result.width / (float)warpSizeX), Mathf.CeilToInt(result.height / (float)warpSizeY), 1);
+                ColorspaceSwitchShader.SimpleDispatch(LinearToGammaKernel, result.width, result.height);
             }
             public static void LinearToSRGB(ReusableTexture input, ReusableTexture result)
             {
                 ColorspaceSwitchShader.SetTexture(LinearToSRGBKernel, InputPropertyID, input.texture);
                 ColorspaceSwitchShader.SetTexture(LinearToSRGBKernel, ResultPropertyID, result.texture);
-                ColorspaceSwitchShader.Dispatch(LinearToSRGBKernel, Mathf.CeilToInt(result.width / (float)warpSizeX), Mathf.CeilToInt(result.height / (float)warpSizeY), 1);
+                ColorspaceSwitchShader.SimpleDispatch(LinearToSRGBKernel, result.width, result.height);
             }
 
 
@@ -731,7 +740,7 @@ namespace HueHades.Utilities
             private static ComputeBuffer SelectionStatsBuffer;
             private static int StatsBufferLength = 5;
 
-            public static void Dispose()
+            internal static void Dispose()
             {
                 SelectionStatsBuffer.Release();
             }
@@ -774,7 +783,7 @@ namespace HueHades.Utilities
             {
                 DrawSelectionShader.SetVector(PositionSizePropertyID, new Vector4(center.x, center.y, size.x, size.y));
                 DrawSelectionShader.SetTexture(kernel, ResultPropertyID, result.texture);
-                DrawSelectionShader.Dispatch(kernel, Mathf.CeilToInt(result.width / (float)warpSizeX), Mathf.CeilToInt(result.height / (float)warpSizeY), 1);
+                DrawSelectionShader.SimpleDispatch(kernel, result.width, result.height);
             }
 
 
@@ -790,7 +799,7 @@ namespace HueHades.Utilities
                 SelectionStatsShader.SetTexture(SelectionStatsKernel, InputPropertyID, selection.texture);
                 SelectionStatsShader.SetBuffer(SelectionStatsKernel, SelectionStatsPropertyID, SelectionStatsBuffer);
                 SelectionStatsShader.SetInts(SrcRectPropertyID, 0, 0, selection.width,selection.height);
-                SelectionStatsShader.Dispatch(SelectionStatsKernel, Mathf.CeilToInt(selection.width / (float)warpSizeX), Mathf.CeilToInt(selection.height / (float)warpSizeY), 1);
+                SelectionStatsShader.SimpleDispatch(SelectionStatsKernel, selection.width, selection.height);
 
                 SelectionStatsBuffer.GetData(dataArray, 0, 0, StatsBufferLength);
                 area = dataArray[0];
@@ -831,7 +840,7 @@ namespace HueHades.Utilities
                 ApplyMaskAreaShader.SetTexture(dispatchKernel, InputPropertyID, input.texture);
                 ApplyMaskAreaShader.SetTexture(dispatchKernel, MaskPropertyID, mask.texture);
                 ApplyMaskAreaShader.SetTexture(dispatchKernel, ResultPropertyID, result.texture);
-                ApplyMaskAreaShader.Dispatch(dispatchKernel, Mathf.CeilToInt(sourceTextureWidth / (float)warpSizeX), Mathf.CeilToInt(sourceTextureHeight / (float)warpSizeY), 1);
+                ApplyMaskAreaShader.SimpleDispatch(dispatchKernel, sourceTextureWidth, sourceTextureHeight);
             }
 
             public static void UpdateMaskArea(ReusableTexture input, ReusableTexture updated, ReusableTexture result, int sourceX, int sourceY, int sourceWidth, int sourceHeight, ReusableTexture mask, int destinationX = 0, int destinationY = 0, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None)
@@ -865,7 +874,7 @@ namespace HueHades.Utilities
                 UpdateMaskAreaShader.SetTexture(dispatchKernel, UpdatedPropertyID, updated.texture);
                 UpdateMaskAreaShader.SetTexture(dispatchKernel, MaskPropertyID, mask.texture);
                 UpdateMaskAreaShader.SetTexture(dispatchKernel, ResultPropertyID, result.texture);
-                UpdateMaskAreaShader.Dispatch(dispatchKernel, Mathf.CeilToInt(sourceTextureWidth / (float)warpSizeX), Mathf.CeilToInt(sourceTextureHeight / (float)warpSizeY), 1);
+                UpdateMaskAreaShader.SimpleDispatch(dispatchKernel, sourceTextureWidth, sourceTextureHeight);
             }
 
             public static void LayerSelectionArea(Vector2 selectionOffset, ReusableTexture bottomLayer, ReusableTexture target, int sourceX, int sourceY, int sourceWidth, int sourceHeight, ReusableTexture topLayer, SelectMode selectMode, int destinationX = 0, int destinationY = 0, CanvasTileMode destinationTileMode = CanvasTileMode.None, CanvasTileMode sourceTileMode = CanvasTileMode.None, float opacity = 1)
@@ -922,12 +931,89 @@ namespace HueHades.Utilities
                 LayerSelectionAreaShader.SetTexture(dispatchKernel, BottomLayerPropertyID, bottomLayer.texture);
                 LayerSelectionAreaShader.SetTexture(dispatchKernel, TopLayerPropertyID, topLayer.texture);
                 LayerSelectionAreaShader.SetTexture(dispatchKernel, ResultPropertyID, target.texture);
-                LayerSelectionAreaShader.Dispatch(dispatchKernel, Mathf.CeilToInt(sourceTextureWidth / (float)warpSizeX), Mathf.CeilToInt(sourceTextureHeight / (float)warpSizeY), 1);
+                LayerSelectionAreaShader.SimpleDispatch(dispatchKernel, sourceTextureWidth, sourceTextureHeight);
             }
 
         }
 
+        public static class Statistics
+        {
+            private static ComputeShader HistogramCalculateShader;
+            private static int HistogramCalculateKernel;
 
+            private static ComputeShader HistogramStatisticsShader;
+            private static int HistogramStatisticsKernel;
+
+            private static ComputeShader HistogramDisplayShader;
+            private static int HistogramDisplayKernel;
+
+            private static int HistogramSizePropertyID;
+
+
+            [System.Serializable]
+            public struct HistogramStatistics
+            {
+                public uint Rmax;
+                public uint Gmax;
+                public uint Bmax;
+                public uint Amax;
+            }
+
+            public static void Initialize()
+            {
+                HistogramCalculateShader = Resources.Load<ComputeShader>("Statistics/HistogramCalculate");
+                HistogramCalculateKernel = HistogramCalculateShader.FindKernel("CSMain");
+
+                HistogramStatisticsShader = Resources.Load<ComputeShader>("Statistics/HistogramStatistics");
+                HistogramStatisticsKernel = HistogramStatisticsShader.FindKernel("CSMain");
+
+                HistogramDisplayShader = Resources.Load<ComputeShader>("Statistics/HistogramDisplay");
+                HistogramDisplayKernel = HistogramDisplayShader.FindKernel("CSMain");
+
+                HistogramSizePropertyID = Shader.PropertyToID("HistogramSize");
+            }
+
+            public static void CalculateHistogram(ReusableTexture sourceImage, ComputeBuffer targetBuffer)
+            {
+                HistogramCalculateShader.SetTexture(HistogramCalculateKernel, InputPropertyID, sourceImage.texture);
+                HistogramCalculateShader.SetBuffer(HistogramCalculateKernel, ResultPropertyID, targetBuffer);
+                HistogramCalculateShader.SimpleDispatch(HistogramCalculateKernel, sourceImage.width, sourceImage.height);
+            }
+
+            public static HistogramStatistics GetHistogramStatistics(ComputeBuffer sourceBuffer)
+            {
+                HistogramStatistics stats;
+                uint[] statsArray = new uint[4];
+
+                ComputeBuffer statsBuffer = new ComputeBuffer(1, sizeof(int) * 4);
+                statsBuffer.SetData(statsArray);
+
+                HistogramStatisticsShader.SetBuffer(HistogramStatisticsKernel, InputPropertyID, sourceBuffer);
+                HistogramStatisticsShader.SetBuffer(HistogramStatisticsKernel, ResultPropertyID, statsBuffer);
+                HistogramStatisticsShader.Dispatch(HistogramStatisticsKernel, Mathf.CeilToInt(256 / 32.0f), 1, 1);
+                
+                statsBuffer.GetData(statsArray);
+                stats = new HistogramStatistics
+                {
+                    Rmax = statsArray[0],
+                    Gmax = statsArray[1],
+                    Bmax = statsArray[2],
+                    Amax = statsArray[3]
+                };
+
+                statsBuffer.Release();
+
+                return stats;
+            }
+
+            public static void DisplayHistogram(ComputeBuffer sourceBuffer, ReusableTexture targetImage, uint maxHistogramHeight)
+            {
+                HistogramDisplayShader.SetBuffer(HistogramDisplayKernel, InputPropertyID, sourceBuffer);
+                HistogramDisplayShader.SetTexture(HistogramDisplayKernel, ResultPropertyID, targetImage.texture);
+                HistogramDisplayShader.SetInts(HistogramSizePropertyID, targetImage.width, targetImage.height, (int)maxHistogramHeight, 0);
+                HistogramDisplayShader.SimpleDispatch(HistogramDisplayKernel, targetImage.width, targetImage.height);
+            }
+        }
 
 
     }

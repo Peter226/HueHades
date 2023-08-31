@@ -1,0 +1,26 @@
+#pragma kernel CSMain
+
+Buffer<uint> Input;
+RWTexture2D<float4> Result;
+
+
+int4 HistogramSize;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    float histogramIndex = (id.x / (float)HistogramSize.x) * 255.0; 
+    int histogramIndexA = floor(histogramIndex);
+    int histogramIndexB = ceil(histogramIndex);
+    float antiAliasLerper = histogramIndex - histogramIndexA;
+    float yPos = id.y / (float)HistogramSize.y;
+
+    float4 h = float4(lerp(Input[histogramIndexA], Input[histogramIndexB], antiAliasLerper),
+                lerp(Input[histogramIndexA + 256], Input[histogramIndexB + 256], antiAliasLerper),
+                lerp(Input[histogramIndexA + 512], Input[histogramIndexB + 512], antiAliasLerper),
+                lerp(Input[histogramIndexA + 768], Input[histogramIndexB + 768], antiAliasLerper)) / (float)HistogramSize.z;
+
+    float4 col = h >= yPos ? max(0.7 + 1 - abs(yPos - h) * HistogramSize.y * 0.5, 0.7) : 0;
+
+    Result[id.xy] = float4(col.rgb,any(col.rgb > 0.1) ? 1 : 0);
+}

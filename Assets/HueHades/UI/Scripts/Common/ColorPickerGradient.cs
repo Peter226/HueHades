@@ -77,7 +77,7 @@ namespace HueHades.UI
             Add(_textFieldElement);
 
             _gradientContainer.RegisterCallback<AttachToPanelEvent>(OnAttachToPanel);
-            _gradientContainer.RegisterCallback<AttachToPanelEvent>(OnDetachFromPanel);
+            _gradientContainer.RegisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
             _gradientContainer.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
 
             _gradientContainer.RegisterCallback<PointerDownEvent>(OnPointerDown);
@@ -276,7 +276,7 @@ namespace HueHades.UI
         /// The color picker is no longer visible, texture is not needed anymore and is relased
         /// </summary>
         /// <param name="evt"></param>
-        private void OnDetachFromPanel(AttachToPanelEvent evt)
+        private void OnDetachFromPanel(DetachFromPanelEvent evt)
         {
             if (_displayTexture != null) RenderTextureUtilities.ReleaseTemporaryGradient(_displayTexture);
             _displayTexture = null;

@@ -111,7 +111,15 @@ public static class MenuBarFunctions
         }
     }
 
-
+    [MenuBarItem("Window_5/Histogram_6")]
+    public class HistogramWindowMenuBarFunction : IMenuBarFunction
+    {
+        public void Execute(HueHadesWindow window)
+        {
+            HistogramWindow histogramWindow = new HistogramWindow(window);
+            histogramWindow.Dock(window.MainDock.Handle, DockType.Bottom);
+        }
+    }
 
     [MenuBarItem("Window_5/Texture Debugger_100")]
     public class DebuggerWindowMenuBarFunction : IMenuBarFunction

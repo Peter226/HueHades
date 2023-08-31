@@ -1,0 +1,15 @@
+#pragma kernel CSMain
+
+Texture2D<float4> Input;
+RWBuffer<int> Result;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    float4 inputColor = Input[id.xy];
+    int4 colorIndex = round(saturate(inputColor) * 255);
+    InterlockedAdd(Result[colorIndex.r],1);
+    InterlockedAdd(Result[colorIndex.g + 256],1);
+    InterlockedAdd(Result[colorIndex.b + 512],1);
+    InterlockedAdd(Result[colorIndex.a + 768],1);
+}

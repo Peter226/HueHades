@@ -1,0 +1,17 @@
+#pragma kernel CSMain
+
+Buffer<uint> Input;
+RWBuffer<uint> Result;
+
+[numthreads(32,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    uint hR = Input[min(id.x,255)];
+    uint hG = Input[min(id.x + 256,511)];
+    uint hB = Input[min(id.x + 512,767)];
+    uint hA = Input[min(id.x + 768,1023)];
+    InterlockedMax(Result[0], hR);
+    InterlockedMax(Result[1], hG);
+    InterlockedMax(Result[2], hB);
+    InterlockedMax(Result[3], hA);
+}

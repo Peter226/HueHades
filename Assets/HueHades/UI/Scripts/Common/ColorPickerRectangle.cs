@@ -34,7 +34,7 @@ namespace HueHades.UI
         {
 
             RegisterCallback<AttachToPanelEvent>(OnAttachToPanel);
-            RegisterCallback<AttachToPanelEvent>(OnDetachFromPanel);
+            RegisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
             RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
 
             RegisterCallback<PointerDownEvent>(OnPointerDown);
@@ -135,7 +135,7 @@ namespace HueHades.UI
             UpdatePickerRelative(_pickerPosition);
         }
 
-        private void OnDetachFromPanel(AttachToPanelEvent evt)
+        private void OnDetachFromPanel(DetachFromPanelEvent evt)
         {
             if(_displayTexture != null) RenderTextureUtilities.ReleaseTemporary( _displayTexture );
             _displayTexture = null;

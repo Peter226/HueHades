@@ -3,6 +3,7 @@
 }
 
 .layout-vertical {
+    flex-direction: column;
 }
 
 .space-around {
