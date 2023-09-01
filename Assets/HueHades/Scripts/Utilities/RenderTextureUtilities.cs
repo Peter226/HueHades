@@ -948,7 +948,7 @@ namespace HueHades.Utilities
             private static int HistogramDisplayKernel;
 
             private static int HistogramSizePropertyID;
-
+            private static int SourceDimensionsPropertyID;
 
             [System.Serializable]
             public struct HistogramStatistics
@@ -971,12 +971,15 @@ namespace HueHades.Utilities
                 HistogramDisplayKernel = HistogramDisplayShader.FindKernel("CSMain");
 
                 HistogramSizePropertyID = Shader.PropertyToID("HistogramSize");
+                SourceDimensionsPropertyID = Shader.PropertyToID("SourceDimensions");
+
             }
 
             public static void CalculateHistogram(ReusableTexture sourceImage, ComputeBuffer targetBuffer)
             {
                 HistogramCalculateShader.SetTexture(HistogramCalculateKernel, InputPropertyID, sourceImage.texture);
                 HistogramCalculateShader.SetBuffer(HistogramCalculateKernel, ResultPropertyID, targetBuffer);
+                HistogramCalculateShader.SetInts(SourceDimensionsPropertyID, sourceImage.width, sourceImage.height);
                 HistogramCalculateShader.SimpleDispatch(HistogramCalculateKernel, sourceImage.width, sourceImage.height);
             }
 
