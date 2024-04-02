@@ -6,7 +6,6 @@ using System;
 using Unity.Mathematics;
 using static HueHades.Core.ImageLayer;
 using HueHades.Common;
-using System.Windows.Forms;
 
 namespace HueHades.Core
 {

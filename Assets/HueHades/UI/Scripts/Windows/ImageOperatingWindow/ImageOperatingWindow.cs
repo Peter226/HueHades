@@ -144,7 +144,7 @@ namespace HueHades.UI
                     {
                         RenderTexture.ReleaseTemporary(_windowTexture);
                     }
-                    _windowTexture = RenderTexture.GetTemporary(_operatingWindowSize.x, _operatingWindowSize.y);
+                    _windowTexture = RenderTexture.GetTemporary(_operatingWindowSize.x, _operatingWindowSize.y, 24, RenderTextureFormat.DefaultHDR);
                     /*RenderTexture.active = _windowTexture;
                     GL.Clear(true,true, Color.clear);
                     RenderTexture.active = null;*/
@@ -255,6 +255,8 @@ namespace HueHades.UI
             _camera.orthographicSize = 0.5f;
             _camera.nearClipPlane = 0.0f;
             _camera.farClipPlane = 6.0f;
+            _camera.clearFlags = CameraClearFlags.SolidColor;
+            _camera.backgroundColor = Color.clear;
             _camera.transform.position += new Vector3(0, 0, -3);
             _camera.transform.parent = _operatingWindowHierarchy.transform;
 
@@ -491,7 +493,7 @@ namespace HueHades.UI
             //last zoom
             var _lastZoom = _zoomAmount;
             //new zoom
-            _zoomAmount = Mathf.Min(100.0f,Mathf.Max(0.01f,_zoomAmount - e.delta.y * _zoomAmount * 0.3f));
+            _zoomAmount = Mathf.Min(100.0f,Mathf.Max(0.01f,_zoomAmount - e.delta.y * _zoomAmount * 30.0f));
             //relative position the the mouse cursor
             var relativeWorldPos = (Vector3)GetWorldPosition(e.mousePosition) - _canvasObject.transform.position;
             //zoomed relative position to the mouse cursor

@@ -31,7 +31,10 @@ namespace HueHades.UI
             Add(new LayersFooter(window, this));
         }
 
-
+        /// <summary>
+        /// Call this to make a single canvas selected in the hierarchy
+        /// </summary>
+        /// <param name="canvas"></param>
         private void SelectCanvas(ImageCanvas canvas)
         {
             if (_selectedCanvas != null)
@@ -56,6 +59,9 @@ namespace HueHades.UI
             _canvasLayersDisplay.DrawCanvasLayers(_selectedCanvas, true);
         }
 
+        /// <summary>
+        /// Button to add layer pressed
+        /// </summary>
         internal void OnAddLayer()
         {
             if (_selectedCanvas == null) return;
@@ -77,6 +83,9 @@ namespace HueHades.UI
             _selectedCanvas.SelectedLayer = layer;
         }
 
+        /// <summary>
+        /// Button to delete layer pressed
+        /// </summary>
         internal void OnDeleteLayer()
         {
             if (_selectedCanvas != null && _selectedCanvas.SelectedLayer != null)
@@ -109,6 +118,9 @@ namespace HueHades.UI
             }
         }
 
+        /// <summary>
+        /// Button to duplicate layer pressed
+        /// </summary>
         internal void OnDuplicateLayer()
         {
 
@@ -138,6 +150,7 @@ namespace HueHades.UI
             }
         }
 
+        /// Button to move layer up pressed
         internal void OnMoveLayerUp()
         {
             if (_selectedCanvas != null && _selectedCanvas.SelectedLayer != null)
@@ -154,6 +167,9 @@ namespace HueHades.UI
             }
         }
 
+        /// <summary>
+        /// /// Button to move layer down pressed
+        /// </summary>
         internal void OnMoveLayerDown()
         {
             if (_selectedCanvas != null && _selectedCanvas.SelectedLayer != null)
@@ -170,6 +186,9 @@ namespace HueHades.UI
             }
         }
 
+        /// <summary>
+        /// Button to open layer settings pressed
+        /// </summary>
         internal void OnSettings()
         {
             if (_selectedCanvas != null && _selectedCanvas.SelectedLayer != null)
@@ -236,116 +255,6 @@ namespace HueHades.UI
                     }
                 }
             }
-
-        }
-
-
-
-        private class LayerElement : VisualElement
-        {
-            private bool _isSelected;
-            public bool IsSelected => _isSelected;
-            public LayerBase layer;
-            public int layerIndex;
-
-            private const string ussLayerElement = "layer-element";
-            private const string ussLayerElementDisplay = "layer-element-display";
-            private const string ussLayerElementDisplaySelected = "layer-element-display-selected";
-            private const string ussLayerElementGroupDisplay = "layer-element-group-display";
-            private const string ussLayerElementImage = "layer-element-image";
-            private const string ussLayerElementLabel = "layer-element-label";
-            private const string ussLayerElementVisibility = "layer-element-visibility";
-            private const string ussLayerElementAlphaLock = "layer-element-alpha-lock";
-            private const string ussGroupLayerElement = "group-layer-element";
-
-            private Image _image;
-            private Label _label;
-            private ToggleButton _visibilityToggle;
-            private ToggleButton _alphaInheritToggle;
-
-            private Button _layerDisplay;
-            private VisualElement _groupDisplay;
-            public VisualElement GroupDisplay => _groupDisplay;
-
-            public LayerElement(LayerBase layer, int layerIndex, bool selected = false)
-            {
-                this.layer = layer;
-                this.layerIndex = layerIndex;
-
-                _layerDisplay = new Button();
-                if (selected)
-                {
-                    _layerDisplay.AddToClassList(ussLayerElementDisplaySelected);
-                }
-
-
-                _groupDisplay = new VisualElement();
-                Add(_layerDisplay);
-                _layerDisplay.AddToClassList(ussLayerElementDisplay);
-                Add(_groupDisplay);
-                _groupDisplay.AddToClassList(ussLayerElementGroupDisplay);
-
-                AddToClassList(ussLayerElement);
-                _image = new Image();
-                _image.AddToClassList(ussLayerElementImage);
-                _image.image = layer.Texture.texture;
-                layer.LayerChanged += OnUpdateTexture;
-                _layerDisplay.Add(_image);
-
-                _label = new Label();
-                _label.text = layer.Name;
-                _label.AddToClassList(ussLayerElementLabel);
-                _layerDisplay.Add(_label);
-
-                _visibilityToggle = new ToggleButton(icon: "Icons/VisibleIcon", toggledIcon: "Icons/InvisibleIcon");
-                _alphaInheritToggle = new ToggleButton(icon: "Icons/AlphaUnlockedIcon", toggledIcon: "Icons/AlphaLockedIcon");
-
-                _visibilityToggle.AddToClassList(ussLayerElementVisibility);
-                _alphaInheritToggle.AddToClassList(ussLayerElementAlphaLock);
-
-                _visibilityToggle.Toggled = layer.LayerSettings.invisible;
-                _alphaInheritToggle.Toggled = layer.LayerSettings.inheritAlpha;
-
-                layer.LayerChanged += () =>
-                {
-                    _visibilityToggle.SetToggleStateSilent(layer.LayerSettings.invisible);
-                    _alphaInheritToggle.SetToggleStateSilent(layer.LayerSettings.inheritAlpha);
-                    _image.image = layer.Texture.texture;
-                };
-
-                _visibilityToggle.ValueChanged += (t) => { 
-                    var layerSettings = layer.LayerSettings;
-                    layerSettings.invisible = t;
-                    layer.SetLayerSettings(layerSettings);
-                };
-                _alphaInheritToggle.ValueChanged += (t) => {
-                    var layerSettings = layer.LayerSettings;
-                    layerSettings.inheritAlpha = t;
-                    layer.SetLayerSettings(layerSettings);
-                };
-
-                if (layer.RelativeIndex == 0)
-                {
-                    _alphaInheritToggle.style.opacity = 0.0f;
-                }
-
-
-                _layerDisplay.Add(_visibilityToggle);
-                _layerDisplay.Add(_alphaInheritToggle);
-
-                if (layer is GroupLayer)
-                {
-                    AddToClassList(ussGroupLayerElement);
-                }
-
-                _layerDisplay.clicked += () => { layer.CanvasIn.SelectedLayer = layer; };
-            }
-
-            void OnUpdateTexture()
-            {
-                _image.image = layer.Texture.texture;
-            }
-
         }
     }
 }
