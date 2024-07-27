@@ -1,6 +1,7 @@
 using HueHades.Common;
 using HueHades.Utilities;
 using System;
+using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
 using static HueHades.Core.ImageLayer;
@@ -49,6 +50,16 @@ namespace HueHades.Core
         /// </summary>
         public ImageCanvas CanvasIn { get => _canvasIn; internal set { _canvasIn = value; } }
         private ImageCanvas _canvasIn;
+
+        /// <summary>
+        /// Is the layer selected in the canvas
+        /// </summary>
+        public bool IsSelected { get => _canvasIn.SelectedLayers.Contains(this); }
+
+        /// <summary>
+        /// Is the layer the active layer in canvas
+        /// </summary>
+        public bool IsActive { get => _canvasIn.ActiveLayer == this; }
 
         /// <summary>
         /// Settings of the layer such as visibility and alpha inheritance

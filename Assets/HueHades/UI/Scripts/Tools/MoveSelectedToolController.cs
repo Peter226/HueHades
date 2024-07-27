@@ -36,7 +36,7 @@ public class MoveSelectedToolController : ToolController
 
         var canvas = _imageOperatingWindow.Canvas;
         _canvas = canvas;
-        var layerTexture = canvas.SelectedLayer.Texture;
+        var layerTexture = canvas.ActiveLayer.Texture;
         _layerTexture = layerTexture;
         var selection = canvas.Selection;
         var selectionTexture = selection.SelectionTexture;
@@ -95,7 +95,7 @@ public class MoveSelectedToolController : ToolController
 
         _lastBounds = newBounds;
 
-        _canvas.SelectedLayer.LayerChanged?.Invoke();
+        _canvas.ActiveLayer.LayerChanged?.Invoke();
     }
 
     private void OnSelectedWindowChange(ImageOperatingWindow newWindow)

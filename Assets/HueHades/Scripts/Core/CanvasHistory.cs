@@ -234,12 +234,14 @@ namespace HueHades.Core
         public override int MemoryConsumption { get { return _snapshot.width * _snapshot.height * sizeof(float) * 4; } }
 
         private ReusableTexture _snapshot;
+        private LayerSettings _layerSettings;
 
         public DuplicateLayerHistoryRecord(ImageLayer duplicatedLayer, int globalContainerIndex, int relativeLayerIndex, int newGlobalIndexOfLayer)
         {
             _globalContainerIndex = globalContainerIndex;
             _newGlobalIndexOfLayer = newGlobalIndexOfLayer;
             _relativeLayerIndex = relativeLayerIndex;
+            _layerSettings = duplicatedLayer.LayerSettings;
             _snapshot = RenderTextureUtilities.GetTemporary(duplicatedLayer.Dimensions.x, duplicatedLayer.Dimensions.y, duplicatedLayer.Format);
             RenderTextureUtilities.CopyTexture(duplicatedLayer.Texture, _snapshot);
         }
@@ -251,6 +253,7 @@ namespace HueHades.Core
         protected override void OnRedo(ImageCanvas canvas)
         {
             var layer = canvas.AddLayer(_globalContainerIndex, _relativeLayerIndex, Color.clear);
+            layer.SetLayerSettings(_layerSettings, false);
             RenderTextureUtilities.CopyTexture(_snapshot, layer.Texture);
         }
 

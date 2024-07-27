@@ -35,6 +35,7 @@ public class ApplicationManager : MonoBehaviour
     {
         RenderTextureUtilities.InitializePool();
         Instance = this;
+        //Application.targetFrameRate = Mathf.CeilToInt((float)Screen.currentResolution.refreshRateRatio.value);
     }
 
     /// <summary>

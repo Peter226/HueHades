@@ -157,7 +157,7 @@ public static class ILayerContainerExtensions
 
         var layerContainer = layer.ContainerIn;
 
-        if (newRelativeIndex < newLayerContainer.Layers.Count || (newRelativeIndex <= newLayerContainer.Layers.Count && newLayerContainer == layerContainer))
+        if (newRelativeIndex < newLayerContainer.Layers.Count)
         {
             layer.LayerChanged -= layerContainer.SetDirty;
             layer.ContainerIn = newLayerContainer;
@@ -175,9 +175,9 @@ public static class ILayerContainerExtensions
     public static void RemoveLayer(this ImageCanvas imageCanvas, int globalLayerIndex)
     {
         var layer = imageCanvas.GetLayerByGlobalID(globalLayerIndex);
-        if (layer.CanvasIn.SelectedLayer == layer)
+        if (layer.IsSelected)
         {
-            layer.CanvasIn.SelectedLayer = null;
+            layer.CanvasIn.DeselectLayer(layer);
         }
         var layerContainer = layer.ContainerIn;
         layer.LayerChanged -= layerContainer.SetDirty;

@@ -6,6 +6,7 @@ using HueHades.Utilities;
 using HueHades.Common;
 using System;
 using static HueHades.Core.ImageLayer;
+using System.Linq;
 
 namespace HueHades.Core {
     public class ImageCanvas : ILayerContainer, IDisposable
@@ -111,13 +112,156 @@ namespace HueHades.Core {
         /// <summary>
         /// The currently active layer used for image operations, selected by the user.
         /// </summary>
-        public LayerBase SelectedLayer { get => _selectedLayer; set { if (_selectedLayer == value) return; _selectedLayer = value; LayerSelected?.Invoke(value); } }
-        private LayerBase _selectedLayer;
+        public LayerBase ActiveLayer { get => _activeLayer; }
+        private LayerBase _activeLayer;
+
+        private List<LayerBase> _selectedLayers;
 
         /// <summary>
-        /// Called when a layer is selected by code or the user
+        /// Selected layers in canvas
         /// </summary>
-        public Action<LayerBase> LayerSelected;
+        public IEnumerable<LayerBase> SelectedLayers { get => _selectedLayers; }
+
+        /// <summary>
+        /// Remove all layers from selection
+        /// </summary>
+        /// <param name="callNotifyEvents">Send events about change? Default is true</param>
+        public void ClearSelectedLayers(bool callNotifyEvents = true)
+        {
+            if (_selectedLayers.Count > 0)
+            {
+                _selectedLayers.Clear();
+                if(callNotifyEvents) LayerSelectionChanged?.Invoke();
+                _activeLayer = null;
+            }
+        }
+
+        /// <summary>
+        /// Select layer in canvas
+        /// </summary>
+        /// <param name="layer">Layer to select</param>
+        /// <param name="keepOtherSelections">Keep existing layers in selection</param>
+        /// <param name="callNotifyEvents">Send events about change? Default is true</param>
+        public void SelectLayer(LayerBase layer, bool keepOtherSelections = false, bool callNotifyEvents = true)
+        {
+            if (layer == null)
+            {
+                if(!keepOtherSelections) ClearSelectedLayers(callNotifyEvents);
+                return;
+            }
+            if (!_layers.Contains(layer)) {
+                var container = layer.ContainerIn;
+                int maxDepth = short.MaxValue;
+                int depth = 0;
+                while (container != null && (container is GroupLayer))
+                {
+                    depth++;
+                    if (depth > maxDepth)
+                    {
+                        Debug.Log($"Recursive layer group detected, ignoring selection request of layer {layer} for canvas {this}");
+                        return;
+                    }
+                    if (container == null)
+                    {
+                        Debug.LogError($"Error adding layer to selection, Layer {layer} does not exist in canvas {this}");
+                        return;
+                    }
+                    if (container is ImageCanvas)
+                    {
+                        if (container == this)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            Debug.LogError($"Error adding layer to selection, Layer {layer} does not exist in canvas {this}");
+                            return;
+                        }
+                    }
+                    if (container is GroupLayer)
+                    {
+                        container = ((GroupLayer)container).ContainerIn;
+                    }
+                }
+            }
+            if (_selectedLayers.Contains(layer) && keepOtherSelections) return;
+            if (_selectedLayers.Count == 1 && _selectedLayers[0] == layer) return;
+
+            if (!keepOtherSelections)
+            {
+                _selectedLayers.Clear();
+            }
+            _selectedLayers.Add(layer);
+
+            _activeLayer = layer;
+            if(callNotifyEvents) LayerSelectionChanged?.Invoke();
+        }
+
+
+        /// <summary>
+        /// Select a range of layers, given the first and last layers in the layer range
+        /// </summary>
+        /// <param name="firstLayer">First layer in the range</param>
+        /// <param name="lastLayer">Last layer in the range, this will become the new active layer</param>
+        /// <param name="keepOtherSelections">Keep all previous layers in the selections?</param>
+        /// <param name="callNotifyEvents">Send events about change? Default is true</param>
+        public void SelectRange(LayerBase firstLayer, LayerBase lastLayer, bool keepOtherSelections = false, bool callNotifyEvents = true)
+        {
+            var firstIndex = _layers.IndexOf(firstLayer);
+            var lastIndex = _layers.IndexOf(lastLayer);
+            if (firstIndex < 0 || lastIndex < 0)
+            {
+                if (!keepOtherSelections) ClearSelectedLayers(callNotifyEvents);
+                return;
+            }
+
+            if (!keepOtherSelections) _selectedLayers.Clear();
+
+
+            if (lastIndex >= firstIndex)
+            {
+                for (int i = firstIndex;i <= lastIndex;i++)
+                {
+                    SelectLayer(_layers[i], true, false);
+                }
+            }
+            else
+            {
+                for (int i = firstIndex; i >= lastIndex; i--)
+                {
+                    SelectLayer(_layers[i], true, false);
+                }
+            }
+
+            _activeLayer = lastLayer;
+            if (callNotifyEvents) LayerSelectionChanged?.Invoke();
+        }
+
+
+        /// <summary>
+        /// Deselect a specific layer
+        /// </summary>
+        /// <param name="layer"></param>
+        /// <param name="callNotifyEvents"></param>
+        public void DeselectLayer(LayerBase layer, bool callNotifyEvents = true)
+        {
+            if (_selectedLayers.Contains(layer))
+            {
+                if (_activeLayer == layer)
+                {
+                    _activeLayer = null;
+                }
+                _selectedLayers.Remove(layer);
+                if(callNotifyEvents) LayerSelectionChanged?.Invoke();
+            }
+        }
+
+
+
+        /// <summary>
+        /// Called when layer selection is changed
+        /// </summary>
+        public Action LayerSelectionChanged;
 
         /// <summary>
         /// The save path of the image file, default is empty if unsaved
@@ -204,11 +348,13 @@ namespace HueHades.Core {
         /// <param name="initialColor">Color of the first layer</param>
         public ImageCanvas(int2 dimensions, RenderTextureFormat format, Color initialColor)
         {
+            _selectedLayers = new List<LayerBase>();
             _canvasHistory = new CanvasHistory(this);
             _dimensions = dimensions;
             _format = format;
-            SelectedLayer = this.AddLayer(0, 0, initialColor);
-            History.AddRecord(new NewLayerHistoryRecord(0, 0, SelectedLayer.GlobalIndex, initialColor));
+            var initialLayer = this.AddLayer(0, 0, initialColor);
+            SelectLayer(initialLayer);
+            History.AddRecord(new NewLayerHistoryRecord(0, 0, ActiveLayer.GlobalIndex, initialColor));
             _previewTexture = new ReusableTexture(_dimensions.x, _dimensions.y,_format,0);
             Selection = new CanvasSelection(dimensions, format);
             this.RenderPreview();

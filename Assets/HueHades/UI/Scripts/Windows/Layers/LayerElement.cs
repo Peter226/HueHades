@@ -8,14 +8,13 @@ namespace HueHades.UI
 {
     public class LayerElement : VisualElement
     {
-        private bool _isSelected;
-        public bool IsSelected => _isSelected;
         public LayerBase layer;
         public int layerIndex;
 
         private const string ussLayerElement = "layer-element";
         private const string ussLayerElementDisplay = "layer-element-display";
         private const string ussLayerElementDisplaySelected = "layer-element-display-selected";
+        private const string ussLayerElementDisplayActive = "layer-element-display-active";
         private const string ussLayerElementGroupDisplay = "layer-element-group-display";
         private const string ussLayerElementImage = "layer-element-image";
         private const string ussLayerElementLabel = "layer-element-label";
@@ -32,7 +31,7 @@ namespace HueHades.UI
         private VisualElement _groupDisplay;
         public VisualElement GroupDisplay => _groupDisplay;
 
-        public LayerElement(LayerBase layer, int layerIndex, bool selected = false)
+        public LayerElement(LayerBase layer, int layerIndex, bool selected = false, bool active = false)
         {
             this.layer = layer;
             this.layerIndex = layerIndex;
@@ -42,7 +41,10 @@ namespace HueHades.UI
             {
                 _layerDisplay.AddToClassList(ussLayerElementDisplaySelected);
             }
-
+            if (active)
+            {
+                _layerDisplay.AddToClassList(ussLayerElementDisplayActive);
+            }
 
             _groupDisplay = new VisualElement();
             Add(_layerDisplay);
@@ -105,7 +107,28 @@ namespace HueHades.UI
                 AddToClassList(ussGroupLayerElement);
             }
 
-            _layerDisplay.clicked += () => { layer.CanvasIn.SelectedLayer = layer; };
+            _layerDisplay.clickable.activators.Clear();
+
+            _layerDisplay.RegisterCallback<MouseDownEvent>(e => {
+                if (e.shiftKey)
+                {
+                    if (layer.CanvasIn.ActiveLayer != null)
+                    {
+                        layer.CanvasIn.SelectRange(layer.CanvasIn.ActiveLayer, layer, true);
+                    }
+                    else
+                    {
+                        layer.CanvasIn.SelectLayer(layer);
+                    }
+                    return;
+                }
+                if (e.ctrlKey)
+                {
+                    layer.CanvasIn.SelectLayer(layer, true);
+                    return;
+                }
+                layer.CanvasIn.SelectLayer(layer);
+            });
         }
 
         void OnUpdateTexture()

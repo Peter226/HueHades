@@ -17,7 +17,7 @@ namespace HueHades.Core
         {
         }
 
-        public override ReusableTexture Texture => renderTexture;
+        public override ReusableTexture Texture => PreviewTexture;
 
 
         private bool _isDirty;

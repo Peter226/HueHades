@@ -8,6 +8,8 @@ public class LayersFooter : HueHadesElement
     private SquareButton _addLayerButton;
     private SquareButton _deleteLayerButton;
     private SquareButton _duplicateLayerButton;
+    private SquareButton _mergeLayerButton;
+    private SquareButton _groupLayerButton;
     private SquareButton _moveLayerUpButton;
     private SquareButton _moveLayerDownButton;
     private SquareButton _settingsButton;
@@ -21,6 +23,8 @@ public class LayersFooter : HueHadesElement
         _addLayerButton = new SquareButton(icon: "Icons/NewLayerIcon");
         _deleteLayerButton = new SquareButton(icon: "Icons/DeleteLayerIcon");
         _duplicateLayerButton = new SquareButton(icon: "Icons/DuplicateLayerIcon");
+        _mergeLayerButton = new SquareButton(icon: "Icons/LayerMergeIcon");
+        _groupLayerButton = new SquareButton(icon: "Icons/LayerGroupIcon");
         _moveLayerUpButton = new SquareButton(icon: "Icons/LayerUpIcon");
         _moveLayerDownButton = new SquareButton(icon: "Icons/LayerDownIcon");
         _moveLayerDownButton = new SquareButton(icon: "Icons/LayerDownIcon");
@@ -29,6 +33,8 @@ public class LayersFooter : HueHadesElement
         hierarchy.Add(_addLayerButton);
         hierarchy.Add(_deleteLayerButton);
         hierarchy.Add(_duplicateLayerButton);
+        hierarchy.Add(_mergeLayerButton);
+        hierarchy.Add(_groupLayerButton);
         hierarchy.Add(_moveLayerUpButton);
         hierarchy.Add(_moveLayerDownButton);
         hierarchy.Add(_settingsButton);
@@ -36,6 +42,8 @@ public class LayersFooter : HueHadesElement
         _addLayerButton.clicked += () => { canvaslayersWindow.OnAddLayer(); };
         _deleteLayerButton.clicked += () => { canvaslayersWindow.OnDeleteLayer(); };
         _duplicateLayerButton.clicked += () => { canvaslayersWindow.OnDuplicateLayer(); };
+        _mergeLayerButton.clicked += () => { canvaslayersWindow.OnMergeLayer(); };
+        _groupLayerButton.clicked += () => { canvaslayersWindow.OnGroupLayer(); };
         _moveLayerUpButton.clicked += () => { canvaslayersWindow.OnMoveLayerUp(); };
         _moveLayerDownButton.clicked += () => { canvaslayersWindow.OnMoveLayerDown(); };
         _settingsButton.clicked += () => { canvaslayersWindow.OnSettings(); };

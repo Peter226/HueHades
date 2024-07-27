@@ -360,7 +360,7 @@ namespace HueHades.UI
 
         private void OnPointerDown(PointerDownEvent pointerDownEvent)
         {
-            if (_imageCanvas.SelectedLayer is not ImageLayer || _imageCanvas.SelectedLayer == null) return;
+            if (_imageCanvas.ActiveLayer is not ImageLayer || _imageCanvas.ActiveLayer == null) return;
             window.ActiveOperatingWindow = this;
             this.CapturePointer(pointerDownEvent.pointerId);
             if (IsMouseButtonPressed(pointerDownEvent.pressedButtons, MouseButton.Middle)) return;
@@ -369,7 +369,7 @@ namespace HueHades.UI
             var pressure = pointerDownEvent.pointerType == UnityEngine.UIElements.PointerType.pen ? pointerDownEvent.pressure : 1.0f;
             //TODO: insert layer when layer window is done
             //TODO: check pressure and tilt values to be correct
-            tools.OnToolBeginUse(_imageCanvas, _imageCanvas.SelectedLayer.GlobalIndex, GetPixelPosition(pointerDownEvent.position), pressure, pointerDownEvent.altitudeAngle, pointerDownEvent);
+            tools.OnToolBeginUse(_imageCanvas, _imageCanvas.ActiveLayer.GlobalIndex, GetPixelPosition(pointerDownEvent.position), pressure, pointerDownEvent.altitudeAngle, pointerDownEvent);
             RedrawCamera();
             _lastUsePosition = pointerDownEvent.position;
             _lastUsePressure = pressure;
@@ -493,7 +493,7 @@ namespace HueHades.UI
             //last zoom
             var _lastZoom = _zoomAmount;
             //new zoom
-            _zoomAmount = Mathf.Min(100.0f,Mathf.Max(0.01f,_zoomAmount - e.delta.y * _zoomAmount * 30.0f));
+            _zoomAmount = Mathf.Min(100.0f,Mathf.Max(0.01f,_zoomAmount - e.delta.y * _zoomAmount * 1.0f));
             //relative position the the mouse cursor
             var relativeWorldPos = (Vector3)GetWorldPosition(e.mousePosition) - _canvasObject.transform.position;
             //zoomed relative position to the mouse cursor

@@ -6,7 +6,7 @@ namespace HueHades.Effects
     {
         public virtual bool CanExecute(ImageCanvas canvas)
         {
-            return canvas.SelectedLayer is ImageLayer;
+            return canvas.ActiveLayer is ImageLayer;
         }
         public abstract void BeginEffect(ImageCanvas canvas);
         public abstract void RenderEffect();

@@ -2,7 +2,7 @@ using HueHades.Core;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-//using SFB;
+using SFB;
 using System.IO;
 using HueHades.Utilities;
 using Unity.Mathematics;
@@ -70,7 +70,7 @@ namespace HueHades.IO
         public static void SaveAs(ImageCanvas imageCanvas)
         {
 
-            //StandaloneFileBrowser.SaveFilePanelAsync("Save location", "", imageCanvas.FileName, new ExtensionFilter[] { new ExtensionFilter("png", "png"), new ExtensionFilter("jpg", "jpg") }, (path) => { SaveAsFinish(path, imageCanvas); });
+            StandaloneFileBrowser.SaveFilePanelAsync("Save location", "", imageCanvas.FileName, new ExtensionFilter[] { new ExtensionFilter("png", "png"), new ExtensionFilter("jpg", "jpg") }, (path) => { SaveAsFinish(path, imageCanvas); });
         }
 
         private static void SaveAsFinish(string path, ImageCanvas imageCanvas)
@@ -84,7 +84,7 @@ namespace HueHades.IO
         public static ImageCanvas Open()
         {
 
-            //StandaloneFileBrowser.OpenFilePanelAsync("Open image", "", new ExtensionFilter[] { new ExtensionFilter("image", "png", "jpg", "jpeg") }, true, OpenFinish);
+            StandaloneFileBrowser.OpenFilePanelAsync("Open image", "", new ExtensionFilter[] { new ExtensionFilter("image", "png", "jpg", "jpeg") }, true, OpenFinish);
             return null;
         }
 

@@ -24,7 +24,7 @@ namespace HueHades.Effects
             backupSnapshot = RenderTextureUtilities.GetTemporary(canvas.Dimensions.x, canvas.Dimensions.y, canvas.Format);
             targetBuffer = RenderTextureUtilities.GetTemporary(canvas.Dimensions.x, canvas.Dimensions.y, canvas.Format);
 
-            var selectedLayerBase = canvas.SelectedLayer;
+            var selectedLayerBase = canvas.ActiveLayer;
 
             selectedLayer = selectedLayerBase as ImageLayer;
             copyHandle = selectedLayer.GetOperatingCopy(backupSnapshot);

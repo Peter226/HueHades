@@ -65,6 +65,18 @@
     border-right-width: 1px;
     border-top-width: 1px;
     border-bottom-width: 1px;
+    background-color: rgba(38, 142, 255, 0.015);
+    border-left-color: rgba(38, 142, 255, 0.11);
+    border-right-color: rgba(38, 142, 255, 0.11);
+    border-top-color: rgba(38, 142, 255, 0.11);
+    border-bottom-color: rgba(38, 142, 255, 0.11);
+}
+
+.layer-element-display-active {
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
     background-color: rgba(38, 142, 255, 0.04);
     border-left-color: rgba(38, 142, 255, 0.51);
     border-right-color: rgba(38, 142, 255, 0.51);
@@ -74,6 +86,7 @@
 
 .layer-element-group-display {
     flex-direction: column-reverse;
+    margin-left: 20px;
 }
 
 .canvas-layers-display-scrollview {

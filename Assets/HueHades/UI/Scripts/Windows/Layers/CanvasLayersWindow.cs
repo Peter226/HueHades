@@ -3,6 +3,7 @@ using HueHades.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -40,16 +41,16 @@ namespace HueHades.UI
             if (_selectedCanvas != null)
             {
                 _selectedCanvas.HierarchyUpdated -= OnCanvasHierarchyUpdated;
-                _selectedCanvas.LayerSelected -= OnCanvasLayerSelected;
+                _selectedCanvas.LayerSelectionChanged -= OnCanvasLayerSelected;
             }
             _selectedCanvas = canvas;
             if (_selectedCanvas == null) return;
             _canvasLayersDisplay.DrawCanvasLayers(_selectedCanvas);
             _selectedCanvas.HierarchyUpdated += OnCanvasHierarchyUpdated;
-            _selectedCanvas.LayerSelected += OnCanvasLayerSelected;
+            _selectedCanvas.LayerSelectionChanged += OnCanvasLayerSelected;
         }
 
-        private void OnCanvasLayerSelected(LayerBase selectedLayer)
+        private void OnCanvasLayerSelected()
         {
             _canvasLayersDisplay.DrawCanvasLayers(_selectedCanvas, true);
         }
@@ -67,20 +68,20 @@ namespace HueHades.UI
             if (_selectedCanvas == null) return;
             int globalContainerIndex = 0;
             int relativeLayerIndex = _selectedCanvas.Layers.Count;
-            if (_selectedCanvas.SelectedLayer != null)
+            if (_selectedCanvas.ActiveLayer != null)
             {
-                var container = _selectedCanvas.SelectedLayer.ContainerIn;
+                var container = _selectedCanvas.ActiveLayer.ContainerIn;
                 
                 if (container is GroupLayer)
                 {
                     globalContainerIndex = (container as GroupLayer).GlobalIndex;
                 }
-                relativeLayerIndex = _selectedCanvas.SelectedLayer.RelativeIndex + 1;
+                relativeLayerIndex = _selectedCanvas.ActiveLayer.RelativeIndex + 1;
             }
 
             var layer = _selectedCanvas.AddLayer(globalContainerIndex, relativeLayerIndex, Color.clear);
             _selectedCanvas.History.AddRecord(new NewLayerHistoryRecord(globalContainerIndex, relativeLayerIndex, layer.GlobalIndex, Color.clear));
-            _selectedCanvas.SelectedLayer = layer;
+            _selectedCanvas.SelectLayer(layer);
         }
 
         /// <summary>
@@ -88,22 +89,22 @@ namespace HueHades.UI
         /// </summary>
         internal void OnDeleteLayer()
         {
-            if (_selectedCanvas != null && _selectedCanvas.SelectedLayer != null)
+            if (_selectedCanvas != null && _selectedCanvas.ActiveLayer != null)
             {
-                var layer = _selectedCanvas.SelectedLayer;
+                var layer = _selectedCanvas.ActiveLayer;
                 if (layer.RelativeIndex > 0)
                 {
-                    _selectedCanvas.SelectedLayer = layer.ContainerIn.Layers[layer.RelativeIndex - 1];
+                    _selectedCanvas.SelectLayer(layer.ContainerIn.Layers[layer.RelativeIndex - 1]);
                 }
                 else
                 {
                     if (layer.ContainerIn.GetLayerCount() > 1)
                     {
-                        _selectedCanvas.SelectedLayer = layer.ContainerIn.Layers[layer.RelativeIndex + 1];
+                        _selectedCanvas.SelectLayer(layer.ContainerIn.Layers[layer.RelativeIndex + 1]);
                     }
                     else
                     {
-                        _selectedCanvas.SelectedLayer = null;
+                        _selectedCanvas.DeselectLayer(layer);
                     }
                 }
                 int containerGlobalIndex = 0;
@@ -124,38 +125,39 @@ namespace HueHades.UI
         internal void OnDuplicateLayer()
         {
 
-            if (_selectedCanvas != null && _selectedCanvas.SelectedLayer != null)
+            if (_selectedCanvas != null && _selectedCanvas.ActiveLayer != null)
             {
-                var layer = _selectedCanvas.SelectedLayer;
+                var layer = _selectedCanvas.ActiveLayer;
 
 
                 if (_selectedCanvas == null) return;
                 int globalContainerIndex = 0;
                 int relativeLayerIndex = _selectedCanvas.Layers.Count;
                 
-                var container = _selectedCanvas.SelectedLayer.ContainerIn;
+                var container = _selectedCanvas.ActiveLayer.ContainerIn;
 
                 if (container is GroupLayer)
                 {
                     globalContainerIndex = (container as GroupLayer).GlobalIndex;
                 }
-                relativeLayerIndex = _selectedCanvas.SelectedLayer.RelativeIndex + 1;
+                relativeLayerIndex = _selectedCanvas.ActiveLayer.RelativeIndex + 1;
 
                 var newLayer = _selectedCanvas.AddLayer(globalContainerIndex, relativeLayerIndex, Color.clear);
+                newLayer.SetLayerSettings(layer.LayerSettings, false);
                 RenderTextureUtilities.CopyTexture(layer.Texture, newLayer.Texture);
                 
                 _selectedCanvas.History.AddRecord(new DuplicateLayerHistoryRecord(layer as ImageLayer, globalContainerIndex, relativeLayerIndex, newLayer.GlobalIndex));
                 
-                _selectedCanvas.SelectedLayer = newLayer;
+                _selectedCanvas.SelectLayer(newLayer);
             }
         }
 
         /// Button to move layer up pressed
         internal void OnMoveLayerUp()
         {
-            if (_selectedCanvas != null && _selectedCanvas.SelectedLayer != null)
+            if (_selectedCanvas != null && _selectedCanvas.ActiveLayer != null)
             {
-                var layer = _selectedCanvas.SelectedLayer;
+                var layer = _selectedCanvas.ActiveLayer;
                 int relativeIndex = layer.RelativeIndex;
                 int globalIndex = layer.GlobalIndex;
                 int containerGlobalIndex = layer.ContainerIn.GetGlobalIndex();
@@ -172,9 +174,9 @@ namespace HueHades.UI
         /// </summary>
         internal void OnMoveLayerDown()
         {
-            if (_selectedCanvas != null && _selectedCanvas.SelectedLayer != null)
+            if (_selectedCanvas != null && _selectedCanvas.ActiveLayer != null)
             {
-                var layer = _selectedCanvas.SelectedLayer;
+                var layer = _selectedCanvas.ActiveLayer;
                 int relativeIndex = layer.RelativeIndex;
                 int globalIndex = layer.GlobalIndex;
                 int containerGlobalIndex = layer.ContainerIn.GetGlobalIndex();
@@ -191,11 +193,51 @@ namespace HueHades.UI
         /// </summary>
         internal void OnSettings()
         {
-            if (_selectedCanvas != null && _selectedCanvas.SelectedLayer != null)
+            if (_selectedCanvas != null && _selectedCanvas.ActiveLayer != null)
             {
-                LayerSettingsWindow layerSettings = new LayerSettingsWindow(window, _selectedCanvas.SelectedLayer);
+                LayerSettingsWindow layerSettings = new LayerSettingsWindow(window, _selectedCanvas.ActiveLayer);
                 layerSettings.Open();
             }
+        }
+
+        internal void OnMergeLayer()
+        {
+            
+        }
+
+        internal void OnGroupLayer()
+        {
+            if (_selectedCanvas == null) return;
+            int globalContainerIndex = 0;
+            int relativeLayerIndex = _selectedCanvas.Layers.Count;
+            if (_selectedCanvas.ActiveLayer != null)
+            {
+                var container = _selectedCanvas.ActiveLayer.ContainerIn;
+
+                if (container is GroupLayer)
+                {
+                    globalContainerIndex = (container as GroupLayer).GlobalIndex;
+                }
+                relativeLayerIndex = _selectedCanvas.ActiveLayer.RelativeIndex + 1;
+            }
+
+            var layersToGroup = _selectedCanvas.SelectedLayers;
+
+            var group = new GroupLayer(_selectedCanvas.Dimensions, _selectedCanvas.Format);
+            _selectedCanvas.AddLayer(group, globalContainerIndex, relativeLayerIndex);
+
+            var layersToGroupList = layersToGroup.OrderBy((l) => l.GlobalIndex ).ToList();
+
+            for (int i = 0;i < layersToGroupList.Count;i++)
+            {
+                var l = layersToGroupList[i];
+                _selectedCanvas.RemoveLayer(l.GlobalIndex);
+                _selectedCanvas.AddLayer(l, group.GlobalIndex,i);
+                _selectedCanvas.SelectLayer(l);
+            }
+
+            //_selectedCanvas.History.AddRecord(new NewLayerHistoryRecord(globalContainerIndex, relativeLayerIndex, group.GlobalIndex, Color.clear));
+            _selectedCanvas.SelectLayer(group, true);
         }
 
         public override Vector2 DefaultSize
@@ -247,7 +289,7 @@ namespace HueHades.UI
                 for (int i = 0;i < layerCount;i++)
                 {
                     var layer = layerContainer.Layers[i];
-                    var layerElement = new LayerElement(layer, i, layer.CanvasIn.SelectedLayer == layer);
+                    var layerElement = new LayerElement(layer, i, layer.IsSelected, layer.IsActive);
                     elementContainer.Add(layerElement);
                     if (layer is GroupLayer)
                     {
