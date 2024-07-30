@@ -233,7 +233,7 @@ namespace HueHades.UI
                 var l = layersToGroupList[i];
                 _selectedCanvas.RemoveLayer(l.GlobalIndex);
                 _selectedCanvas.AddLayer(l, group.GlobalIndex,i);
-                _selectedCanvas.SelectLayer(l);
+                _selectedCanvas.SelectLayer(l, true);
             }
 
             //_selectedCanvas.History.AddRecord(new NewLayerHistoryRecord(globalContainerIndex, relativeLayerIndex, group.GlobalIndex, Color.clear));

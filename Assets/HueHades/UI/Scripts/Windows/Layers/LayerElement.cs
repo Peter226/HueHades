@@ -16,6 +16,7 @@ namespace HueHades.UI
         private const string ussLayerElementDisplaySelected = "layer-element-display-selected";
         private const string ussLayerElementDisplayActive = "layer-element-display-active";
         private const string ussLayerElementGroupDisplay = "layer-element-group-display";
+        private const string ussLayerElementGroupDropDown = "layer-element-group-dropdown";
         private const string ussLayerElementImage = "layer-element-image";
         private const string ussLayerElementLabel = "layer-element-label";
         private const string ussLayerElementVisibility = "layer-element-visibility";
@@ -26,6 +27,7 @@ namespace HueHades.UI
         private Label _label;
         private ToggleButton _visibilityToggle;
         private ToggleButton _alphaInheritToggle;
+        private ToggleButton _buttonDropDown;
 
         private Button _layerDisplay;
         private VisualElement _groupDisplay;
@@ -53,6 +55,16 @@ namespace HueHades.UI
             _groupDisplay.AddToClassList(ussLayerElementGroupDisplay);
 
             AddToClassList(ussLayerElement);
+
+
+            if (layer is GroupLayer)
+            {
+                _buttonDropDown = new ToggleButton(icon: "Icons/GroupDropDownNeutral", toggledIcon: "Icons/GroupDropDown");
+                _buttonDropDown.AddToClassList(ussLayerElementGroupDropDown);
+                _layerDisplay.Add(_buttonDropDown);
+            }
+
+
             _image = new Image();
             _image.AddToClassList(ussLayerElementImage);
             _image.image = layer.Texture.texture;

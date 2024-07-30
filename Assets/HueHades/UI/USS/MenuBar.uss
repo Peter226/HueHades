@@ -15,6 +15,10 @@
 .main-category-button {
     overflow: visible;
     visibility: visible;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
 }
 
 .category-box-parent {
@@ -157,10 +161,10 @@
     align-self: center;
     justify-content: center;
     flex-grow: 1;
-    border-top-left-radius: 2px;
-    border-bottom-left-radius: 2px;
-    border-top-right-radius: 2px;
-    border-bottom-right-radius: 2px;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
 }
 
 .menu-canvas-item-close-button {
@@ -178,10 +182,10 @@
     padding-right: 2px;
     padding-top: 2px;
     padding-bottom: 2px;
-    border-top-left-radius: 2px;
-    border-bottom-left-radius: 2px;
-    border-top-right-radius: 2px;
-    border-bottom-right-radius: 2px;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
 }
 
 .menu-canvas-item-image {

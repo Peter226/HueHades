@@ -27,6 +27,10 @@
     padding-right: 2px;
     padding-top: 2px;
     padding-bottom: 2px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
 }
 
 .tool-button-selected {
@@ -54,4 +58,16 @@
 
 .tool-settings-content {
     flex-direction: column;
+}
+
+.tool-button:hover {
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-left-color: rgb(96, 96, 96);
+    border-right-color: rgb(96, 96, 96);
+    border-top-color: rgb(96, 96, 96);
+    border-bottom-color: rgb(96, 96, 96);
+    background-color: rgb(63, 63, 63);
 }

@@ -207,8 +207,8 @@ namespace HueHades.Core {
         /// <param name="callNotifyEvents">Send events about change? Default is true</param>
         public void SelectRange(LayerBase firstLayer, LayerBase lastLayer, bool keepOtherSelections = false, bool callNotifyEvents = true)
         {
-            var firstIndex = _layers.IndexOf(firstLayer);
-            var lastIndex = _layers.IndexOf(lastLayer);
+            var firstIndex = firstLayer.GlobalIndex;
+            var lastIndex = lastLayer.GlobalIndex;
             if (firstIndex < 0 || lastIndex < 0)
             {
                 if (!keepOtherSelections) ClearSelectedLayers(callNotifyEvents);
@@ -217,19 +217,18 @@ namespace HueHades.Core {
 
             if (!keepOtherSelections) _selectedLayers.Clear();
 
-
             if (lastIndex >= firstIndex)
             {
                 for (int i = firstIndex;i <= lastIndex;i++)
                 {
-                    SelectLayer(_layers[i], true, false);
+                    SelectLayer(this.GetLayerByGlobalID(i), true, false);
                 }
             }
             else
             {
                 for (int i = firstIndex; i >= lastIndex; i--)
                 {
-                    SelectLayer(_layers[i], true, false);
+                    SelectLayer(this.GetLayerByGlobalID(i), true, false);
                 }
             }
 

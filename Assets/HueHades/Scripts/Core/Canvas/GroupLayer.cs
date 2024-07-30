@@ -15,6 +15,7 @@ namespace HueHades.Core
 
         public GroupLayer(int2 dimensions, RenderTextureFormat format) : base(dimensions, format)
         {
+            this.Name = "Group Layer";
         }
 
         public override ReusableTexture Texture => PreviewTexture;

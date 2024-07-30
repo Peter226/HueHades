@@ -1,5 +1,5 @@
 * {
-    -unity-font-definition: url('project://database/Assets/ThirdParty/Fonts/Gothic_A1/GothicA1-Regular.ttf?fileID=12800000&guid=9bf3af5a2da588545ba3d454661f663e&type=3#GothicA1-Regular');
+    -unity-font-definition: url("project://database/Assets/ThirdParty/Fonts/Gothic_A1/GothicA1-Regular.ttf?fileID=12800000&guid=9bf3af5a2da588545ba3d454661f663e&type=3#GothicA1-Regular");
     color: rgb(196, 196, 196);
 }
 
@@ -26,10 +26,10 @@
     border-right-color: rgba(0, 0, 0, 0);
     border-top-color: rgba(0, 0, 0, 0);
     border-bottom-color: rgba(0, 0, 0, 0);
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
     margin-left: 0;
     margin-right: 0;
     margin-top: 0;
@@ -58,7 +58,7 @@
     border-right-color: rgb(0, 0, 0);
     border-top-color: rgb(0, 0, 0);
     border-bottom-color: rgb(40, 40, 40);
-    background-color: rgb(32, 32, 32);
+    background-color: rgb(40, 40, 40);
     flex-direction: row;
     flex-shrink: 0;
 }
@@ -67,9 +67,9 @@
     color: rgb(196, 196, 196);
     font-size: 12px;
     background-color: rgb(32, 32, 32);
-    border-top-left-radius: 0;
+    border-top-left-radius: 2px;
     border-bottom-left-radius: 0;
-    border-top-right-radius: 0;
+    border-top-right-radius: 2px;
     border-bottom-right-radius: 0;
     flex-direction: row;
     margin-left: 1px;
@@ -98,6 +98,8 @@
     margin-right: 1px;
     margin-top: 1px;
     margin-bottom: 1px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
 }
 
 .docking-window-header-element:hover {
