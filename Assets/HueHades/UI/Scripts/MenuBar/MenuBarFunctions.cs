@@ -1,8 +1,6 @@
 using HueHades.Core.Utilities;
 using HueHades.IO;
 using HueHades.UI;
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -126,8 +124,18 @@ public static class MenuBarFunctions
     {
         public void Execute(HueHadesWindow window)
         {
-            ModelOperatingWindow histogramWindow = new ModelOperatingWindow(window);
-            histogramWindow.Dock(window.MainDock.Handle);
+            ModelOperatingWindow modeOperatingWindow = new ModelOperatingWindow(window);
+            modeOperatingWindow.Dock(window.MainDock.Handle);
+        }
+    }
+
+    [MenuBarItem("Window_5/Image Graph_8")]
+    public class ImageGraphWindowMenuBarFunction : IMenuBarFunction
+    {
+        public void Execute(HueHadesWindow window)
+        {
+            GraphEditorWindow graphEditorWindow = new GraphEditorWindow(window);
+            graphEditorWindow.Dock(window.MainDock.Handle);
         }
     }
 
