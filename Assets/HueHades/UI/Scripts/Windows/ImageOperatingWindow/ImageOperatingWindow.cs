@@ -493,7 +493,7 @@ namespace HueHades.UI
             //last zoom
             var _lastZoom = _zoomAmount;
             //new zoom
-            _zoomAmount = Mathf.Min(100.0f,Mathf.Max(0.01f,_zoomAmount - e.delta.y * _zoomAmount * 1.0f));
+            _zoomAmount = Mathf.Min(100.0f,Mathf.Max(0.01f,_zoomAmount - e.delta.y * _zoomAmount * 0.05f));
             //relative position the the mouse cursor
             var relativeWorldPos = (Vector3)GetWorldPosition(e.mousePosition) - _canvasObject.transform.position;
             //zoomed relative position to the mouse cursor
