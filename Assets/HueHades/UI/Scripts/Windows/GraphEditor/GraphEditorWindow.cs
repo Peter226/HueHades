@@ -18,6 +18,7 @@ namespace HueHades.UI
             WindowName = "Image Graph";
 
             RegisterCallback<MouseDownEvent>(OnMouseDown);
+            _contextMenu.OptionSelected += HideContextMenu;
         }
 
 
@@ -38,6 +39,10 @@ namespace HueHades.UI
             if (evt.button == 1)
             {
                 ShowContextMenu(evt.mousePosition);
+            }
+            if (evt.button == 0)
+            {
+                HideContextMenu();
             }
         }
     }

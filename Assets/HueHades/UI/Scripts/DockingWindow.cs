@@ -1,8 +1,10 @@
-﻿using System;
+﻿using HueHades.UI.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static HueHades.UI.Utilities.Cursors;
 
 namespace HueHades.UI
 {
@@ -632,6 +634,8 @@ namespace HueHades.UI
                 RegisterCallback<ClickEvent>(OnClicked);
                 _dockingIn = dockingIn;
                 _dockedWindow = dockableWindow;
+
+                this.style.cursor = Cursors.GetCursor(Cursors.CursorType.Hand);
             }
 
             /// <summary>
@@ -703,6 +707,117 @@ namespace HueHades.UI
                 target.RegisterCallback<MouseDownEvent>(OnMouseDown);
                 target.RegisterCallback<MouseUpEvent>(OnMouseUp);
                 target.RegisterCallback<MouseCaptureOutEvent>(OnMouseCaptureOut);
+                target.RegisterCallback<MouseOverEvent>(OnMouseOver);
+
+                target.RegisterCallback<MouseEnterEvent>(OnMouseEnter);
+                target.RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
+            }
+
+            private void OnMouseOver(MouseOverEvent evt)
+            {
+                ResolveCursor(evt.mousePosition);
+            }
+
+            /// <summary>
+            /// Set cursor to all affected elements
+            /// </summary>
+            /// <param name="cursorType"></param>
+            void SetCursor(Cursors.CursorType cursorType)
+            {
+                target.style.cursor = Cursors.GetCursor(cursorType);
+                _targetWindow.style.cursor = Cursors.GetCursor(cursorType);
+                if (_targetWindow._isDockSplit)
+                {
+                    _targetWindow._splitA.style.cursor = Cursors.GetCursor(cursorType);
+                    _targetWindow._splitB.style.cursor = Cursors.GetCursor(cursorType);
+                }
+            }
+
+            /// <summary>
+            /// Decide which cursor to show when hovering the edge
+            /// </summary>
+            /// <param name="mousePosition"></param>
+            void ResolveCursor(Vector2 mousePosition)
+            {
+                if (_targetWindow._isDockSplit)
+                {
+                    float dist;
+                    if (_targetWindow._splitDirection == FlexDirection.Row)
+                    {
+                        dist = Mathf.Abs(_targetWindow._splitA.worldBound.xMax - mousePosition.x);
+                        if (dist <= 5.0f)
+                        {
+                            SetCursor(Cursors.CursorType.ScaleWest);
+                        }
+                    }
+                    else
+                    {
+                        dist = Mathf.Abs(_targetWindow._splitA.worldBound.yMax - mousePosition.y);
+                        if (dist <= 5.0f)
+                        {
+                            SetCursor(Cursors.CursorType.ScaleNorth);
+                        }
+                    }
+                }
+
+
+                if (_targetWindow._isFreeWindow)
+                {
+                    float leftDist = Mathf.Abs(_targetWindow.worldBound.xMin - mousePosition.x);
+                    float rightDist = Mathf.Abs(_targetWindow.worldBound.xMax - mousePosition.x);
+                    float topDist = Mathf.Abs(_targetWindow.worldBound.yMin - mousePosition.y);
+                    float bottomDist = Mathf.Abs(_targetWindow.worldBound.yMax - mousePosition.y);
+                    float dist = Mathf.Min(leftDist, rightDist, topDist, bottomDist);
+                    if (dist <= 5.0f)
+                    {
+                        if (dist == leftDist || dist == rightDist)
+                        {
+                            SetCursor(Cursors.CursorType.ScaleWest);
+
+                            if (bottomDist <= 5.0f)
+                            {
+                                if (leftDist <= 5.0f)
+                                {
+                                    SetCursor(Cursors.CursorType.ScaleNorthEast);
+                                }
+                                if (rightDist <= 5.0f)
+                                {
+                                    SetCursor(Cursors.CursorType.ScaleNorthWest);
+                                }
+                            }
+                            if (topDist <= 5.0f)
+                            {
+                                if (leftDist <= 5.0f)
+                                {
+                                    SetCursor(Cursors.CursorType.ScaleNorthWest);
+                                }
+                                if (rightDist <= 5.0f)
+                                {
+                                    SetCursor(Cursors.CursorType.ScaleNorthEast);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            SetCursor(Cursors.CursorType.ScaleNorth);
+                        }
+                    }
+                }
+            }
+
+
+            private void OnMouseEnter(MouseEnterEvent evt)
+            {
+                ResolveCursor(evt.mousePosition);
+            }
+
+            /// <summary>
+            /// When the mouse leaves the element reset cursor
+            /// </summary>
+            /// <param name="evt"></param>
+            private void OnMouseLeave(MouseLeaveEvent evt)
+            {
+                SetCursor(Cursors.CursorType.Default);
             }
 
             private void OnMouseCaptureOut(MouseCaptureOutEvent evt)
@@ -778,6 +893,10 @@ namespace HueHades.UI
                 target.UnregisterCallback<MouseDownEvent>(OnMouseDown);
                 target.UnregisterCallback<MouseUpEvent>(OnMouseUp);
                 target.UnregisterCallback<MouseCaptureOutEvent>(OnMouseCaptureOut);
+                target.UnregisterCallback<MouseOverEvent>(OnMouseOver);
+
+                target.UnregisterCallback<MouseEnterEvent>(OnMouseEnter);
+                target.UnregisterCallback<MouseLeaveEvent>(OnMouseLeave);
             }
 
             /// <summary>
@@ -844,7 +963,7 @@ namespace HueHades.UI
                     }
                 }
 
-
+                ResolveCursor(mouseMoveEvent.mousePosition);
 
                 _lastMousePosition = mouseMoveEvent.mousePosition;
             }
